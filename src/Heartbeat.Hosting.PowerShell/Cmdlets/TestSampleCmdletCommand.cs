@@ -2,7 +2,7 @@
 //using System.Management.Automation;
 //using System.Management.Automation.Runspaces;
 //
-//namespace Heartbeat.Host.PowerShell
+//namespace Heartbeat.Hosting.PowerShell
 //{
 //    [Cmdlet(VerbsDiagnostic.Test, "SampleCmdlet")]
 //    [OutputType(typeof(FavoriteStuff))]

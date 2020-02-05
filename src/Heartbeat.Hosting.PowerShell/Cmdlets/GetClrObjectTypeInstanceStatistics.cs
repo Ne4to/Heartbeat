@@ -5,12 +5,12 @@ using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Models;
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Host.PowerShell.Cmdlets
+namespace Heartbeat.Hosting.PowerShell.Cmdlets
 {
-    [Cmdlet(VerbsCommon.Get, "ClrStringDuplicate", DefaultParameterSetName = AttachParameterSet)]
-    [OutputType(typeof(StringDuplicate))]
+    [Cmdlet(VerbsCommon.Get, "ClrObjectTypeInstanceStatistics", DefaultParameterSetName = AttachParameterSet)]
+    [OutputType(typeof(ObjectTypeInstanceStatistics))]
     // ReSharper disable once UnusedMember.Global
-    public class GetClrStringDuplicate : ClrHeapCmdlet
+    public class GetClrObjectTypeInstanceStatistics : ClrHeapCmdlet
     {
         [Parameter]
         public TraversingHeapModes TraversingMode { get; set; } = TraversingHeapModes.All;
@@ -18,14 +18,14 @@ namespace Heartbeat.Host.PowerShell.Cmdlets
         protected override void ProcessRuntime(ClrRuntime runtime, CancellationToken cancellationToken)
         {
             var runtimeContext = new RuntimeContext(runtime);
-            var analyzer = new StringDuplicateAnalyzer(runtimeContext)
+            var analyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext)
             {
                 TraversingHeapMode = TraversingMode
             };
 
-            foreach (var stringDuplicate in analyzer.GetStringDuplicates())
+            foreach (var typeStatistics in analyzer.GetObjectTypeStatistics())
             {
-                WriteObject(stringDuplicate);
+                WriteObject(typeStatistics);
             }
         }
     }

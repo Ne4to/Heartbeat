@@ -1,7 +1,7 @@
 using System.Management.Automation;
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Host.PowerShell.Cmdlets
+namespace Heartbeat.Hosting.PowerShell.Cmdlets
 {
     public abstract class ClrHeapCmdlet : ClrCmdlet
     {

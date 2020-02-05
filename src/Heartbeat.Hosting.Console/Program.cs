@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using CommandLine;
-using Heartbeat.Host.Console.Logging;
+using Heartbeat.Hosting.Console.Logging;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Microsoft.Diagnostics.Runtime;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Host.Console
+namespace Heartbeat.Hosting.Console
 {
     // System.Diagnostics.TraceEventCache.dateTime
 

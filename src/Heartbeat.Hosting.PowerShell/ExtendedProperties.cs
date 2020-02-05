@@ -2,7 +2,7 @@ using System.Management.Automation;
 using Heartbeat.Runtime.Extensions;
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Host.PowerShell
+namespace Heartbeat.Hosting.PowerShell
 {
     public static class ExtendedProperties
     {

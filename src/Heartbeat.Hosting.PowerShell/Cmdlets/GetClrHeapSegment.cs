@@ -2,7 +2,7 @@ using System.Management.Automation;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Host.PowerShell.Cmdlets
+namespace Heartbeat.Hosting.PowerShell.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "ClrHeapSegment", DefaultParameterSetName = AttachParameterSet)]
     [OutputType(typeof(ClrSegment))]

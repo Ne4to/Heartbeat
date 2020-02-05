@@ -1,6 +1,6 @@
 using CommandLine;
 
-namespace Heartbeat.Host.Console
+namespace Heartbeat.Hosting.Console
 {
     public class ConsoleHostOptions
     {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Host.Console.Logging
+namespace Heartbeat.Hosting.Console.Logging
 {
     public sealed class CustomLoggerProvider : ILoggerProvider
     {
