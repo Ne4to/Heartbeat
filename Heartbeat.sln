@@ -5,9 +5,9 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Runtime", "src\Heartbeat.Runtime\Heartbeat.Runtime.csproj", "{9E63F5A0-7695-474C-A946-64D75F8D9617}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Host.Console", "src\Heartbeat.Host.Console\Heartbeat.Host.Console.csproj", "{D4060CFE-8141-49CE-99A5-559599D0E6B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Hosting.Console", "src\Heartbeat.Hosting.Console\Heartbeat.Hosting.Console.csproj", "{D4060CFE-8141-49CE-99A5-559599D0E6B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Host.PowerShell", "src\Heartbeat.Host.PowerShell\Heartbeat.Host.PowerShell.csproj", "{32B37000-FDA7-46CD-836B-66297F6796F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Hosting.PowerShell", "src\Heartbeat.Hosting.PowerShell\Heartbeat.Hosting.PowerShell.csproj", "{32B37000-FDA7-46CD-836B-66297F6796F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
