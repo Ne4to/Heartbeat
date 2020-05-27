@@ -15,19 +15,19 @@ namespace Heartbeat.Hosting.PowerShell
         public static string GetClrSegmentGen0Size(PSObject instance)
         {
             var clrSegment = (ClrSegment)instance.BaseObject;
-            return clrSegment.Gen0Length.ToMemorySizeString();
+            return clrSegment.Generation0.Length.ToMemorySizeString();
         }
 
         public static string GetClrSegmentGen1Size(PSObject instance)
         {
             var clrSegment = (ClrSegment) instance.BaseObject;
-            return clrSegment.Gen1Length.ToMemorySizeString();
+            return clrSegment.Generation1.Length.ToMemorySizeString();
         }
 
         public static string GetClrSegmentGen2Size(PSObject instance)
         {
             var clrSegment = (ClrSegment) instance.BaseObject;
-            return clrSegment.Gen2Length.ToMemorySizeString();
+            return clrSegment.Generation2.Length.ToMemorySizeString();
         }
     }
 }

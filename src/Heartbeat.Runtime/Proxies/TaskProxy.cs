@@ -60,7 +60,7 @@ namespace Heartbeat.Runtime.Proxies
 
         private static TaskStatus GetStatus(ClrObject taskObject)
         {
-            var stateFlags = taskObject.GetField<int>("m_stateFlags");
+            var stateFlags = taskObject.ReadField<int>("m_stateFlags");
 
             if ((stateFlags & TASK_STATE_FAULTED) != 0) return TaskStatus.Faulted;
             if ((stateFlags & TASK_STATE_CANCELED) != 0) return TaskStatus.Canceled;
@@ -98,7 +98,7 @@ namespace Heartbeat.Runtime.Proxies
 
         private static int GetStateFlags(ClrObject taskObject)
         {
-            return taskObject.GetField<int>("m_stateFlags");
+            return taskObject.ReadField<int>("m_stateFlags");
         }
     }
 }

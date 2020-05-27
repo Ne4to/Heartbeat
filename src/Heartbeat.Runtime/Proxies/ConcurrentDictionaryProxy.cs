@@ -23,7 +23,7 @@ namespace Heartbeat.Runtime.Proxies
 
         public IReadOnlyList<KeyValuePair<ClrObject, ClrObject>> GetKeyValuePair()
         {
-            var bucketsObject = TargetObject.GetObjectField("_tables").GetObjectField("_buckets");
+            var bucketsObject = TargetObject.ReadObjectField("_tables").ReadObjectField("_buckets");
             var buckets = new ArrayProxy(Context, bucketsObject);
 
             var result = new List<KeyValuePair<ClrObject, ClrObject>>();
@@ -33,12 +33,12 @@ namespace Heartbeat.Runtime.Proxies
                 var currentNodeObject = bucketObject;
                 while (!currentNodeObject.IsNull)
                 {
-                    var keyObject = currentNodeObject.GetObjectField("_key");
-                    var valObject = currentNodeObject.GetObjectField("_value");
+                    var keyObject = currentNodeObject.ReadObjectField("_key");
+                    var valObject = currentNodeObject.ReadObjectField("_value");
                     var kvp = new KeyValuePair<ClrObject, ClrObject>(keyObject, valObject);
                     result.Add(kvp);
 
-                    currentNodeObject = currentNodeObject.GetObjectField("_next");
+                    currentNodeObject = currentNodeObject.ReadObjectField("_next");
                 }
             }
 
@@ -47,8 +47,8 @@ namespace Heartbeat.Runtime.Proxies
 
         private int GetCount()
         {
-            var tablesObject = TargetObject.GetObjectField("_tables");
-            var countPerLockObject = tablesObject.GetObjectField("_countPerLock"); // int[]
+            var tablesObject = TargetObject.ReadObjectField("_tables");
+            var countPerLockObject = tablesObject.ReadObjectField("_countPerLock"); // int[]
 
             var countPerLock = new ArrayProxy(Context, countPerLockObject);
             return countPerLock.GetInt32Array().Sum();

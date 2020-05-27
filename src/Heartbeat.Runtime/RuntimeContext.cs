@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
 using Microsoft.Diagnostics.Runtime;
 
@@ -38,19 +39,24 @@ namespace Heartbeat.Runtime
         {
             var clrType = Heap.GetTypeByName(typeName);
 
+            if (clrType == null)
+            {
+                throw new Exception($"Type '{typeName}' is not found");
+            }
+
             return
-                from address in Heap.EnumerateObjectAddresses()
-                let type = Heap.GetObjectType(address)
+                from clrObject in Heap.EnumerateObjects()
+                let type = clrObject.Type
                 where type != null && !type.IsFree && type.MethodTable == clrType.MethodTable
-                      && FilterByWalkMode(traversingMode, address)
-                select address;
+                      && FilterByWalkMode(traversingMode, clrObject)
+                select clrObject.Address;
         }
 
         public IEnumerable<ClrObject> EnumerateObjects(TraversingHeapModes traversingMode)
         {
             return
                 from obj in Heap.EnumerateObjects()
-                where obj.Type != null && !obj.Type.IsFree
+                where obj.IsValidObject
                                        && FilterByWalkMode(traversingMode, obj.Address)
                 select obj;
         }
@@ -59,7 +65,7 @@ namespace Heartbeat.Runtime
         {
             var clrType = Heap.GetTypeByName(typeName);
 
-            return EnumerateObjects(traversingMode).Where(obj => obj.Type.MethodTable == clrType.MethodTable);
+            return EnumerateObjects(traversingMode).Where(obj => obj.Type!.MethodTable == clrType.MethodTable);
         }
 
         public IEnumerable<ClrObject> GetAllReferencesTo(ulong address)
@@ -84,13 +90,11 @@ namespace Heartbeat.Runtime
         public IReadOnlyDictionary<int, string> GetManagedThreadNames()
         {
             var threadQuery =
-                from address in Heap.EnumerateObjectAddresses()
-                let type = Heap.GetObjectType(address)
+                from clrObject in Heap.EnumerateObjects()
+                let type = clrObject.Type
                 where type != null && !type.IsFree && type.Name == "System.Threading.Thread"
-                let managedThreadId = type.GetFieldByName("m_ManagedThreadId")
-                    .GetValue(address)
-                let threadName = type.GetFieldByName("m_Name")
-                    .GetValue(address)
+                let managedThreadId = type.GetInstanceFieldByName("m_ManagedThreadId").Read<int>(clrObject, true)
+                let threadName = type.GetInstanceFieldByName("m_Name").ReadString(clrObject, false)
                 select new {managedThreadId, threadName};
 
 //            // <{0}>k__BackingField
@@ -118,9 +122,9 @@ namespace Heartbeat.Runtime
             return result;
         }
 
-        public StopwatchInfo GetStopwatchInfo()
+        public StopwatchInfo? GetStopwatchInfo()
         {
-            foreach (var runtimeModule in _runtime.Modules)
+            foreach (var runtimeModule in _runtime.EnumerateModules())
             {
                 var clrType = runtimeModule.GetTypeByName("System.Diagnostics.Stopwatch");
                 if (clrType == null)
@@ -133,13 +137,13 @@ namespace Heartbeat.Runtime
 
                 foreach (var appDomain in _runtime.AppDomains)
                 {
-                    var isTickFrequencyInitialized = tickFrequencyStaticField.IsInitialized(appDomain);
-                    var isHighResolutionInitialized = isHighResolutionStaticField.IsInitialized(appDomain);
+                    var isTickFrequencyInitialized = tickFrequencyStaticField!.IsInitialized(appDomain);
+                    var isHighResolutionInitialized = isHighResolutionStaticField!.IsInitialized(appDomain);
 
                     if (isTickFrequencyInitialized && isHighResolutionInitialized)
                     {
-                        var tickFrequency = (double) tickFrequencyStaticField.GetValue(appDomain);
-                        var isHighResolution = (bool) isHighResolutionStaticField.GetValue(appDomain);
+                        var tickFrequency = tickFrequencyStaticField.Read<double>(appDomain);
+                        var isHighResolution = isHighResolutionStaticField.Read<bool>(appDomain);
 
                         return new StopwatchInfo(tickFrequency, isHighResolution);
                     }
@@ -166,33 +170,26 @@ namespace Heartbeat.Runtime
         // based on https://stackoverflow.com/questions/33290941/how-to-inspect-weakreference-values-with-windbg-sos-and-clrmd
         public ulong GetWeakRefValue(ClrObject weakRefObject)
         {
-            var WeakRefHandleField = weakRefObject.Type.GetFieldByName("m_handle");
+            var WeakRefHandleField = weakRefObject.Type.GetInstanceFieldByName("m_handle");
             ClrType IntPtrType = Heap.GetTypeByName("System.IntPtr");
             var valueField = IsCoreRuntime ? "_value" : "m_value";
-            ClrInstanceField IntPtrValueField = IntPtrType.GetFieldByName(valueField);
+            ClrInstanceField IntPtrValueField = IntPtrType.GetInstanceFieldByName(valueField);
 
-            var handleAddr = (long) WeakRefHandleField.GetValue(weakRefObject.Address);
-            var value = (ulong) IntPtrValueField.GetValue((ulong) handleAddr, true);
+            var handleAddr = WeakRefHandleField.Read<long>(weakRefObject.Address, true);
+            var value = IntPtrValueField.Read<ulong>((ulong) handleAddr, true);
 
             return value;
         }
 
         private bool FilterByWalkMode(TraversingHeapModes traversingMode, ulong address)
         {
-            switch (traversingMode)
+            return traversingMode switch
             {
-                case TraversingHeapModes.Live:
-                    return HeapIndex.HasRoot(address);
-
-                case TraversingHeapModes.Dead:
-                    return !HeapIndex.HasRoot(address);
-
-                case TraversingHeapModes.All:
-                    return true;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(traversingMode), traversingMode, null);
-            }
+                TraversingHeapModes.Live => HeapIndex.HasRoot(address),
+                TraversingHeapModes.Dead => !HeapIndex.HasRoot(address),
+                TraversingHeapModes.All => true,
+                _ => throw new ArgumentOutOfRangeException(nameof(traversingMode), traversingMode, null),
+            };
         }
     }
 }

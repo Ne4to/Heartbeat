@@ -9,7 +9,7 @@ namespace Heartbeat.Runtime.Proxies
         {
             get
             {
-                var address = TargetObject.GetField<long>("m_Address");
+                var address = TargetObject.ReadField<long>("m_Address");
                 return new IPAddress(address).ToString();
             }
         }

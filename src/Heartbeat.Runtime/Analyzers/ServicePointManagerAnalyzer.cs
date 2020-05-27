@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Exceptions;
+using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
@@ -39,8 +40,7 @@ namespace Heartbeat.Runtime.Analyzers
                     continue;
                 }
 
-                var val = (ulong) servicePointTableField.GetValue(appDomain);
-                var servicePointTableObject = heap.GetObject(val);
+                var servicePointTableObject = servicePointTableField.ReadObject(appDomain);
 
                 IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>> servicePointTableProxy = Context.IsCoreRuntime
                     ? new ConcurrentDictionaryProxy(Context, servicePointTableObject) as IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>>

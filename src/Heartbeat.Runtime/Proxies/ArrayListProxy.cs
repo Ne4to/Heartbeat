@@ -5,7 +5,7 @@ namespace Heartbeat.Runtime.Proxies
 {
     public sealed class ArrayListProxy : ProxyBase
     {
-        public int Count => TargetObject.GetField<int>("_size");
+        public int Count => TargetObject.ReadField<int>("_size");
 
         public ArrayListProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
         {
@@ -28,15 +28,12 @@ namespace Heartbeat.Runtime.Proxies
                 yield break;
             }
 
-            var itemsArrayAddress = (ulong) TargetObject.Type.GetFieldByName("_items") // object[]
-                .GetValue(TargetObject.Address);
-
-            var itemsType = Context.Heap.GetObjectType(itemsArrayAddress);
+            var itemsArray = TargetObject.Type.GetInstanceFieldByName("_items").ReadObject(TargetObject.Address, false); // object[]
 
             for (var itemArrayIndex = 0; itemArrayIndex < Count; itemArrayIndex++)
             {
-                var itemAddress = (ulong) itemsType.GetArrayElementValue(itemsArrayAddress, itemArrayIndex);
-                yield return Context.Heap.GetObject(itemAddress);
+                yield return itemsArray.AsArray()
+                   .GetObjectValue(itemArrayIndex);
             }
         }
     }

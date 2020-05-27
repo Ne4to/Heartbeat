@@ -16,8 +16,8 @@ namespace Heartbeat.Runtime.Proxies
         public IReadOnlyDictionary<string, string[]> GetHeaders()
         {
             var entriesArrayObject = TargetObject
-                .GetObjectField("m_InnerCollection") // NameValueCollection
-                .GetObjectField("_entriesArray"); // ArrayList
+                .ReadObjectField("m_InnerCollection") // NameValueCollection
+                .ReadObjectField("_entriesArray"); // ArrayList
 
             var entriesArrayProxy = new ArrayListProxy(Context, entriesArrayObject);
 
@@ -25,9 +25,9 @@ namespace Heartbeat.Runtime.Proxies
 
             foreach (var headerObject in entriesArrayProxy.GetItems())
             {
-                var headerName = headerObject.GetStringField("Key");
+                var headerName = headerObject.ReadStringField("Key");
 
-                var itemsArrayObject = headerObject.GetObjectField("Value").GetObjectField("_items");
+                var itemsArrayObject = headerObject.ReadObjectField("Value").ReadObjectField("_items");
                 var itemsArrayProxy = new ArrayProxy(Context, itemsArrayObject);
 
                 var values = itemsArrayProxy.GetStringArray();

@@ -15,7 +15,7 @@ namespace Heartbeat.Runtime.Proxies
                     ? Context.GetAutoPropertyFieldName(nameof(ConnectionName))
                     : "m_ConnectionName";
 
-                return TargetObject.GetStringField(fieldName);
+                return TargetObject.ReadStringField(fieldName);
             }
         }
 
@@ -27,7 +27,7 @@ namespace Heartbeat.Runtime.Proxies
                     ? Context.GetAutoPropertyFieldName(nameof(Address))
                     : "m_Address";
 
-                return new UriProxy(Context, TargetObject.GetObjectField(fieldName));
+                return new UriProxy(Context, TargetObject.ReadObjectField(fieldName));
             }
         }
 
@@ -41,7 +41,7 @@ namespace Heartbeat.Runtime.Proxies
                     ? Context.GetAutoPropertyFieldName(nameof(UseNagleAlgorithm))
                     : "m_UseNagleAlgorithm";
 
-                return TargetObject.GetField<bool>(fieldName);
+                return TargetObject.ReadField<bool>(fieldName);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Heartbeat.Runtime.Proxies
                     ? "_connectionLimit"
                     : "m_ConnectionLimit";
 
-                return TargetObject.GetField<int>(fieldName);
+                return TargetObject.ReadField<int>(fieldName);
             }
         }
 
@@ -79,14 +79,14 @@ namespace Heartbeat.Runtime.Proxies
             }
 
             // TODO join logic with GetCurrentConnections
-            var connectionGroupListObject = TargetObject.GetObjectField("m_ConnectionGroupList");
+            var connectionGroupListObject = TargetObject.ReadObjectField("m_ConnectionGroupList");
             var connectionGroupListProxy = new HashtableProxy(Context, connectionGroupListObject);
 
             var connectionGroupListKeyValuePair = connectionGroupListProxy.GetKeyValuePair();
 
             foreach (var connectionGroupItem in connectionGroupListKeyValuePair)
             {
-                var connectionListProxy = new ArrayListProxy(Context, connectionGroupItem.Value.GetObjectField("m_ConnectionList"));
+                var connectionListProxy = new ArrayListProxy(Context, connectionGroupItem.Value.ReadObjectField("m_ConnectionList"));
 
                 foreach (var connectionObject in connectionListProxy.GetItems())
                 {
@@ -107,7 +107,7 @@ namespace Heartbeat.Runtime.Proxies
                 return 0;
             }
 
-            var connectionGroupListObject = TargetObject.GetObjectField("m_ConnectionGroupList");
+            var connectionGroupListObject = TargetObject.ReadObjectField("m_ConnectionGroupList");
             var connectionGroupListProxy = new HashtableProxy(Context, connectionGroupListObject);
             var connectionGroupListKeyValuePair = connectionGroupListProxy.GetKeyValuePair();
 
@@ -115,7 +115,7 @@ namespace Heartbeat.Runtime.Proxies
 
             foreach (var connectionGroupItem in connectionGroupListKeyValuePair)
             {
-                var connectionListObject = connectionGroupItem.Value.GetObjectField("m_ConnectionList");
+                var connectionListObject = connectionGroupItem.Value.ReadObjectField("m_ConnectionList");
                 var connectionListProxy = new ArrayListProxy(Context, connectionListObject);
                 result += connectionListProxy.Count;
             }

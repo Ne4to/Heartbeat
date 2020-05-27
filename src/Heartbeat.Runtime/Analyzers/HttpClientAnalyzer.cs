@@ -24,17 +24,17 @@ namespace Heartbeat.Runtime.Analyzers
             foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", traversingMode))
             {
                 var httpClientObjectType = Context.Heap.GetObjectType(address);
-                var timeoutField = httpClientObjectType.GetFieldByName("_timeout");
+                var timeoutField = httpClientObjectType.GetInstanceFieldByName("_timeout");
                 if (timeoutField == null)
                 {
-                    timeoutField = httpClientObjectType.GetFieldByName("timeout");
+                    timeoutField = httpClientObjectType.GetInstanceFieldByName("timeout");
                 }
 
-                var ticksField = timeoutField.Type.GetFieldByName("_ticks");
+                var ticksField = timeoutField.Type.GetInstanceFieldByName("_ticks");
 
                 var timeoutAddress = timeoutField.GetAddress(address);
 
-                var timeoutValue = (long) ticksField.GetValue(timeoutAddress, true);
+                var timeoutValue = ticksField.Read<long>(timeoutAddress, true);
                 var timeoutInSeconds = timeoutValue / TimeSpan.TicksPerSecond;
 
                 logger.LogInformation($"{address:X} timeout = {timeoutInSeconds} seconds");

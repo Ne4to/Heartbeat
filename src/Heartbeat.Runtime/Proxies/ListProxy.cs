@@ -5,7 +5,7 @@ namespace Heartbeat.Runtime.Proxies
 {
     public sealed class ListProxy : ProxyBase
     {
-        public int Count => TargetObject.GetField<int>("_size");
+        public int Count => TargetObject.ReadField<int>("_size");
 
         public ListProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
         {
@@ -22,7 +22,7 @@ namespace Heartbeat.Runtime.Proxies
                 yield break;
             }
 
-            var itemsProxy = new ArrayProxy(Context, TargetObject.GetObjectField("_items"));
+            var itemsProxy = new ArrayProxy(Context, TargetObject.ReadObjectField("_items"));
             var arrayItems = itemsProxy.GetItems();
 
             for (int itemIndex = 0; itemIndex < Count; itemIndex++)

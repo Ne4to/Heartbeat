@@ -1,30 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Configurations>Debug;Release;DebugLocal</Configurations>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <Prefer32bit>false</Prefer32bit>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <Prefer32bit>false</Prefer32bit>
-      <PlatformTarget>AnyCPU</PlatformTarget>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='DebugLocal'">
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
-    </ItemGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <Prefer32bit>false</Prefer32bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="CommandLineParser" Version="2.8.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.3" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.3" />
-        <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.4" />
+    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Diagnostics.Runtime" Condition="'$(ConfigurationName)' == 'DebugLocal'">
+      <HintPath>..\..\..\..\Microsoft\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Release\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>

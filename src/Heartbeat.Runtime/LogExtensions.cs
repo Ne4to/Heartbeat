@@ -16,12 +16,12 @@ namespace Heartbeat.Runtime
     {
         public static void LogHeapSegments(this ClrHeap heap, ILogger logger)
         {
-            logger.LogInformation($"TotalHeapSize: {heap.TotalHeapSize.ToMemorySizeString()}");
+            // logger.LogInformation($"TotalHeapSize: {heap.TotalHeapSize.ToMemorySizeString()}");
 
             foreach (var heapSegment in heap.Segments)
             {
                 logger.LogInformation(
-                    $"\t{heapSegment} IsEphemeral: {heapSegment.IsEphemeral}, IsLarge: {heapSegment.IsLarge}");
+                    $"\t{heapSegment} IsEphemeralSegment: {heapSegment.IsEphemeralSegment}, IsLargeObjectSegment: {heapSegment.IsLargeObjectSegment}");
             }
         }
 
@@ -64,23 +64,23 @@ namespace Heartbeat.Runtime
 
         public static void LogThreadPoolInfo(this ClrRuntime clrRuntime, ILogger logger)
         {
-            var threadPool = clrRuntime.ThreadPool;
-
-            using (logger.BeginScope("ThreadPool"))
-            {
-                logger.LogInformation($"Cpu Utilization = {threadPool.CpuUtilization}%");
-                logger.LogInformation($"Free Completion Port Count = {threadPool.FreeCompletionPortCount}");
-                logger.LogInformation($"Idle Threads = {threadPool.IdleThreads}");
-                logger.LogInformation($"Running Threads = {threadPool.RunningThreads}");
-                logger.LogInformation($"Total Threads = {threadPool.TotalThreads}");
-
-                logger.LogInformation($"Min Threads = {threadPool.MinThreads}");
-                logger.LogInformation($"Max Threads = {threadPool.MaxThreads}");
-
-                logger.LogInformation($"Min Completion Ports = {threadPool.MinCompletionPorts}");
-                logger.LogInformation($"Max Completion Ports = {threadPool.MaxCompletionPorts}");
-                logger.LogInformation($"Max Free Completion Ports = {threadPool.MaxFreeCompletionPorts}");
-            }
+            // var threadPool = clrRuntime.ThreadPool;
+            //
+            // using (logger.BeginScope("ThreadPool"))
+            // {
+            //     logger.LogInformation($"Cpu Utilization = {threadPool.CpuUtilization}%");
+            //     logger.LogInformation($"Free Completion Port Count = {threadPool.FreeCompletionPortCount}");
+            //     logger.LogInformation($"Idle Threads = {threadPool.IdleThreads}");
+            //     logger.LogInformation($"Running Threads = {threadPool.RunningThreads}");
+            //     logger.LogInformation($"Total Threads = {threadPool.TotalThreads}");
+            //
+            //     logger.LogInformation($"Min Threads = {threadPool.MinThreads}");
+            //     logger.LogInformation($"Max Threads = {threadPool.MaxThreads}");
+            //
+            //     logger.LogInformation($"Min Completion Ports = {threadPool.MinCompletionPorts}");
+            //     logger.LogInformation($"Max Completion Ports = {threadPool.MaxCompletionPorts}");
+            //     logger.LogInformation($"Max Free Completion Ports = {threadPool.MaxFreeCompletionPorts}");
+            // }
 
 //            threadPool.EnumerateNativeWorkItems()
 //            Dictionary<string, int> workItemTypeCount = new Dictionary<string, int>();
@@ -118,29 +118,29 @@ namespace Heartbeat.Runtime
 
         public static void LogBlockingObjects(this ClrHeap heap, ILogger logger)
         {
-            logger.LogInformation("Blocking objects");
-
-            foreach (var blockingObject in heap.EnumerateBlockingObjects())
-            {
-                if (blockingObject.Reason == BlockingReason.None)
-                {
-                    continue;
-                }
-
-                if (!blockingObject.Taken)
-                {
-                    continue;
-                }
-
-                var objectType = heap.GetObjectType(blockingObject.Object);
-                if (objectType.IsFree)
-                {
-                    continue;
-                }
-
-                logger.LogInformation(
-                    $"{blockingObject.Object:X} {blockingObject.Reason} - {objectType} - {blockingObject.Taken} - {blockingObject.Owner?.ManagedThreadId} {blockingObject.Waiters?.Count}");
-            }
+            // logger.LogInformation("Blocking objects");
+            //
+            // foreach (var blockingObject in heap.EnumerateBlockingObjects())
+            // {
+            //     if (blockingObject.Reason == BlockingReason.None)
+            //     {
+            //         continue;
+            //     }
+            //
+            //     if (!blockingObject.Taken)
+            //     {
+            //         continue;
+            //     }
+            //
+            //     var objectType = heap.GetObjectType(blockingObject.Object);
+            //     if (objectType.IsFree)
+            //     {
+            //         continue;
+            //     }
+            //
+            //     logger.LogInformation(
+            //         $"{blockingObject.Object:X} {blockingObject.Reason} - {objectType} - {blockingObject.Taken} - {blockingObject.Owner?.ManagedThreadId} {blockingObject.Waiters?.Count}");
+            // }
         }
 
 //        public static void LogHttpRequestMessage(this ClrHeap heap, ILogger logger)
@@ -236,11 +236,11 @@ namespace Heartbeat.Runtime
             logger.LogInformation("Task Completion Source:");
 
             var taskCompletionSourceQuery =
-                from address in heap.EnumerateObjectAddresses()
-                let type = heap.GetObjectType(address)
+                from clrObject in heap.EnumerateObjects()
+                let type = clrObject.Type
                 where type != null && !type.IsFree && type.Name != null &&
                       type.Name.StartsWith("System.Threading.Tasks.TaskCompletionSource", StringComparison.Ordinal)
-                select address;
+                select clrObject;
 
             var completedTaskCount = 0;
             var pendingTaskCount = 0;
@@ -251,7 +251,7 @@ namespace Heartbeat.Runtime
 
                 logger.LogInformation($"{taskCompletionSourceAddress:X} {tcsObject.Type}");
 
-                var task = tcsObject.GetObjectField("m_task");
+                var task = tcsObject.ReadObjectField("m_task");
 
                 if (task.IsNull)
                 {
@@ -288,8 +288,8 @@ namespace Heartbeat.Runtime
             // TODO System.Threading.Tasks.VoidTaskResult
 
             var taskQuery =
-                from address in heap.EnumerateObjectAddresses()
-                let type = heap.GetObjectType(address)
+                from address in heap.EnumerateObjects()
+                let type = address.Type
                 where type != null
                       && !type.IsFree
                       && type.Name != null // TODO find better way
@@ -333,12 +333,12 @@ namespace Heartbeat.Runtime
 
                         //    logger.LogInformation($"{clrInstanceField.Name} ----------------------");
 
-                        var fieldValue = clrInstanceField.GetValue(taskInfo.Address);
+                        // var fieldValue = clrInstanceField.GetValue(taskInfo.Address);
                         if (clrInstanceField.IsPrimitive)
                         {
                             if (clrInstanceField.Name == "m_stateFlags")
                             {
-                                var stateValue = (int) fieldValue;
+                                var stateValue = clrInstanceField.Read<int>(taskInfo.Address, true);
                                 logger.LogInformation($"{clrInstanceField.Name} = ");
 
                                 foreach (var statePair in TaskProxy.TaskStates)
@@ -352,7 +352,7 @@ namespace Heartbeat.Runtime
                                 continue;
                             }
 
-                            logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
+                            // logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
 //                            continue;
                         }
 
@@ -442,7 +442,7 @@ namespace Heartbeat.Runtime
 
                 //    logger.LogInformation($"{clrInstanceField.Name} ----------------------");
 
-                var fieldValue = clrInstanceField.GetValue(address);
+
                 if (clrInstanceField.IsPrimitive)
                 {
 //                    if (clrInstanceField.Name == "m_stateFlags")
@@ -462,7 +462,8 @@ namespace Heartbeat.Runtime
 //                        continue;
 //                    }
 
-                    logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
+                    // var fieldValue = clrInstanceField.read<????>(address);
+                    // logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
                     continue;
                 }
 
@@ -470,12 +471,16 @@ namespace Heartbeat.Runtime
                 {
                     var value = "{null}";
 
+                    var fieldValue = clrInstanceField.ReadObject(address, false);
+
+                    if (fieldValue.Type.IsString)
+                    {
+                        value = fieldValue.AsString();
+                    }
+
+
                     switch (fieldValue)
                     {
-                        case string s:
-                            value = s;
-                            break;
-
                         case ulong fieldAddress:
                             if (fieldAddress != NullAddress)
                             {
@@ -507,7 +512,7 @@ namespace Heartbeat.Runtime
                     continue;
                 }
 
-                if (clrInstanceField.IsValueClass)
+                if (clrInstanceField.IsValueType)
                 {
                     logger.LogInformation(
                         $"{clrInstanceField.Name} {clrInstanceField.Type.GetClrTypeName()}");
@@ -554,13 +559,6 @@ namespace Heartbeat.Runtime
                         nameof(ClrThread.IsAlive),
                         nameof(ClrThread.IsBackground),
                         nameof(ClrThread.IsFinalizer),
-                        nameof(ClrThread.IsGC),
-                        nameof(ClrThread.IsThreadpoolWorker),
-                        nameof(ClrThread.IsThreadpoolCompletionPort),
-                        nameof(ClrThread.IsThreadpoolWait),
-                        nameof(ClrThread.IsThreadpoolTimer),
-                        nameof(ClrThread.IsThreadpoolGate),
-                        nameof(ClrThread.IsDebuggerHelper),
                         nameof(ClrThread.IsDebugSuspended),
                     };
 
@@ -590,13 +588,13 @@ namespace Heartbeat.Runtime
 
                 if (withStackTrace)
                 {
-                    foreach (var enumerateStackObject in thread.EnumerateStackObjects())
-                    {
-                        Console.WriteLine(enumerateStackObject);
-                    }
+                    // foreach (var enumerateStackObject in thread.EnumerateStackObjects())
+                    // {
+                    //     Console.WriteLine(enumerateStackObject);
+                    // }
 
 
-                    logger.LogInformation($"Stack trace ({thread.StackTrace.Count}):");
+                    // logger.LogInformation($"Stack trace ({thread.StackTrace.Count}):");
 //                    foreach (var x in thread.StackTrace.Select(frame => GetFrameDisplayString(frame)))
                     foreach (var x in thread.EnumerateStackTrace().Select(frame => GetFrameDisplayString(frame)))
                     {
@@ -610,19 +608,19 @@ namespace Heartbeat.Runtime
                     // method.GetFullSignature()
                 }
 
-                if (withBlockingObjects && thread.BlockingObjects.Count != 0)
-                {
-                    logger.LogInformation("Blocking objects:");
-                    foreach (var blockingObject in thread.BlockingObjects)
-                    {
-                        logger.LogInformation(
-                            $"\tReason: {blockingObject.Reason}, Object: {blockingObject.Object:X} {runtime.Heap.GetObjectType(blockingObject.Object)}");
-//                        foreach (var blockingObjectWaiter in blockingObject.Waiters)
-//                        {
-//                            logger.LogInformation($"\tIs waited by {blockingObjectWaiter.ManagedThreadId}");
-//                        }
-                    }
-                }
+//                 if (withBlockingObjects && thread.BlockingObjects.Count != 0)
+//                 {
+//                     logger.LogInformation("Blocking objects:");
+//                     foreach (var blockingObject in thread.BlockingObjects)
+//                     {
+//                         logger.LogInformation(
+//                             $"\tReason: {blockingObject.Reason}, Object: {blockingObject.Object:X} {runtime.Heap.GetObjectType(blockingObject.Object)}");
+// //                        foreach (var blockingObjectWaiter in blockingObject.Waiters)
+// //                        {
+// //                            logger.LogInformation($"\tIs waited by {blockingObjectWaiter.ManagedThreadId}");
+// //                        }
+//                     }
+//                 }
 
                 // TODO Dump stack objects https://github.com/Microsoft/dotnet-samples/blob/master/Microsoft.Diagnostics.Runtime/CLRMD/ClrStack/Program.cs
             }
@@ -636,24 +634,24 @@ namespace Heartbeat.Runtime
 
         private static string GetFrameDisplayString(ClrStackFrame frame)
         {
-            var result = frame.DisplayString;
+            var result = frame.ToString();
             if (!string.IsNullOrWhiteSpace(result))
             {
                 return result + ".1";
             }
 
-            result = frame.ModuleName;
-            if (!string.IsNullOrWhiteSpace(result))
-            {
-                return result + ".2";
-            }
+            // result = frame.;
+            // if (!string.IsNullOrWhiteSpace(result))
+            // {
+            //     return result + ".2";
+            // }
 
             result = frame.Method?.Name;
             if (!string.IsNullOrWhiteSpace(result))
             {
                 return result + ".3";
             }
-            
+
             return frame.Kind.ToString() + ".4";
         }
 
@@ -694,7 +692,7 @@ namespace Heartbeat.Runtime
                     continue;
                 }
 
-                logger.LogInformation($"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.HexAddress} {clrObject.Size.ToMemorySizeString()}");
+                logger.LogInformation($"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
                 if (refFromClrObject.Type.IsString)
                 {
                     logger.LogInformation($"Value = '{((string) refFromClrObject).Substring(0, 100)}'");
@@ -741,7 +739,7 @@ namespace Heartbeat.Runtime
             foreach (var clrObject in objectQuery.Take(count))
             {
                 logger.LogInformation(
-                    $"{clrObject.Type.GetClrTypeName()} {clrObject.HexAddress} {clrObject.Size.ToMemorySizeString()}");
+                    $"{clrObject.Type.GetClrTypeName()} {clrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
 
                 if (clrObject.Type.IsString)
                 {

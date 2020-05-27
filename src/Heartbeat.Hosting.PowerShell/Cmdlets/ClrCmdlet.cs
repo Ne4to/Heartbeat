@@ -1,4 +1,3 @@
-using System;
 using System.Management.Automation;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
@@ -26,15 +25,9 @@ namespace Heartbeat.Hosting.PowerShell.Cmdlets
         [Parameter(ParameterSetName = AttachParameterSet, HelpMessage = "Attach process timeout in milliseconds")]
         public uint AttachTimeout { get; set; } = 5000;
 
-        [Parameter(ParameterSetName = AttachParameterSet)]
-        public AttachFlag AttachFlag { get; set; } = AttachFlag.Passive;
 
         [Parameter(Mandatory = true, ParameterSetName = DumpParameterSet)]
         public string DumpFile { get; set; }
-
-        [Parameter(ParameterSetName = DumpParameterSet)]
-        [ValidateSet("Core", "Crash")]
-        public string DumpMode { get; set; } = "Core";
 
         [Parameter(HelpMessage = "Full path to libmscordaccore.so or mscordacwks.dll")]
         public string DacFilename { get; set; }
@@ -76,20 +69,10 @@ namespace Heartbeat.Hosting.PowerShell.Cmdlets
         {
             if (DumpFile == null)
             {
-                return DataTarget.AttachToProcess(PID, AttachTimeout, AttachFlag);
+                return DataTarget.AttachToProcess(PID, false);
             }
 
-            switch (DumpMode)
-            {
-                case "Core":
-                    return DataTarget.LoadCoreDump(DumpFile);
-
-                case "Crash":
-                    return DataTarget.LoadCrashDump(DumpFile);
-
-                default:
-                    throw new NotSupportedException($"{nameof(DumpMode)} = {DumpMode} is not supported");
-            }
+            return DataTarget.LoadDump(DumpFile);
         }
     }
 }

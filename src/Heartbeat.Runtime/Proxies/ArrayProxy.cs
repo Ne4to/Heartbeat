@@ -5,7 +5,7 @@ namespace Heartbeat.Runtime.Proxies
 {
     public sealed class ArrayProxy : ProxyBase
     {
-        public int Length => TargetObject.Type.GetArrayLength(TargetObject.Address);
+        public int Length => TargetObject.AsArray().Length;
 
         public ArrayProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
         {
@@ -15,19 +15,20 @@ namespace Heartbeat.Runtime.Proxies
         {
         }
 
-        public string[] GetStringArray()
+        public string?[] GetStringArray()
         {
             if (Length == 0)
             {
                 return Array.Empty<string>();
             }
 
-            var stringArray = new string[Length];
+            var stringArray = new string?[Length];
 
             for (int itemIndex = 0; itemIndex < Length; itemIndex++)
             {
-                var arrayElement = (string) Context.Heap.GetObject(
-                    (ulong) TargetObject.Type.GetArrayElementValue(TargetObject.Address, itemIndex));
+                var arrayElement = TargetObject.AsArray()
+                   .GetObjectValue(itemIndex)
+                   .AsString();
 
                 stringArray[itemIndex] = arrayElement;
             }
@@ -35,22 +36,15 @@ namespace Heartbeat.Runtime.Proxies
             return stringArray;
         }
 
-        public int[] GetInt32Array()
+        public int[]? GetInt32Array()
         {
             if (Length == 0)
             {
                 return Array.Empty<int>();
             }
 
-            var result = new int[Length];
-
-            for (int itemIndex = 0; itemIndex < Length; itemIndex++)
-            {
-//                var elementAddress = (ulong)TargetObject.Type.GetArrayElementAddress(TargetObject.Address, itemIndex);
-                result[itemIndex] = (int) TargetObject.Type.GetArrayElementValue(TargetObject.Address, itemIndex);
-            }
-
-            return result;
+            return TargetObject.AsArray()
+               .ReadValues<int>(0, Length);
         }
 
         public ClrObject[] GetItems()
@@ -64,9 +58,7 @@ namespace Heartbeat.Runtime.Proxies
 
             for (int itemIndex = 0; itemIndex < Length; itemIndex++)
             {
-//                var elementAddress = (ulong)TargetObject.Type.GetArrayElementAddress(TargetObject.Address, itemIndex);
-                var elementAddress = (ulong)TargetObject.Type.GetArrayElementValue(TargetObject.Address, itemIndex);
-                result[itemIndex] = Context.Heap.GetObject(elementAddress);
+                result[itemIndex] = TargetObject.AsArray().GetObjectValue(itemIndex);
             }
 
             return result;

@@ -12,7 +12,7 @@ namespace Heartbeat.Runtime.Proxies
                     ? "_string"
                     : "m_String";
 
-                return TargetObject.GetStringField(fieldName);
+                return TargetObject.ReadStringField(fieldName);
             }
         }
 

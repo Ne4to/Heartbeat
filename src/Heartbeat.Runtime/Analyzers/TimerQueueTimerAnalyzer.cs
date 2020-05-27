@@ -25,14 +25,10 @@ namespace Heartbeat.Runtime.Analyzers
             {
                 var timerObjectType = Context.Heap.GetObjectType(address);
 
-                var state = timerObjectType.GetFieldByName("m_state")
-                    .GetValue(address);
-                var dueTime = timerObjectType.GetFieldByName("m_dueTime")
-                    .GetValue(address);
-                var period = timerObjectType.GetFieldByName("m_period")
-                    .GetValue(address);
-                var canceled = timerObjectType.GetFieldByName("m_canceled")
-                    .GetValue(address);
+                var state = timerObjectType.GetInstanceFieldByName("m_state").ReadObject(address, false);
+                var dueTime = timerObjectType.GetInstanceFieldByName("m_dueTime").Read<uint>(address, true);
+                var period = timerObjectType.GetInstanceFieldByName("m_period").Read<uint>(address, true);
+                var canceled = timerObjectType.GetInstanceFieldByName("m_canceled").Read<bool>(address, true);
 
 //                var timerCallback = timerObjectType.GetFieldByName("m_timerCallback")
 //                   .GetValue(address);
@@ -44,19 +40,15 @@ namespace Heartbeat.Runtime.Analyzers
                 logger.LogInformation(
                     $"{address:X} m_dueTime = {dueTime}, m_period = {period}, m_canceled = {canceled}, m_state = {state}");
 
-                if (state is ulong stateAddress)
-                {
-                    if (stateAddress == NullAddress)
-                    {
-                        continue;
-                    }
 
-                    var stateObjectType = Context.Heap.GetObjectType(stateAddress);
+                if (state.IsValidObject)
+                {
+                    var stateObjectType = state.Type;
                     logger.LogInformation($"m_state is {stateObjectType.Name}");
 
                     if (stateObjectType.Name == "System.Threading.CancellationTokenSource")
                     {
-                        var cancellationTokenSourceProxy = new CancellationTokenSourceProxy(Context, Context.Heap.GetObject(stateAddress));
+                        var cancellationTokenSourceProxy = new CancellationTokenSourceProxy(Context, state);
                         logger.LogInformation($"CanBeCanceled: {cancellationTokenSourceProxy.CanBeCanceled}");
                         logger.LogInformation($"IsCancellationRequested: {cancellationTokenSourceProxy.IsCancellationRequested}");
                         logger.LogInformation($"IsCancellationCompleted: {cancellationTokenSourceProxy.IsCancellationCompleted}");

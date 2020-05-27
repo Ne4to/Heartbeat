@@ -23,11 +23,11 @@ namespace Heartbeat.Runtime.Proxies
 
         public void Dump(ILogger logger)
         {
-            var stateMachineObject = TargetObject.GetValueClassField("StateMachine");
+            var stateMachineObject = TargetObject.ReadValueTypeField("StateMachine");
 
             //using (logger.BeginScope(GetAsyncMethodName(stateMachineObject.Type.Name)))
             {
-                var state = stateMachineObject.GetField<int>("<>1__state");
+                var state = stateMachineObject.ReadField<int>("<>1__state");
                 if (_fullLog)
                 {
                     logger.LogInformation($"__state: {state}");
@@ -35,22 +35,22 @@ namespace Heartbeat.Runtime.Proxies
 
                 if (stateMachineObject.Type.Fields.Any(f => f.Name == "<>4__this"))
                 {
-                    var thisObject = stateMachineObject.GetObjectField("<>4__this");
+                    var thisObject = stateMachineObject.ReadObjectField("<>4__this");
                     //logger.LogInformation($"this type = {thisObject.Type.Name}");
 
-                    logger.LogInformation($"{GetAsyncMethodName(stateMachineObject.Type.Name)} in {thisObject.Type.Name}");                   
+                    logger.LogInformation($"{GetAsyncMethodName(stateMachineObject.Type.Name)} in {thisObject.Type.Name}");
                 }
 
                 foreach (var field in stateMachineObject.Type.Fields.Where(field => field.Name.StartsWith("<>u__", StringComparison.Ordinal)).OrderBy(field => field.Name))
                 {
-                    if (!field.Type.IsValueClass)
+                    if (!field.Type.IsValueType)
                     {
                         // TODO
                         logger.LogWarning("SKIP if (!field.Type.IsValueClass)");
                         continue;
                     }
 
-                    var uField = stateMachineObject.GetValueClassField(field.Name);
+                    var uField = stateMachineObject.ReadValueTypeField(field.Name);
                     if (!uField.Type.Name.StartsWith("System", StringComparison.Ordinal))
                     {
                         // TODO
@@ -67,20 +67,20 @@ namespace Heartbeat.Runtime.Proxies
 
                     if (uField.Type.Name.StartsWith("System.Runtime.CompilerServices.ValueTaskAwaiter", StringComparison.Ordinal))
                     {
-                        var valueValueClass = uField.GetValueClassField("_value"); // ValueTask
-                        var obj = valueValueClass.GetObjectField("_obj");
-                        var token = valueValueClass.GetField<short>("_token");
-                        var continueOnCapturedContext = valueValueClass.GetField<bool>("_continueOnCapturedContext");
+                        var valueValueClass = uField.ReadValueTypeField("_value"); // ValueTask
+                        var obj = valueValueClass.ReadObjectField("_obj");
+                        var token = valueValueClass.ReadField<short>("_token");
+                        var continueOnCapturedContext = valueValueClass.ReadField<bool>("_continueOnCapturedContext");
 
                         logger.LogInformation($"obj: {obj}\n\ttoken: {token}\n\tcontinueOnCapturedContext: {continueOnCapturedContext}");
 
-                        // TODO 
+                        // TODO
                         // logger.LogWarning("SKIP System.Runtime.CompilerServices.ValueTaskAwaiter");
                         continue;
                     }
 
 
-                    var uTaskObject = uField.GetObjectField("m_task");
+                    var uTaskObject = uField.ReadObjectField("m_task");
                     var statusTask = "NULL";
                     if (!uTaskObject.IsNull)
                     {
@@ -95,19 +95,19 @@ namespace Heartbeat.Runtime.Proxies
                             if (_fullLog)
                                 logger.LogInformation($"ref by {refObject}");
 
-                            if (refObject.Type.Interfaces.Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox"))
+                            if (refObject.Type.EnumerateInterfaces().Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox"))
                             {
                                 new AsyncStateMachineBoxProxy(Context, refObject).Dump(logger);
                             }
                         }
                     }
 
-                    //if (_fullLog)  
+                    //if (_fullLog)
                         logger.LogInformation($"{field.Name}: {statusTask}");
                 }
             }
         }
-        
+
         private string GetAsyncMethodName(string stateMachineTypeName)
         {
 //            try

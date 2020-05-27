@@ -11,7 +11,7 @@ namespace Heartbeat.Runtime.Proxies
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Rename Heartbeat.Runtime.Proxies.HashtableProxy to end in 'Collection'.")]
     public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>>, ILoggerDump
     {
-        public int Count => TargetObject.GetField<int>("count");
+        public int Count => TargetObject.ReadField<int>("count");
 
         public HashtableProxy(RuntimeContext context, ClrObject targetObject)
             : base(context, targetObject)
@@ -26,26 +26,24 @@ namespace Heartbeat.Runtime.Proxies
         public IReadOnlyList<KeyValuePair<ClrObject, ClrObject>> GetKeyValuePair()
         {
             // bucketsObject is an array of 'bucket' struct
-            var bucketsObject = TargetObject.GetObjectField("buckets");
+            var bucketsObject = TargetObject.ReadObjectField("buckets");
 
             var elementType = bucketsObject.Type.ComponentType;
-            var bucketKeyField = elementType.GetFieldByName("key");
-            var bucketValField = elementType.GetFieldByName("val");
-            var bucketsLength = bucketsObject.Type.GetArrayLength(bucketsObject.Address);
+            var bucketKeyField = elementType.GetInstanceFieldByName("key");
+            var bucketValField = elementType.GetInstanceFieldByName("val");
+            var bucketsLength = bucketsObject.AsArray().Length;
             var result = new List<KeyValuePair<ClrObject, ClrObject>>();
 
             for (int bucketIndex = 0; bucketIndex < bucketsLength; bucketIndex++)
             {
+                //var arrayProxy = new ArrayProxy(Context, bucketsObject);
                 // TODO move to ArrayProxy
                 var elementAddress = bucketsObject.Type.GetArrayElementAddress(bucketsObject.Address, bucketIndex);
-                var keyAddress = (ulong) bucketKeyField.GetValue(elementAddress, true);
+                var keyObject = bucketKeyField.ReadObject(elementAddress, false);
 
-                if (keyAddress != NullAddress)
+                if (!keyObject.IsNull)
                 {
-                    var keyObject = Context.Heap.GetObject(keyAddress);
-
-                    var valAddress = (ulong) bucketValField.GetValue(elementAddress, true);
-                    var valObject = Context.Heap.GetObject(valAddress);
+                    var valObject = bucketValField.ReadObject(elementAddress, false);
 
                     var kvp = new KeyValuePair<ClrObject, ClrObject>(keyObject, valObject);
                     result.Add(kvp);

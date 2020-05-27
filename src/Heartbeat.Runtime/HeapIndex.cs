@@ -19,11 +19,7 @@ namespace Heartbeat.Runtime
             _roots = new ObjectSet(heap);
             _walkableFromRoot = new ObjectSet(heap);
 
-            // TODO .Net Core in linux fails with Segmentation fault
-            // probably it is related to https://github.com/microsoft/clrmd/issues/243
-            bool enumerateStatics = heap.Runtime.ClrInfo.Flavor == ClrFlavor.Desktop;
-
-            foreach (var clrRoot in heap.EnumerateRoots(enumerateStatics))
+            foreach (var clrRoot in heap.EnumerateRoots())
             {
                 _roots.Add(clrRoot.Object);
                 eval.Push(clrRoot.Object);
@@ -49,16 +45,16 @@ namespace Heartbeat.Runtime
 
                 // Now enumerate all objects that this object points to, add them to the
                 // evaluation stack if we haven't seen them before.
-                type.EnumerateRefsOfObject(obj, delegate(ulong child, int offset)
-                {
-                    if (child != NullAddress && !_walkableFromRoot.Contains(child))
-                    {
-                        // obj -> child
-                        AddReference(obj, child);
-
-                        eval.Push(child);
-                    }
-                });
+                // type.EnumerateRefsOfObject(obj, delegate(ulong child, int offset)
+                // {
+                //     if (child != NullAddress && !_walkableFromRoot.Contains(child))
+                //     {
+                //         // obj -> child
+                //         AddReference(obj, child);
+                //
+                //         eval.Push(child);
+                //     }
+                // });
             }
         }
 

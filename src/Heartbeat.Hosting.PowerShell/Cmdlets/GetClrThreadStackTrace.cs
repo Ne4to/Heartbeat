@@ -26,7 +26,7 @@ namespace Heartbeat.Hosting.PowerShell.Cmdlets
                 return;
             }
 
-            foreach (var clrStackFrame in clrThread.StackTrace)
+            foreach (var clrStackFrame in clrThread.EnumerateStackTrace())
             {
                 WriteObject(clrStackFrame);
             }

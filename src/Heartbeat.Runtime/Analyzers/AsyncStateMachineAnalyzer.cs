@@ -13,7 +13,7 @@ namespace Heartbeat.Runtime.Analyzers
     {
         public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
 
-        public AsyncStateMachineAnalyzer(RuntimeContext context) 
+        public AsyncStateMachineAnalyzer(RuntimeContext context)
             : base(context)
         {
         }
@@ -22,26 +22,26 @@ namespace Heartbeat.Runtime.Analyzers
         {
             logger.LogInformation("State machines");
 
-            var stateMachineBoxQuery =
-                from clrObject in Context.EnumerateObjects(TraversingHeapMode)
-                //where clrObject.Type.Interfaces.Any(clrInterface => clrInterface.Name.Contains("IAsyncStateMachine"))
-                where clrObject.Type.Interfaces.Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox")  
-                //&& (clrObject.Address == 0x7f698b79ff20 || clrObject.Address == 0x7f698b7a5478 || clrObject.Address == 0x7f698b7a53c0 || clrObject.Address == 0x00007f698b7a5300)
-//                && (clrObject.Address == 0x7f698b7a0778)
-                select clrObject;
+            //var stateMachineBoxQuery =
+            //    from clrObject in Context.EnumerateObjects(TraversingHeapMode)
+            //    where clrObject.Type
+            //        !.EnumerateInterfaces()
+            //        .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox")
+            //    select clrObject;
 
-            foreach (var stateMachineBoxObject in stateMachineBoxQuery)
-            {
-                var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
-                logger.LogInformation(stateMachineBoxObject.ToString());
+            //foreach (var stateMachineBoxObject in stateMachineBoxQuery)
+            //{
+            //    var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
+            //    logger.LogInformation(stateMachineBoxObject.ToString());
 
-                stateMachineBoxProxy.Dump(logger);
-            }
+            //    stateMachineBoxProxy.Dump(logger);
+            //}
 
             var stateMachineQuery =
                 from clrObject in Context.EnumerateObjects(TraversingHeapMode)
-                //where clrObject.Type.Interfaces.Any(clrInterface => clrInterface.Name.Contains("IAsyncStateMachine"))
-                where clrObject.Type.Interfaces.Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachine")                
+                where clrObject.Type
+                    !.EnumerateInterfaces()
+                    .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachine")
                 select clrObject;
 
             foreach (var stateMachineObject in stateMachineQuery)
@@ -61,23 +61,23 @@ namespace Heartbeat.Runtime.Analyzers
                         continue;
                     }
 
-                    var state = stateMachineObject.GetField<int>("<>1__state");
+                    var state = stateMachineObject.ReadField<int>("<>1__state");
                     logger.LogInformation($"__state: {state}");
 
-                    var builderValueClass = stateMachineObject.GetValueClassField("<>t__builder");
+                    var builderValueClass = stateMachineObject.ReadValueTypeField("<>t__builder");
 
                     ClrObject taskObject;
                     if (builderValueClass.Type.Name == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
                     {
-                        taskObject = builderValueClass.GetValueClassField("m_builder").GetObjectField("m_task");
+                        taskObject = builderValueClass.ReadValueTypeField("m_builder").ReadObjectField("m_task");
                     }
                     else if (builderValueClass.Type.Name.StartsWith("System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder", StringComparison.Ordinal))
                     {
-                        taskObject = builderValueClass.GetValueClassField("_methodBuilder").GetObjectField("m_task");
+                        taskObject = builderValueClass.ReadValueTypeField("_methodBuilder").ReadObjectField("m_task");
                     }
                     else
                     {
-                        taskObject = builderValueClass.GetObjectField("m_task");
+                        taskObject = builderValueClass.ReadObjectField("m_task");
                     }
 
                     var taskProxy = new TaskProxy(Context, taskObject);
@@ -86,14 +86,14 @@ namespace Heartbeat.Runtime.Analyzers
 
                     foreach (var field in stateMachineObject.Type.Fields.Where(field => field.Name.StartsWith("<>u__", StringComparison.Ordinal)).OrderBy(field => field.Name))
                     {
-                        if (!field.Type.IsValueClass)
+                        if (!field.Type.IsValueType)
                         {
                             // TODO
                             logger.LogWarning("SKIP if (!field.Type.IsValueClass)");
                             continue;
                         }
-                        
-                        var uField = stateMachineObject.GetValueClassField(field.Name);
+
+                        var uField = stateMachineObject.ReadValueTypeField(field.Name);
                         if (!uField.Type.Name.StartsWith("System", StringComparison.Ordinal))
                         {
                             // TODO
@@ -110,24 +110,24 @@ namespace Heartbeat.Runtime.Analyzers
 
                         if (uField.Type.Name.StartsWith("System.Runtime.CompilerServices.ValueTaskAwaiter", StringComparison.Ordinal))
                         {
-                            // TODO 
+                            // TODO
                             logger.LogWarning("SKIP System.Runtime.CompilerServices.ValueTaskAwaiter");
                             continue;
                         }
 
 
-                        
-                        var uTaskObject = uField.GetObjectField("m_task");
+
+                        var uTaskObject = uField.ReadObjectField("m_task");
                         var statusTask = "NULL";
                         if (!uTaskObject.IsNull)
                         {
                             var taskStatus = new TaskProxy(Context, uTaskObject).Status.ToString();
                             statusTask = taskStatus + $" {field.Type.Name}";
                         }
-                        
+
                         logger.LogInformation($"{field.Name}: {statusTask}");
                     }
-                    
+
                 }
 //                logger.LogInformation($"{stateMachineObject}");
 

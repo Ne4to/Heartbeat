@@ -4,15 +4,15 @@ namespace Heartbeat.Runtime.Proxies
 {
     public sealed class HttpWebRequestProxy : ProxyBase
     {
-        public UriProxy Address => new UriProxy(Context, TargetObject.GetObjectField("_Uri"));
-        public WebHeaderCollectionProxy Headers => new WebHeaderCollectionProxy(Context, TargetObject.GetObjectField("_HttpRequestHeaders"));
-        public long StartTimestamp => TargetObject.GetField<long>("m_StartTimestamp");
+        public UriProxy Address => new UriProxy(Context, TargetObject.ReadObjectField("_Uri"));
+        public WebHeaderCollectionProxy Headers => new WebHeaderCollectionProxy(Context, TargetObject.ReadObjectField("_HttpRequestHeaders"));
+        public long StartTimestamp => TargetObject.ReadField<long>("m_StartTimestamp");
 
         public HttpWebResponseProxy Response
         {
             get
             {
-                var responseObject = TargetObject.GetObjectField("_HttpResponse");
+                var responseObject = TargetObject.ReadObjectField("_HttpResponse");
                 if (responseObject.IsNull)
                 {
                     return null;
