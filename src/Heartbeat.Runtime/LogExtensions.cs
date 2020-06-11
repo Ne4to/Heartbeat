@@ -316,7 +316,7 @@ namespace Heartbeat.Runtime
 
                 if (statOnly)
                 {
-                    var taskTypeName = taskInfo.Type.Name;
+                    var taskTypeName = taskInfo.Type.Name!;
                     taskStat.IncrementValue(taskTypeName);
                 }
                 else
@@ -431,7 +431,7 @@ namespace Heartbeat.Runtime
             ILogger logger,
             ulong address,
             ClrType objectType,
-            ISet<string> fieldList = null)
+            ISet<string>? fieldList = null)
         {
             foreach (var clrInstanceField in objectType.Fields)
             {
@@ -473,11 +473,10 @@ namespace Heartbeat.Runtime
 
                     var fieldValue = clrInstanceField.ReadObject(address, false);
 
-                    if (fieldValue.Type.IsString)
+                    if (fieldValue.Type!.IsString)
                     {
                         value = fieldValue.AsString();
                     }
-
 
                     switch (fieldValue)
                     {
@@ -625,7 +624,7 @@ namespace Heartbeat.Runtime
                 // TODO Dump stack objects https://github.com/Microsoft/dotnet-samples/blob/master/Microsoft.Diagnostics.Runtime/CLRMD/ClrStack/Program.cs
             }
 
-            string GetThreadName(ClrThread thread, IReadOnlyDictionary<int, string> threadNames)
+            static string GetThreadName(ClrThread thread, IReadOnlyDictionary<int, string> threadNames)
             {
                 threadNames.TryGetValue(thread.ManagedThreadId, out var threadName);
                 return threadName ?? "UNKNOWN";

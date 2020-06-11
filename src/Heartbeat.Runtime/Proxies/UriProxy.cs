@@ -12,15 +12,17 @@ namespace Heartbeat.Runtime.Proxies
                     ? "_string"
                     : "m_String";
 
-                return TargetObject.ReadStringField(fieldName);
+                return TargetObject.ReadStringField(fieldName)!;
             }
         }
 
-        public UriProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+        public UriProxy(RuntimeContext context, ClrObject targetObject) 
+            : base(context, targetObject)
         {
         }
 
-        public UriProxy(RuntimeContext context, ulong address) : base(context, address)
+        public UriProxy(RuntimeContext context, ulong address) 
+            : base(context, address)
         {
         }
 

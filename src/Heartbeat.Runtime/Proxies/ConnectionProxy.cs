@@ -14,7 +14,7 @@ namespace Heartbeat.Runtime.Proxies
         public bool ConnectionIsDoomed => TargetObject.ReadField<bool>("m_ConnectionIsDoomed");
         public IPAddressProxy ServerAddress => new IPAddressProxy(Context, TargetObject.ReadObjectField("m_ServerAddress"));
         public int BusyCount => GetBusyCount();
-        public HttpWebRequestProxy CurrentRequest
+        public HttpWebRequestProxy? CurrentRequest
         {
             get
             {
@@ -26,7 +26,7 @@ namespace Heartbeat.Runtime.Proxies
             }
         }
 
-        public HttpWebRequestProxy LockedRequest
+        public HttpWebRequestProxy? LockedRequest
         {
             get
             {

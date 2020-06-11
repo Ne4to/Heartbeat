@@ -25,10 +25,10 @@ namespace Heartbeat.Runtime.Analyzers
             {
                 var timerObjectType = Context.Heap.GetObjectType(address);
 
-                var state = timerObjectType.GetInstanceFieldByName("m_state").ReadObject(address, false);
-                var dueTime = timerObjectType.GetInstanceFieldByName("m_dueTime").Read<uint>(address, true);
-                var period = timerObjectType.GetInstanceFieldByName("m_period").Read<uint>(address, true);
-                var canceled = timerObjectType.GetInstanceFieldByName("m_canceled").Read<bool>(address, true);
+                var state = timerObjectType.GetFieldByName("m_state").ReadObject(address, false);
+                var dueTime = timerObjectType.GetFieldByName("m_dueTime").Read<uint>(address, true);
+                var period = timerObjectType.GetFieldByName("m_period").Read<uint>(address, true);
+                var canceled = timerObjectType.GetFieldByName("m_canceled").Read<bool>(address, true);
 
 //                var timerCallback = timerObjectType.GetFieldByName("m_timerCallback")
 //                   .GetValue(address);
@@ -41,7 +41,7 @@ namespace Heartbeat.Runtime.Analyzers
                     $"{address:X} m_dueTime = {dueTime}, m_period = {period}, m_canceled = {canceled}, m_state = {state}");
 
 
-                if (state.IsValidObject)
+                if (state.IsValid)
                 {
                     var stateObjectType = state.Type;
                     logger.LogInformation($"m_state is {stateObjectType.Name}");

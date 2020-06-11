@@ -8,7 +8,7 @@ namespace Heartbeat.Runtime.Proxies
         public WebHeaderCollectionProxy Headers => new WebHeaderCollectionProxy(Context, TargetObject.ReadObjectField("_HttpRequestHeaders"));
         public long StartTimestamp => TargetObject.ReadField<long>("m_StartTimestamp");
 
-        public HttpWebResponseProxy Response
+        public HttpWebResponseProxy? Response
         {
             get
             {

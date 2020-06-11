@@ -5,6 +5,7 @@ namespace Heartbeat.Runtime.Extensions
     public static class DictionaryExtensions
     {
         public static void IncrementValue<TKey>(this IDictionary<TKey, int> workItemTypeCount, TKey key)
+            where TKey : notnull
         {
             if (workItemTypeCount.TryGetValue(key, out var currentValue))
             {

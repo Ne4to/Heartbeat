@@ -101,6 +101,10 @@ namespace Heartbeat.Runtime.Analyzers
                     if (writeItemTimestamp != null)
                     {
                         var stopwatchInfo = Context.GetStopwatchInfo();
+                        if (stopwatchInfo == null)
+                        {
+                            return;
+                        }
 
                         var startTimestamp = webRequestProxy.StartTimestamp;
 //                        StopwatchInfo stopwatchInfo = null;

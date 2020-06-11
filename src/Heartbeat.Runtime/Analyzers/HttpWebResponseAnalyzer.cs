@@ -34,7 +34,7 @@ namespace Heartbeat.Runtime.Analyzers
 
                 var buffer = new byte[readBufferLength];
 
-                throw new NotImplementedException();
+                //throw new NotImplementedException();
                 // Context.Heap.ReadMemory(startDataAddress, buffer, 0, readBufferLength);
 
                 var readBufferSize = connectStreamObject.ReadField<int>("m_ReadBufferSize");

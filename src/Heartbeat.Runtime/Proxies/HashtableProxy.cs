@@ -29,8 +29,8 @@ namespace Heartbeat.Runtime.Proxies
             var bucketsObject = TargetObject.ReadObjectField("buckets");
 
             var elementType = bucketsObject.Type.ComponentType;
-            var bucketKeyField = elementType.GetInstanceFieldByName("key");
-            var bucketValField = elementType.GetInstanceFieldByName("val");
+            var bucketKeyField = elementType.GetFieldByName("key");
+            var bucketValField = elementType.GetFieldByName("val");
             var bucketsLength = bucketsObject.AsArray().Length;
             var result = new List<KeyValuePair<ClrObject, ClrObject>>();
 

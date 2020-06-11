@@ -7,7 +7,7 @@ namespace Heartbeat.Runtime.Proxies
     // https://github.com/dotnet/standard/blob/master/src/netstandard/ref/System.Net.cs#L874
     public sealed class ServicePointProxy : ProxyBase
     {
-        public string ConnectionName
+        public string? ConnectionName
         {
             get
             {

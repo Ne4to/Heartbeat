@@ -7,11 +7,13 @@ namespace Heartbeat.Runtime.Proxies
     {
         public int Length => TargetObject.AsArray().Length;
 
-        public ArrayProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+        public ArrayProxy(RuntimeContext context, ClrObject targetObject) 
+            : base(context, targetObject)
         {
         }
 
-        public ArrayProxy(RuntimeContext context, ulong address) : base(context, address)
+        public ArrayProxy(RuntimeContext context, ulong address) 
+            : base(context, address)
         {
         }
 
