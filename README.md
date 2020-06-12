@@ -27,3 +27,25 @@ Issue Finder example:
 - Find hot stack traces;
 - Find hung System.Threading.Tasks.Task objects;
 - Find System.Threading.Tasks.Task state.
+
+## Usage
+
+```
+Heartbeat.Hosting.Console [options]
+
+Options:
+  -pid, --process-id <pid>    Process Id
+  --dump <dump>               Path to a dump file
+  --heap                      Print heap information
+  --service-point-manager     Print System.Net.ServicePointManager information
+  --async-state-machine       Print System.Runtime.CompilerServices.IAsyncStateMachine information
+  --long-string               Print long System.String objects
+  --string-duplicate          Print System.String duplicates
+  --task                      Print System.Threading.Tasks.Task objects
+  --timer-queue-timer         Print System.Threading.TimerQueueTimer information
+  --task-completion-source    Print System.Threading.Tasks.TaskCompletionSource objects
+  --object-type-statistics    Print heap object type statistics
+  --http-client               Print System.Net.Http.HttpClient objects
+  --version                   Show version information
+  -?, -h, --help              Show help and usage information
+```

@@ -4,15 +4,16 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugLocal</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='DebugLocal'">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -25,15 +26,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20253.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.5" />
-    <PackageReference Include="System.CommandLine.Experimental" Version="0.3.0-alpha.19577.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Microsoft.Diagnostics.Runtime" Condition="'$(ConfigurationName)' == 'DebugLocal'">
-      <HintPath>..\..\..\..\Microsoft\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Release\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
+      <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
 

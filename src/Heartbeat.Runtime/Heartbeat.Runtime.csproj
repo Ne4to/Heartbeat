@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>8</LangVersion>
+    <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugLocal</Configurations>
   </PropertyGroup>
@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.130507" />
+    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.130507" Condition="'$(ConfigurationName)' != 'DebugLocal'" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.5" />
     <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <Reference Include="Microsoft.Diagnostics.Runtime" Condition="'$(ConfigurationName)' == 'DebugLocal'">
-      <HintPath>..\..\..\..\Microsoft\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Release\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
+      <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
     </Reference>
   </ItemGroup>
 

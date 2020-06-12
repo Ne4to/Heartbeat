@@ -296,6 +296,7 @@ namespace Heartbeat.Runtime
                       && (type.Name == "System.Threading.Tasks.Task"
                           || (type.Name.StartsWith("System.Threading.Tasks.Task<", StringComparison.Ordinal) &&
                               type.Name.EndsWith(">", StringComparison.Ordinal)))
+                    && (type.BaseType.Name == "System.Threading.Tasks.Task" || type.EnumerateInterfaces().Any(i => i.Name == "System.IAsyncResult"))
                 select new {Type = type, Address = address};
 
             var taskStat = new Dictionary<string, int>();
@@ -323,6 +324,20 @@ namespace Heartbeat.Runtime
                 {
                     logger.LogInformation($"{taskInfo.Address:X} {taskInfo.Type} taskIsCompleted={taskIsCompleted}");
 
+                    var actionObject = taskObject.ReadObjectField("m_action");
+                    if (!actionObject.IsNull && actionObject.Type.Name == "System.Action")
+                    {
+                        var ptr = actionObject.ReadValueTypeField("_methodPtr")
+                           .ReadField<UIntPtr>("m_value")
+                           .ToUInt64();
+
+                        var clrMethod = heap.Runtime.GetMethodByInstructionPointer(ptr);
+                        if (clrMethod != null)
+                        {
+                            logger.LogInformation($"method = {clrMethod.Name}");
+                        }
+                    }
+
                     foreach (var clrInstanceField in taskInfo.Type.Fields)
                     {
                         if (clrInstanceField.Name == "m_parent") continue;
@@ -338,7 +353,7 @@ namespace Heartbeat.Runtime
                         {
                             if (clrInstanceField.Name == "m_stateFlags")
                             {
-                                var stateValue = clrInstanceField.Read<int>(taskInfo.Address, true);
+                                var stateValue = clrInstanceField.Read<int>(taskInfo.Address, false);
                                 logger.LogInformation($"{clrInstanceField.Name} = ");
 
                                 foreach (var statePair in TaskProxy.TaskStates)

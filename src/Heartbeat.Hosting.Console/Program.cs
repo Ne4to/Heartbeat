@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using CommandLine;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 using Heartbeat.Hosting.Console.Logging;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
@@ -8,228 +9,169 @@ using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Process = System.Diagnostics.Process;
 
 namespace Heartbeat.Hosting.Console
 {
-    // System.Diagnostics.TraceEventCache.dateTime
-
     class Program
     {
-        static void Main(string[] args)
+        private readonly CommandLineOptions _commandLineOptions;
+
+        private Program(CommandLineOptions commandLineOptions)
         {
-            Parser.Default.ParseArguments<ConsoleHostOptions>(args)
-                .WithParsed(ProcessCommand);
+            _commandLineOptions = commandLineOptions;
         }
 
-        private static void ProcessCommand(ConsoleHostOptions options)
+        static async Task<int> Main(string[] args)
         {
-            var serviceProvider = new ServiceCollection()
-                .AddLogging(
+            var command = CommandLineOptions.RootCommand();
+            command.Handler = CommandHandler.Create<CommandLineOptions>((CommandLineOptions options) => InnerMain(options));
+            return await command.InvokeAsync(args);
+        }
+
+        private static int InnerMain(CommandLineOptions commandLineOptions)
+        {
+            try
+            {
+                return new Program(commandLineOptions).Run();
+            }
+            catch (Exception e)
+            {
+                System.Console.Error.WriteLine(e.ToString());
+                return 1;
+            }
+        }
+
+        private int Run()
+        {
+            using var serviceProvider = new ServiceCollection().AddLogging(
                     x => x.ClearProviders()
                         //.AddConsole(loggerOptions => { loggerOptions.IncludeScopes = true; })
-                        .Services.TryAddEnumerable(ServiceDescriptor
-                                .Singleton<ILoggerProvider, CustomLoggerProvider>())
-                    )
-                .BuildServiceProvider();
+                       .Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, CustomLoggerProvider>()))
+               .BuildServiceProvider();
 
             var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
+            using var dataTarget = GetDataTarget(logger);
+            ProcessCommand(dataTarget, logger);
+            return 0;
+        }
+
+        private DataTarget GetDataTarget(ILogger logger)
+        {
+            if (_commandLineOptions.ProcessId == null && _commandLineOptions.Dump == null)
+            {
+                throw new CommandLineException("Please specify process id or dump file");
+            }
+
+            if (_commandLineOptions.ProcessId != null && _commandLineOptions.Dump != null)
+            {
+                throw new CommandLineException("Please specify either process id or dump file");
+            }
+
+            if (_commandLineOptions.Dump != null)
+            {
+                logger.LogInformation($"Processing {_commandLineOptions.Dump.FullName}");
+                return DataTarget.LoadDump(_commandLineOptions.Dump.FullName);
+            }
+
+            if (_commandLineOptions.ProcessId != null)
+            {
+                logger.LogInformation($"Processing Process {_commandLineOptions.ProcessId}");
+                return DataTarget.AttachToProcess(_commandLineOptions.ProcessId.Value, false);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        private void ProcessCommand(DataTarget dataTarget, ILogger logger)
+        {
             try
             {
                 logger.LogInformation($"Host PID: {Process.GetCurrentProcess().Id}");
 
-                var dumpFilePaths = new string[]
+                var clrInfo = dataTarget.ClrVersions[0];
+                logger.LogInformation($"Flavor: {clrInfo.Flavor}");
+                logger.LogInformation($"Dac: {clrInfo.DacInfo.PlatformAgnosticFileName}");
+                logger.LogInformation($"Module: {clrInfo.ModuleInfo}");
+                logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
+
+                var runtime = clrInfo.CreateRuntime();
+                // var runtime = clrInfo.CreateRuntime(@"C:\dbg\dotnet-runtime\linux-x64\2.2.2\shared\Microsoft.NETCore.App\2.2.2\libmscordaccore.so", true);
+
+                var runtimeContext = new RuntimeContext(runtime);
+
+                var heap = runtime.Heap;
+                logger.LogInformation($"Can Walk Heap: {heap.CanWalkHeap}");
+
+                // heap.LogTopMemObjects(logger, 10, 1, 1);
+
+                //heap.LogTimers(logger);
+
+                // heap.LogHttpRequestMessage(logger);
+                // heap.LogHttpClientHandlerRequestState(logger);
+                // heap.LogHttpWebRequests(logger);
+                // heap.LogConnections(logger);
+                // heap.LogHeapServicePoint(logger, true);
+
+                if (_commandLineOptions.HttpClient)
                 {
-                };
+                    new HttpClientAnalyzer(runtimeContext).Dump(logger);
+                }
 
-                // foreach (var dumpFilePath in dumpFilePaths)
+                if (_commandLineOptions.TaskCompletionSource)
                 {
-                    // logger.LogInformation($"Processing {dumpFilePath}");
+                    LogExtensions.LogTaskCompletionSources(logger, runtimeContext);
+                }
 
-                    // using (var dataTarget = DataTarget.LoadDump(dumpFilePath))
-                    using var dataTarget = DataTarget.AttachToProcess(options.PID, false);
-                    var clrInfo = dataTarget.ClrVersions[0];
-                    //TODO handle clrInfo.Flavor
-                    logger.LogInformation($"Flavor: {clrInfo.Flavor}");
-                    logger.LogInformation($"Dac: {clrInfo.DacInfo}");
-                    logger.LogInformation($"Module: {clrInfo.ModuleInfo}");
-                    logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
+                if (_commandLineOptions.ObjectTypeStatistics)
+                {
+                    new ObjectTypeStatisticsAnalyzer(runtimeContext).Dump(logger);
+                }
 
-                    var runtime = clrInfo.CreateRuntime();
-                    //                    var runtime = clrInfo.CreateRuntime(@"C:\dbg\dotnet-runtime\linux-x64\2.2.2\shared\Microsoft.NETCore.App\2.2.2\libmscordaccore.so", true);
+                if (_commandLineOptions.TimerQueueTimer)
+                {
+                    var timerQueueTimerAnalyzer = new TimerQueueTimerAnalyzer(runtimeContext);
+                    timerQueueTimerAnalyzer.Dump(logger);
+                }
 
-                    var runtimeContext = new RuntimeContext(runtime);
+                if (_commandLineOptions.ServicePointManager)
+                {
+                    var servicePointManagerAnalyzer = new ServicePointManagerAnalyzer(runtimeContext);
+                    servicePointManagerAnalyzer.Dump(logger);
+                }
 
-                    var heap = runtime.Heap;
-                    logger.LogInformation($"Can Walk Heap: {heap.CanWalkHeap}");
+                if (_commandLineOptions.LongString)
+                {
+                    LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
+                    longStringAnalyzer.Dump(logger);
+                }
 
-                    //                    var stopwatchInfo = runtime.GetStopwatchInfo();
-                    //                    if (stopwatchInfo != null)
-                    //                    {
-                    //                        var query = from clrObject in heap.EnumerateObjectsByTypeName("System.Net.HttpWebRequest")
-                    //                            let startTimestamp = clrObject.GetField<long>("m_StartTimestamp")
-                    //                            let uri = LogExtensions.GetHttpWebRequestUriAsString(heap, clrObject)
-                    //                            where uri.Contains("http://my-secret-host.local:50100")
-                    //                            orderby startTimestamp
-                    //                            select new
-                    //                            {
-                    //                                startTimestamp,
-                    //                                uri
-                    //                            };
-                    //
-                    //                        var array = query.ToArray();
-                    //                        for (var index = 0; index < array.Length; index++)
-                    //                        {
-                    //                            var item = array[index];
-                    //
-                    //                            var diff = index == 0
-                    //                                ? 0
-                    //                                : stopwatchInfo.GetElapsedMilliseconds(array[index - 1].startTimestamp,
-                    //                                    item.startTimestamp);
-                    //
-                    //                            logger.LogInformation($"{diff.Milliseconds()} {item.uri.Truncate(200)}");
-                    //                        }
-                    //                    }
+                if (_commandLineOptions.StringDuplicate)
+                {
+                    new StringDuplicateAnalyzer(runtimeContext).Dump(logger);
+                }
 
-
-                    //                    heap.CacheHeap(CancellationToken.None);
-
-                    //                    runtime.LogThreadPoolInfo(logger);
-                    //                    heap.LogHeapSegments(logger);
-                    //                    heap.LogLongestStrings(logger, 10);
-                    //                    heap.LogStringDuplicates(logger, 100, 100);
-
-                    //heap.LogTopMemObjectTypes(logger, 10);
-
-                    //heap.LogBlockingObjects(logger);
-                    //                    heap.LogTimers(logger);
-                    //                    heap.LogAsyncStateMachines(logger);
-                    //
-                    //                    var searchTerm = 0x1f00bf649d0UL;
-                    //
-                    //                    foreach (var clrRoot in heap.EnumerateRoots(true))
-                    //                    {
-                    //                        if (clrRoot.Address == searchTerm )
-                    //                        {
-                    //                            logger.LogInformation("GC ROOT");
-                    //                        }
-                    //                    }
-
-                    //heap.LogHttpClients(logger);
-                    //                    heap.LogHttpRequestMessage(logger);
-                    //                    heap.LogHttpClientHandlerRequestState(logger);
-                    //                    heap.LogHttpWebRequests(logger);
-                    //                    heap.LogConnections(logger);
-                    //                    heap.LogHeapServicePoint(logger, true);
-
-                    //                    LogExtensions.LogTaskCompletionSources(logger, runtimeContext);
-
-                    //new ObjectTypeStatisticsAnalyzer(runtimeContext).Dump(logger);
-
-                    // var timerQueueTimerAnalyzer = new TimerQueueTimerAnalyzer(runtimeContext);
-                    // timerQueueTimerAnalyzer.WriteLog(logger, TraversingHeapModes.Live);
-
-                    //var servicePointManagerAnalyzer = new ServicePointManagerAnalyzer(runtimeContext);
-                    //servicePointManagerAnalyzer.Dump(logger);
-
-
-
-                    //LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
-                    //longStringAnalyzer.Dump(logger);
-
-                    //new StringDuplicateAnalyzer(runtimeContext).Dump(logger);
-
-
+                if (_commandLineOptions.AsyncStateMachine)
+                {
                     var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext);
                     asyncStateMachineAnalyzer.Dump(logger);
+                }
 
-                    //                    var clrObject = heap.GetObject(0x000001f00c6b1c20);
-                    //                    LogExtensions.LogHashtable(heap, logger, clrObject);
+                if (_commandLineOptions.Heap)
+                {
+                    LogExtensions.LogHeapSegments(runtimeContext.Heap, logger);
+                }
 
-                    //                    foreach (var connectionObject in heap.EnumerateObjectsByTypeName("System.Net.Connection"))
-                    //                    {
-                    //                        var noCurrentRequest = connectionObject.GetObjectField("m_CurrentRequest").Address == 0UL;
-                    //
-                    //                        var writeListObject = connectionObject.GetObjectField("m_WriteList");
-                    //                        var itemsObject = writeListObject.GetObjectField("_items");
-                    //                        var len = itemsObject.Type.GetArrayLength(itemsObject.Address);
-                    //
-                    //                        for (var i = 0; i < len; i++)
-                    //                        {
-                    //                            var elAddress = (ulong) itemsObject.Type.GetArrayElementValue(itemsObject.Address, i);
-                    //
-                    //                            if (elAddress != 0)
-                    //                            {
-                    //                                var webRequestObject = heap.GetObject(elAddress);
-                    //
-                    //                                var responseAddress = (ulong) webRequestObject.Type.GetFieldByName("_HttpResponse")
-                    //                                    .GetValue(webRequestObject.Address);
-                    //
-                    //                                if (responseAddress != 0UL)
-                    //                                {
-                    //                                    var responseStatus = heap.GetObjectType(responseAddress)
-                    //                                        .GetFieldByName("m_StatusDescription")
-                    //                                        .GetValue(responseAddress, false, true);
-                    //
-                    //                                    var waitListObject = connectionObject.GetObjectField("m_WaitList");
-                    //                                    var size = waitListObject.GetField<int>("_size");
-                    //
-                    //                                    if (responseStatus.ToString() == "Unauthorized" && size != 0)
-                    //                                    {
-                    //                                        var serverAddressObject = connectionObject.GetObjectField("m_ServerAddress");
-                    //                                        var address = serverAddressObject.GetField<long>("m_Address");
-                    //
-                    //                                        var ip = LogExtensions.GetIpAddressString(address);
-                    //                                        var gen = heap.GetGeneration(connectionObject.Address);
-                    //                                        var createTime =
-                    //                                            LogExtensions.GetDateTimeFieldValue(connectionObject, "m_CreateTime");
-                    //                                        logger.LogWarning(
-                    //                                            $"{connectionObject.Address:X} {ip} m_CreateTime: {createTime} m_LockedRequest={connectionObject.GetObjectField("m_LockedRequest").Address:x} m_CurrentRequest={connectionObject.GetObjectField("m_CurrentRequest").Address:x} gen: {gen}");
-                    //                                    }
-                    //                                }
-                    //                            }
-                    //                        }
-                    //                    }
-
-                    //
-                    //                    heap.LogServicePoint(logger, true);
-                    //LogExtensions.LogTaskObjects(runtimeContext, logger, false, false);
-
-                    //                    heap.LogHttpWebRequests(logger);
-
-                    //                    foreach (var clrObject in heap.EnumerateObjectsByTypeName(
-                    //                        "System.Threading.QueueUserWorkItemCallback").Take(10))
-                    //                    {
-                    //                        LogExtensions.LogObjectFields(heap, logger, clrObject.Address, clrObject.Type);
-                    //
-                    ////                        var visitedAddresses = ImmutableHashSet<ulong>.Empty.Add(clrObject.Address);
-                    ////                        LogExtensions.LogReferencesTo(heap, logger, clrObject, 1, 2, visitedAddresses);
-                    //                    }
-
-                    //                    var stopwatchInfo = runtime.GetStopwatchInfo();
-                    //                    logger.LogInformation($"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! {TimeSpan.FromMilliseconds(stopwatchInfo.GetElapsedMilliseconds(0x1f53f59cd86c, 0x1f5fcba6160f))}");
-
-                    //                    long prevTimestamp = 0;
-                    //                    foreach (var requestStateAddress in adr)
-                    //                    {
-                    //                        var requestStateObject = heap.GetObject(requestStateAddress);
-                    //                        var taskClrObject = requestStateObject.GetObjectField("tcs").GetObjectField("m_task");
-                    //                        var taskIsCompleted = TaskObjectTypeExtensions.TaskIsCompleted(taskClrObject.Address, taskClrObject.Type);
-                    //
-                    //                        var webRequestObject = requestStateObject.GetObjectField("webRequest");
-                    //                        heap.LogHttpWebRequest(logger, webRequestObject);
-                    //
-                    //                    }
+                if (_commandLineOptions.Task)
+                {
+                    LogExtensions.LogTaskObjects(runtimeContext, logger, true, false);
                 }
             }
             catch (Exception e)
             {
                 logger.LogError(e, "Unable to process request");
                 throw;
-            }
-            finally
-            {
-                serviceProvider.Dispose();
             }
         }
     }

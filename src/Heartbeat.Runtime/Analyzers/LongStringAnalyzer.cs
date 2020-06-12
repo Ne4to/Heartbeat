@@ -12,7 +12,8 @@ namespace Heartbeat.Runtime.Analyzers
     {
         public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
 
-        public LongStringAnalyzer(RuntimeContext context) : base(context)
+        public LongStringAnalyzer(RuntimeContext context)
+            : base(context)
         {
         }
 

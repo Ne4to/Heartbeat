@@ -7,33 +7,27 @@ namespace Heartbeat.Hosting.Console.Logging
 {
     public sealed class CustomLogger : ILogger
     {
-        private State _currentState;
+        private State _currentState = new State(0);
         private readonly Stack<State> _stateStack = new Stack<State>();
-        private readonly TextWriter _textWriter;
-
-        public CustomLogger()
-        {
-            _currentState = new State(0);
-            _textWriter = System.Console.Out;
-        }
+        private readonly TextWriter _textWriter = System.Console.Out;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             ConsoleColor? savedForegroundColor = null;
-            
+
             if (logLevel == LogLevel.Warning)
             {
                 savedForegroundColor = System.Console.ForegroundColor;
                 System.Console.ForegroundColor = ConsoleColor.DarkYellow;
             }
-            
+
             _textWriter.Write(_currentState.IndentionString);
-            _textWriter.WriteLine(state.ToString());
+            _textWriter.WriteLine(state?.ToString());
 
             if (savedForegroundColor != null)
             {
                 System.Console.ForegroundColor = savedForegroundColor.Value;
-            } 
+            }
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -45,7 +39,7 @@ namespace Heartbeat.Hosting.Console.Logging
         {
             _textWriter.Write(_currentState.IndentionString);
             _textWriter.Write("|> ");
-            _textWriter.Write(state.ToString());
+            _textWriter.Write(state?.ToString());
             _textWriter.WriteLine(':');
 
             _stateStack.Push(_currentState);
