@@ -84,94 +84,101 @@ namespace Heartbeat.Hosting.Console
             throw new NotSupportedException();
         }
 
+        private ClrRuntime CreateRuntime(ClrInfo clrInfo)
+        {
+            if (_commandLineOptions.DacPath != null)
+            {
+                return clrInfo.CreateRuntime(_commandLineOptions.DacPath.FullName, _commandLineOptions.IgnoreDacMismatch);
+            }
+            else
+            {
+                return clrInfo.CreateRuntime();
+            }
+        }
+
         private void ProcessCommand(DataTarget dataTarget, ILogger logger)
         {
-            try
+            logger.LogInformation($"Host PID: {Process.GetCurrentProcess().Id}");
+
+            var clrInfo = dataTarget.ClrVersions[0];
+            logger.LogInformation($"Flavor: {clrInfo.Flavor}");
+            logger.LogInformation($"Dac: {clrInfo.DacInfo.PlatformAgnosticFileName}");
+            logger.LogInformation($"Module: {clrInfo.ModuleInfo}");
+            logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
+
+            using var runtime = CreateRuntime(clrInfo);
+            var runtimeContext = new RuntimeContext(runtime);
+
+            var heap = runtime.Heap;
+            logger.LogInformation($"Can Walk Heap: {heap.CanWalkHeap}");
+
+            // heap.LogTopMemObjects(logger, 10, 1, 1);
+
+            if (_commandLineOptions.HttpClient)
             {
-                logger.LogInformation($"Host PID: {Process.GetCurrentProcess().Id}");
-
-                var clrInfo = dataTarget.ClrVersions[0];
-                logger.LogInformation($"Flavor: {clrInfo.Flavor}");
-                logger.LogInformation($"Dac: {clrInfo.DacInfo.PlatformAgnosticFileName}");
-                logger.LogInformation($"Module: {clrInfo.ModuleInfo}");
-                logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
-
-                var runtime = clrInfo.CreateRuntime();
-                // var runtime = clrInfo.CreateRuntime(@"C:\dbg\dotnet-runtime\linux-x64\2.2.2\shared\Microsoft.NETCore.App\2.2.2\libmscordaccore.so", true);
-
-                var runtimeContext = new RuntimeContext(runtime);
-
-                var heap = runtime.Heap;
-                logger.LogInformation($"Can Walk Heap: {heap.CanWalkHeap}");
-
-                // heap.LogTopMemObjects(logger, 10, 1, 1);
-
-                //heap.LogTimers(logger);
-
-                // heap.LogHttpRequestMessage(logger);
-                // heap.LogHttpClientHandlerRequestState(logger);
-                // heap.LogHttpWebRequests(logger);
-                // heap.LogConnections(logger);
-                // heap.LogHeapServicePoint(logger, true);
-
-                if (_commandLineOptions.HttpClient)
-                {
-                    new HttpClientAnalyzer(runtimeContext).Dump(logger);
-                }
-
-                if (_commandLineOptions.TaskCompletionSource)
-                {
-                    LogExtensions.LogTaskCompletionSources(logger, runtimeContext);
-                }
-
-                if (_commandLineOptions.ObjectTypeStatistics)
-                {
-                    new ObjectTypeStatisticsAnalyzer(runtimeContext).Dump(logger);
-                }
-
-                if (_commandLineOptions.TimerQueueTimer)
-                {
-                    var timerQueueTimerAnalyzer = new TimerQueueTimerAnalyzer(runtimeContext);
-                    timerQueueTimerAnalyzer.Dump(logger);
-                }
-
-                if (_commandLineOptions.ServicePointManager)
-                {
-                    var servicePointManagerAnalyzer = new ServicePointManagerAnalyzer(runtimeContext);
-                    servicePointManagerAnalyzer.Dump(logger);
-                }
-
-                if (_commandLineOptions.LongString)
-                {
-                    LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
-                    longStringAnalyzer.Dump(logger);
-                }
-
-                if (_commandLineOptions.StringDuplicate)
-                {
-                    new StringDuplicateAnalyzer(runtimeContext).Dump(logger);
-                }
-
-                if (_commandLineOptions.AsyncStateMachine)
-                {
-                    var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext);
-                    asyncStateMachineAnalyzer.Dump(logger);
-                }
-
-                if (_commandLineOptions.Heap)
-                {
-                    LogExtensions.LogHeapSegments(runtimeContext.Heap, logger);
-                }
-
-                if (_commandLineOptions.Task)
-                {
-                    LogExtensions.LogTaskObjects(runtimeContext, logger, true, false);
-                }
+                var httpClientAnalyzer = new HttpClientAnalyzer(runtimeContext);
+                httpClientAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                httpClientAnalyzer.Dump(logger);
             }
-            catch (Exception e)
+
+            if (_commandLineOptions.TaskCompletionSource)
             {
-                logger.LogError(e, "Unable to process request");
-                throw;
+                LogExtensions.LogTaskCompletionSources(logger, runtimeContext);
+            }
+
+            if (_commandLineOptions.ObjectTypeStatistics)
+            {
+                var objectTypeStatisticsAnalyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext);
+                objectTypeStatisticsAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                objectTypeStatisticsAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.TimerQueueTimer)
+            {
+                var timerQueueTimerAnalyzer = new TimerQueueTimerAnalyzer(runtimeContext);
+                timerQueueTimerAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                timerQueueTimerAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.ServicePointManager)
+            {
+                var servicePointManagerAnalyzer = new ServicePointManagerAnalyzer(runtimeContext);
+                servicePointManagerAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.LongString)
+            {
+                LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
+                longStringAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                longStringAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.StringDuplicate)
+            {
+                var stringDuplicateAnalyzer = new StringDuplicateAnalyzer(runtimeContext);
+                stringDuplicateAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                stringDuplicateAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.AsyncStateMachine)
+            {
+                var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext);
+                asyncStateMachineAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
+                asyncStateMachineAnalyzer.Dump(logger);
+            }
+
+            if (_commandLineOptions.Heap)
+            {
+                LogExtensions.LogHeapSegments(runtimeContext.Heap, logger);
+            }
+
+            if (_commandLineOptions.Task)
+            {
+                LogExtensions.LogTaskObjects(
+                    runtimeContext,
+                    logger,
+                    true,
+                    false);
             }
         }
     }

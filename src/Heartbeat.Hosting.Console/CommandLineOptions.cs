@@ -1,5 +1,9 @@
-﻿using System.CommandLine;
+﻿using System;
+using System.CommandLine;
 using System.IO;
+using System.Linq;
+using System.Text;
+using Heartbeat.Runtime.Models;
 
 namespace Heartbeat.Hosting.Console
 {
@@ -8,6 +12,8 @@ namespace Heartbeat.Hosting.Console
         // ReSharper disable UnusedAutoPropertyAccessor.Global
         public int? ProcessId { get; set; }
         public FileInfo? Dump { get; set; }
+        public FileInfo? DacPath { get; set; }
+        public bool IgnoreDacMismatch { get; set; }
         public bool Heap { get; set; }
         public bool ServicePointManager { get; set; }
         public bool AsyncStateMachine { get; set; }
@@ -18,6 +24,7 @@ namespace Heartbeat.Hosting.Console
         public bool TaskCompletionSource { get; set; }
         public bool ObjectTypeStatistics { get; set; }
         public bool HttpClient { get; set; }
+        public TraversingHeapModes TraversingHeapMode { get; set; }
         // ReSharper restore UnusedAutoPropertyAccessor.Global
 
         public static Command RootCommand()
@@ -38,6 +45,21 @@ namespace Heartbeat.Hosting.Console
                         Arity = ArgumentArity.ExactlyOne
                     }
                 },
+                new Option<FileInfo>("--dac-path", "A full path to the matching DAC dll for this process.")
+                {
+                    Argument = new Argument<FileInfo>()
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                },
+                new Option<FileInfo>("--ignore-dac-mismatch", "Ignore mismatches between DAC versions")
+                {
+                    Argument = new Argument<FileInfo>()
+                    {
+                        Arity = ArgumentArity.ExactlyOne
+                    }
+                },
+                TraversingHeapModeOption(),
                 new Option("--heap", "Print heap information"),
                 new Option("--service-point-manager", "Print System.Net.ServicePointManager information"),
                 new Option("--async-state-machine", "Print System.Runtime.CompilerServices.IAsyncStateMachine information"),
@@ -53,5 +75,15 @@ namespace Heartbeat.Hosting.Console
 
             return rootCommand;
         }
+
+        private static TraversingHeapModes DefaultTraversingHeapMode => TraversingHeapModes.Live;
+
+        public static Option TraversingHeapModeOption() =>
+            new Option(
+                alias: "--traversing-heap-mode",
+                description: $"Traversing heap mode. Default is {DefaultTraversingHeapMode}.")
+            {
+                Argument = new Argument<TraversingHeapModes>(getDefaultValue: () => DefaultTraversingHeapMode)
+            };
     }
 }
