@@ -1,7 +1,3 @@
-using System.Management.Automation;
-using System.Threading;
-using Microsoft.Diagnostics.Runtime;
-
 namespace Heartbeat.Hosting.PowerShell.Cmdlets
 {
     // [Cmdlet(VerbsCommon.Get, "ClrThreadPool", DefaultParameterSetName = AttachParameterSet)]

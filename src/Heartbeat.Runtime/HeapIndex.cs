@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Diagnostics.Runtime;
-using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime
 {

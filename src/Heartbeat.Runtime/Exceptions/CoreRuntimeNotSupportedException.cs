@@ -8,11 +8,13 @@ namespace Heartbeat.Runtime.Exceptions
         {
         }
 
-        public CoreRuntimeNotSupportedException(string message) : base(message)
+        public CoreRuntimeNotSupportedException(string message)
+            : base(message)
         {
         }
 
-        public CoreRuntimeNotSupportedException(string message, Exception inner) : base(message, inner)
+        public CoreRuntimeNotSupportedException(string message, Exception inner)
+            : base(message, inner)
         {
         }
     }

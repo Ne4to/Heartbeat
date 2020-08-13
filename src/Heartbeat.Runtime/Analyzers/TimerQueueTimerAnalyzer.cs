@@ -2,7 +2,6 @@ using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
 using Microsoft.Extensions.Logging;
-using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime.Analyzers
 {

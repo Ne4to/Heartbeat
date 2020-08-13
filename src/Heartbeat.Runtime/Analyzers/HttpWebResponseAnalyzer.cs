@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Proxies;

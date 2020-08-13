@@ -1,8 +1,5 @@
-﻿using System;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Heartbeat.Runtime.Models;
 
 namespace Heartbeat.Hosting.Console

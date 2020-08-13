@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Heartbeat.Hosting.Console.Logging;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
+using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -180,6 +181,15 @@ namespace Heartbeat.Hosting.Console
                     true,
                     false);
             }
+
+            // var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x1dccd3aec28);
+            var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x000001dccd176650);
+            // var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x000001dccd1aba48);
+            dictionaryProxy.Dump(logger);
+
+            // var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccd2dd198);
+            var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccef138b8);
+            dictionaryProxy2.Dump<char, int>(logger);
         }
     }
 }

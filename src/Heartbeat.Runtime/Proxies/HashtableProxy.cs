@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
-using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime.Proxies
 {
