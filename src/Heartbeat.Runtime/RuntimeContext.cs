@@ -80,7 +80,7 @@ namespace Heartbeat.Runtime
         {
             foreach (var obj in GetAllReferencesTo(address))
             {
-                if (obj.Type.Name == typeName)
+                if (obj.Type?.Name == typeName)
                 {
                     yield return obj;
                 }
@@ -93,8 +93,8 @@ namespace Heartbeat.Runtime
                 from clrObject in Heap.EnumerateObjects()
                 let type = clrObject.Type
                 where type != null && !type.IsFree && type.Name == "System.Threading.Thread"
-                let managedThreadId = type.GetFieldByName("m_ManagedThreadId").Read<int>(clrObject, true)
-                let threadName = type.GetFieldByName("m_Name").ReadString(clrObject, false)
+                let managedThreadId = type.GetFieldByName("m_ManagedThreadId")!.Read<int>(clrObject, true)
+                let threadName = type.GetFieldByName("m_Name")!.ReadString(clrObject, false)
                 select new {managedThreadId, threadName};
 
 //            // <{0}>k__BackingField
@@ -116,7 +116,7 @@ namespace Heartbeat.Runtime
             var result = new Dictionary<int, string>();
             foreach (var threadInfo in threadQuery)
             {
-                result[(int) threadInfo.managedThreadId] = (string) threadInfo.threadName;
+                result[threadInfo.managedThreadId] = (string) threadInfo.threadName;
             }
 
             return result;
@@ -170,13 +170,13 @@ namespace Heartbeat.Runtime
         // based on https://stackoverflow.com/questions/33290941/how-to-inspect-weakreference-values-with-windbg-sos-and-clrmd
         public ulong GetWeakRefValue(ClrObject weakRefObject)
         {
-            var WeakRefHandleField = weakRefObject.Type.GetFieldByName("m_handle");
-            ClrType IntPtrType = Heap.GetTypeByName("System.IntPtr");
+            var weakRefHandleField = weakRefObject.Type.GetFieldByName("m_handle");
+            ClrType intPtrType = Heap.GetTypeByName("System.IntPtr");
             var valueField = IsCoreRuntime ? "_value" : "m_value";
-            ClrInstanceField IntPtrValueField = IntPtrType.GetFieldByName(valueField);
+            ClrInstanceField intPtrValueField = intPtrType.GetFieldByName(valueField);
 
-            var handleAddr = WeakRefHandleField.Read<long>(weakRefObject.Address, true);
-            var value = IntPtrValueField.Read<ulong>((ulong) handleAddr, true);
+            var handleAddr = weakRefHandleField.Read<long>(weakRefObject.Address, true);
+            var value = intPtrValueField.Read<ulong>((ulong) handleAddr, true);
 
             return value;
         }

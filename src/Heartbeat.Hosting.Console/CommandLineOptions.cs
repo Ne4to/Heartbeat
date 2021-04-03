@@ -49,13 +49,7 @@ namespace Heartbeat.Hosting.Console
                         Arity = ArgumentArity.ExactlyOne
                     }
                 },
-                new Option<FileInfo>("--ignore-dac-mismatch", "Ignore mismatches between DAC versions")
-                {
-                    Argument = new Argument<FileInfo>()
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                },
+                new Option("--ignore-dac-mismatch", "Ignore mismatches between DAC versions"),
                 TraversingHeapModeOption(),
                 new Option("--heap", "Print heap information"),
                 new Option("--service-point-manager", "Print System.Net.ServicePointManager information"),

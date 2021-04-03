@@ -72,13 +72,13 @@ namespace Heartbeat.Hosting.Console
 
             if (_commandLineOptions.Dump != null)
             {
-                logger.LogInformation($"Processing {_commandLineOptions.Dump.FullName}");
+                logger.LogInformation($"Processing file {_commandLineOptions.Dump.FullName}");
                 return DataTarget.LoadDump(_commandLineOptions.Dump.FullName);
             }
 
             if (_commandLineOptions.ProcessId != null)
             {
-                logger.LogInformation($"Processing Process {_commandLineOptions.ProcessId}");
+                logger.LogInformation($"Processing process {_commandLineOptions.ProcessId}");
                 return DataTarget.AttachToProcess(_commandLineOptions.ProcessId.Value, false);
             }
 
@@ -183,13 +183,13 @@ namespace Heartbeat.Hosting.Console
             }
 
             // var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x1dccd3aec28);
-            var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x000001dccd176650);
+            // var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x000001dccd176650);
             // var dictionaryProxy = new DictionaryProxy(runtimeContext, 0x000001dccd1aba48);
-            dictionaryProxy.Dump(logger);
+            // dictionaryProxy.Dump(logger);
 
             // var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccd2dd198);
-            var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccef138b8);
-            dictionaryProxy2.Dump<char, int>(logger);
+            // var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccef138b8);
+            // dictionaryProxy2.Dump<char, int>(logger);
         }
     }
 }

@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugLocal</Configurations>
   </PropertyGroup>
@@ -27,8 +26,8 @@
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

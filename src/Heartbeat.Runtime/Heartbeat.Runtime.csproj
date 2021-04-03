@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;DebugLocal</Configurations>
   </PropertyGroup>
@@ -13,19 +12,10 @@
 
   <ItemGroup>
     <PackageReference Include="Humanizer" Version="2.8.26" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.137201" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.7" />
-    <PackageReference Include="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.217201" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="Microsoft.Diagnostics.Runtime" Condition="'$(ConfigurationName)' == 'DebugLocal'">
-      <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\netcoreapp3.1\Microsoft.Diagnostics.Runtime.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--<TargetFramework>netstandard2.0</TargetFramework>-->
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Configurations>Debug;Release;DebugLocal</Configurations>
   </PropertyGroup>
 
@@ -44,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.0.3" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.1.3" />
     <!--<PackageReference Include="PowerShellStandard.Library" Version="5.1.0">
             <PrivateAssets>All</PrivateAssets>
         </PackageReference>-->

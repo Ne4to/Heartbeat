@@ -20,6 +20,11 @@ namespace Heartbeat.Runtime.Analyzers
 
         public void Dump(ILogger logger)
         {
+            if (logger is null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
             logger.LogInformation("State machines");
 
             //var stateMachineBoxQuery =
@@ -55,7 +60,7 @@ namespace Heartbeat.Runtime.Analyzers
                     //     continue;
                     // }
 
-                    if (stateMachineObject.Type.Fields.All(f => f.Name != "<>1__state"))
+                    if (stateMachineObject.Type == null || stateMachineObject.Type.Fields.All(f => f.Name != "<>1__state"))
                     {
                         logger.LogInformation("TODO skip. not state field");
                         continue;
@@ -67,7 +72,7 @@ namespace Heartbeat.Runtime.Analyzers
                     var builderValueClass = stateMachineObject.ReadValueTypeField("<>t__builder");
 
                     ClrObject taskObject;
-                    if (builderValueClass.Type.Name == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
+                    if (builderValueClass.Type!.Name == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
                     {
                         taskObject = builderValueClass.ReadValueTypeField("m_builder").ReadObjectField("m_task");
                     }
