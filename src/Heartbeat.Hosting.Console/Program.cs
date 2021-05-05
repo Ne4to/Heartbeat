@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
@@ -171,6 +171,8 @@ namespace Heartbeat.Hosting.Console
             if (_commandLineOptions.Heap)
             {
                 LogExtensions.LogHeapSegments(runtimeContext.Heap, logger);
+                var modulesAnalyzer = new ModulesAnalyzer(runtimeContext);
+                modulesAnalyzer.Dump(logger);
             }
 
             if (_commandLineOptions.Task)
