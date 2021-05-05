@@ -14,8 +14,8 @@
     <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Alexey Sosnin</Authors>
-<!--    <PackageTags></PackageTags>-->
-<!--    <Description></Description>-->
+    <PackageTags>ClrMd diagnostics</PackageTags>
+    <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

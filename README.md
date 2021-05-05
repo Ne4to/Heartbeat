@@ -1,7 +1,16 @@
-# Heartbeat purpose
+# Heartbeat
+Diagnostics utility to analyze memory dumps of a .NET application
 
-The purpose of the Heartbeat is finding runtime issues of .Net application in the production environment such as spontaneous high memory / CPU usage, high latency and so on.
-Usually such situations occur unpredictable and after that there is not enough information to find the cause. 
+## Installation
+[![NuGet Badge](https://buildstats.info/nuget/heartbeat.hosting.console?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat.Hosting.Console/)
+```
+dotnet tool install --global Heartbeat.Hosting.Console --version <version>
+```
+
+## Summary
+
+The purpose of the Heartbeat is finding runtime issues of .NET application in the production environment such as spontaneous high memory / CPU usage, high latency and so on.
+Usually such situations occur unpredictable and after that there is not enough information to find the cause.
 The detailed information is required to find the cause, but it is impossible to collect detailed information about running processes all the time, collecting such data consumes huge resources.
 The collected data needs to be interpreted, it is long and not always straightforward process that could be automated.
 
@@ -20,7 +29,7 @@ Data Collector example:
 - Full Memory Dump;
 - Record ETW events;
 - Record network events;
-- Attach .Net invasive debugger and collect .Net specific information (ClrMd).
+- Attach .NET invasive debugger and collect .NET specific information (ClrMd).
 
 Issue Finder example:
 - Find a place with huge memory allocation;
