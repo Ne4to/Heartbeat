@@ -4,7 +4,18 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <VersionPrefix>0.1.0</VersionPrefix>
     <Configurations>Debug;Release;DebugLocal</Configurations>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>heartbeat</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+
+    <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Alexey Sosnin</Authors>
+<!--    <PackageTags></PackageTags>-->
+<!--    <Description></Description>-->
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
