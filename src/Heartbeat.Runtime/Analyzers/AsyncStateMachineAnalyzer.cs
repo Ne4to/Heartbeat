@@ -1,10 +1,13 @@
 using System;
 using System.Linq;
+
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
+
 using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime.Analyzers
@@ -27,20 +30,21 @@ namespace Heartbeat.Runtime.Analyzers
 
             logger.LogInformation("State machines");
 
-            //var stateMachineBoxQuery =
-            //    from clrObject in Context.EnumerateObjects(TraversingHeapMode)
-            //    where clrObject.Type
-            //        !.EnumerateInterfaces()
-            //        .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox")
-            //    select clrObject;
+            var stateMachineBoxQuery =
+                from clrObject in Context.EnumerateObjects(TraversingHeapMode)
+                where clrObject.Type
+                    !.EnumerateInterfaces()
+                    .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox")
+                select clrObject;
 
-            //foreach (var stateMachineBoxObject in stateMachineBoxQuery)
-            //{
-            //    var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
-            //    logger.LogInformation(stateMachineBoxObject.ToString());
+            foreach (var stateMachineBoxObject in stateMachineBoxQuery)
+            {
+                var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
+                logger.LogInformation(stateMachineBoxObject.ToString());
 
-            //    stateMachineBoxProxy.Dump(logger);
-            //}
+                logger.LogInformation("------------");
+                stateMachineBoxProxy.Dump(logger);
+            }
 
             var stateMachineQuery =
                 from clrObject in Context.EnumerateObjects(TraversingHeapMode)
@@ -134,14 +138,14 @@ namespace Heartbeat.Runtime.Analyzers
                     }
 
                 }
-//                logger.LogInformation($"{stateMachineObject}");
+                //                logger.LogInformation($"{stateMachineObject}");
 
 
-//                    foreach (var objectReference in objType.EnumerateObjectReferences(address))
-//                    {
-//                        logger.LogInformation($"\treferences {objectReference.Address:X} {objectReference.Type}");
-//                        // TODO <>1__state
-//                    }
+                //                    foreach (var objectReference in objType.EnumerateObjectReferences(address))
+                //                    {
+                //                        logger.LogInformation($"\treferences {objectReference.Address:X} {objectReference.Type}");
+                //                        // TODO <>1__state
+                //                    }
             }
         }
     }

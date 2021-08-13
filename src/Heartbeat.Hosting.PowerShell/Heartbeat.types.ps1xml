@@ -6,7 +6,7 @@
             <CodeProperty>
                 <Name>Size</Name>
                 <GetCodeReference>
-                    <TypeName>Heartbeat.Host.PowerShell.ExtendedProperties</TypeName>
+                    <TypeName>Heartbeat.Hosting.PowerShell.ExtendedProperties</TypeName>
                     <MethodName>GetClrSegmentSize</MethodName>
                 </GetCodeReference>
             </CodeProperty>
@@ -14,7 +14,7 @@
             <CodeProperty>
                 <Name>Gen0Size</Name>
                 <GetCodeReference>
-                    <TypeName>Heartbeat.Host.PowerShell.ExtendedProperties</TypeName>
+                    <TypeName>Heartbeat.Hosting.PowerShell.ExtendedProperties</TypeName>
                     <MethodName>GetClrSegmentGen0Size</MethodName>
                 </GetCodeReference>
             </CodeProperty>
@@ -22,7 +22,7 @@
             <CodeProperty>
                 <Name>Gen1Size</Name>
                 <GetCodeReference>
-                    <TypeName>Heartbeat.Host.PowerShell.ExtendedProperties</TypeName>
+                    <TypeName>Heartbeat.Hosting.PowerShell.ExtendedProperties</TypeName>
                     <MethodName>GetClrSegmentGen1Size</MethodName>
                 </GetCodeReference>
             </CodeProperty>
@@ -30,7 +30,7 @@
             <CodeProperty>
                 <Name>Gen2Size</Name>
                 <GetCodeReference>
-                    <TypeName>Heartbeat.Host.PowerShell.ExtendedProperties</TypeName>
+                    <TypeName>Heartbeat.Hosting.PowerShell.ExtendedProperties</TypeName>
                     <MethodName>GetClrSegmentGen2Size</MethodName>
                 </GetCodeReference>
             </CodeProperty>

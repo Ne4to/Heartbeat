@@ -87,7 +87,7 @@ namespace Heartbeat.Runtime
             }
         }
 
-        public IReadOnlyDictionary<int, string> GetManagedThreadNames()
+        public IReadOnlyDictionary<int, string?> GetManagedThreadNames()
         {
             var threadQuery =
                 from clrObject in Heap.EnumerateObjects()
@@ -113,10 +113,10 @@ namespace Heartbeat.Runtime
 ////                                 .GetValue(address)
 //                              select new {managedThreadId, threadName};
 
-            var result = new Dictionary<int, string>();
+            var result = new Dictionary<int, string?>();
             foreach (var threadInfo in threadQuery)
             {
-                result[threadInfo.managedThreadId] = (string) threadInfo.threadName;
+                result[threadInfo.managedThreadId] = threadInfo.threadName;
             }
 
             return result;

@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-#RootModule = 'Heartbeat.Host.PowerShell.dll'
+#RootModule = 'Heartbeat.Hosting.PowerShell.dll'
 
 # Version number of this module.
 ModuleVersion = '0.0.3'
@@ -54,7 +54,7 @@ PowerShellVersion = '5.1'
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = @('Heartbeat.Host.PowerShell.dll')
+RequiredAssemblies = @('Heartbeat.Hosting.PowerShell.dll')
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -66,7 +66,7 @@ TypesToProcess = @('Heartbeat.types.ps1xml')
 FormatsToProcess = @('Heartbeat.format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @('Heartbeat.Host.PowerShell.dll')
+NestedModules = @('Heartbeat.Hosting.PowerShell.dll')
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @()

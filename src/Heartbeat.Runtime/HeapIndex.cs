@@ -36,7 +36,7 @@ namespace Heartbeat.Runtime
                 _walkableFromRoot.Add(obj);
 
                 // Grab the type. We will only get null here in the case of heap corruption.
-                ClrType type = heap.GetObjectType(obj);
+                ClrType? type = heap.GetObjectType(obj);
                 if (type == null)
                 {
                     continue;

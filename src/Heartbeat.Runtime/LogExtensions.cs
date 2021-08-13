@@ -1,13 +1,16 @@
+using Heartbeat.Runtime.Extensions;
+using Heartbeat.Runtime.Proxies;
+
+using Microsoft.Diagnostics.Runtime;
+using Microsoft.Extensions.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Heartbeat.Runtime.Extensions;
-using Heartbeat.Runtime.Proxies;
-using Microsoft.Diagnostics.Runtime;
-using Microsoft.Extensions.Logging;
+
 using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime
@@ -31,35 +34,40 @@ namespace Heartbeat.Runtime
                 from property in clrType.GetType()
                     .GetProperties()
                 where property.CanRead && !property.IsSpecialName
-                select new {propName = property.Name, propValue = property.GetValue(clrType)};
+                select new { propName = property.Name, propValue = property.GetValue(clrType) };
 
             foreach (var property in propertyQuery)
             {
                 logger.LogInformation($"{property.propName}: {property.propValue}");
             }
 
-//            foreach (var clrMethod in clrType.Methods)
-//            {
-//                PrintIndention(indention);
-//                logger.LogInformation(clrMethod.Name);
-//            }
+            //            foreach (var clrMethod in clrType.Methods)
+            //            {
+            //                PrintIndention(indention);
+            //                logger.LogInformation(clrMethod.Name);
+            //            }
 
-//            PrintIndention(indention);
-//            logger.LogInformation($"Fields.Count: {clrType.Fields.Count}");
-//
-//            PrintIndention(indention);
-//            logger.LogInformation($"StaticFields.Count: {clrType.StaticFields.Count}");
-//
-//            PrintIndention(indention);
-//            logger.LogInformation($"ThreadStaticFields.Count: {clrType.ThreadStaticFields.Count}");
-//
-//            PrintIndention(indention);
-//            logger.LogInformation($"Methods.Count: {clrType.Methods.Count}");
-//
-//            PrintIndention(indention);
-//            logger.LogInformation($"Interfaces.Count: {clrType.Interfaces.Count}");
+            //            PrintIndention(indention);
+            //            logger.LogInformation($"Fields.Count: {clrType.Fields.Count}");
+            //
+            //            PrintIndention(indention);
+            //            logger.LogInformation($"StaticFields.Count: {clrType.StaticFields.Count}");
+            //
+            //            PrintIndention(indention);
+            //            logger.LogInformation($"ThreadStaticFields.Count: {clrType.ThreadStaticFields.Count}");
+            //
+            //            PrintIndention(indention);
+            //            logger.LogInformation($"Methods.Count: {clrType.Methods.Count}");
+            //
+            //            PrintIndention(indention);
 
-//            clrType.
+            foreach (var clrInterface in clrType.EnumerateInterfaces())
+            {
+                logger.LogInformation(clrInterface.Name);
+            }
+            logger.LogInformation($"Interfaces.Count: {clrType.EnumerateInterfaces().Count()}");
+
+            //            clrType.
         }
 
         public static void LogThreadPoolInfo(this ClrRuntime clrRuntime, ILogger logger)
@@ -82,38 +90,38 @@ namespace Heartbeat.Runtime
             //     logger.LogInformation($"Max Free Completion Ports = {threadPool.MaxFreeCompletionPorts}");
             // }
 
-//            threadPool.EnumerateNativeWorkItems()
-//            Dictionary<string, int> workItemTypeCount = new Dictionary<string, int>();
-//
-//            logger.LogInformation("Managed Work Items");
-//            foreach (var managedWorkItem in threadPool.EnumerateManagedWorkItems())
-//            {
-//                if (managedWorkItem.Type != null && !managedWorkItem.Type.IsFree)
-//                {
-//                    workItemTypeCount.IncrementValue(managedWorkItem.Type.Name);
-//
-//                    bool? taskCompleted = null;
-//                    if (managedWorkItem.Type.Name.StartsWith("System.Threading.Tasks.Task", StringComparison.Ordinal))
-//                    {
-//                        taskCompleted = TaskObjectTypeExtensions.TaskIsCompleted(managedWorkItem.Object, managedWorkItem.Type);
-//                    }
-//
-//                    logger.LogInformation($"{managedWorkItem.Object:X}  {managedWorkItem.Type} taskCompleted = {taskCompleted}");
-//                    //heap.PrintObjectFields(managedWorkItem.Object, managedWorkItem.Type);
-//                }
-//            }
-//
-//            logger.LogInformation("Statistics");
-//            foreach (var pair in workItemTypeCount)
-//            {
-//                logger.LogInformation($"\t{pair.Key}: {pair.Value}");
-//            }
-//
-//            logger.LogInformation("Native Work Items");
-//            foreach (var nativeWorkItem in threadPool.EnumerateNativeWorkItems())
-//            {
-//                logger.LogInformation(nativeWorkItem.Kind);
-//            }
+            //            threadPool.EnumerateNativeWorkItems()
+            //            Dictionary<string, int> workItemTypeCount = new Dictionary<string, int>();
+            //
+            //            logger.LogInformation("Managed Work Items");
+            //            foreach (var managedWorkItem in threadPool.EnumerateManagedWorkItems())
+            //            {
+            //                if (managedWorkItem.Type != null && !managedWorkItem.Type.IsFree)
+            //                {
+            //                    workItemTypeCount.IncrementValue(managedWorkItem.Type.Name);
+            //
+            //                    bool? taskCompleted = null;
+            //                    if (managedWorkItem.Type.Name.StartsWith("System.Threading.Tasks.Task", StringComparison.Ordinal))
+            //                    {
+            //                        taskCompleted = TaskObjectTypeExtensions.TaskIsCompleted(managedWorkItem.Object, managedWorkItem.Type);
+            //                    }
+            //
+            //                    logger.LogInformation($"{managedWorkItem.Object:X}  {managedWorkItem.Type} taskCompleted = {taskCompleted}");
+            //                    //heap.PrintObjectFields(managedWorkItem.Object, managedWorkItem.Type);
+            //                }
+            //            }
+            //
+            //            logger.LogInformation("Statistics");
+            //            foreach (var pair in workItemTypeCount)
+            //            {
+            //                logger.LogInformation($"\t{pair.Key}: {pair.Value}");
+            //            }
+            //
+            //            logger.LogInformation("Native Work Items");
+            //            foreach (var nativeWorkItem in threadPool.EnumerateNativeWorkItems())
+            //            {
+            //                logger.LogInformation(nativeWorkItem.Kind);
+            //            }
         }
 
         public static void LogBlockingObjects(this ClrHeap heap, ILogger logger)
@@ -143,91 +151,91 @@ namespace Heartbeat.Runtime
             // }
         }
 
-//        public static void LogHttpRequestMessage(this ClrHeap heap, ILogger logger)
-//        {
-//            foreach (var httpRequestMessageObject in heap.EnumerateObjectsByTypeName("System.Net.Http.HttpRequestMessage"))
-//            {
-//                var uri = GetUriFieldValueAsString(heap, httpRequestMessageObject, "requestUri");
-//                logger.LogInformation($"{httpRequestMessageObject.Address:X} {uri}");
-//            }
-//        }
+        //        public static void LogHttpRequestMessage(this ClrHeap heap, ILogger logger)
+        //        {
+        //            foreach (var httpRequestMessageObject in heap.EnumerateObjectsByTypeName("System.Net.Http.HttpRequestMessage"))
+        //            {
+        //                var uri = GetUriFieldValueAsString(heap, httpRequestMessageObject, "requestUri");
+        //                logger.LogInformation($"{httpRequestMessageObject.Address:X} {uri}");
+        //            }
+        //        }
 
-//        public static void LogHttpClientHandlerRequestState(this ClrHeap heap, ILogger logger, RuntimeContext runtimeContext)
-//        {
-//            foreach (var requestStateObject in runtimeContext.EnumerateObjectsByTypeName(
-//                "System.Net.Http.HttpClientHandler+RequestState", TraversingHeapModes.Live))
-//            {
-//                using (logger.BeginScope(requestStateObject.ToString()))
-//                {
-//                    var webRequestObject = requestStateObject.GetObjectField("webRequest");
-//                    var webRequestProxy = new HttpWebRequestProxy(runtimeContext, webRequestObject);
-//                    LogHttpWebRequest(logger, webRequestProxy);
-//
-//                    var tcsObject = requestStateObject.GetObjectField("tcs");
-//                    var taskObject = tcsObject.GetObjectField("m_task");
-//                    if (taskObject.Address != NullAddress)
-//                    {
-//                        var taskStatus = TaskProxy.GetStatus(taskObject);
-//
-//                        logger.LogInformation($"tcs.m_task status = {taskStatus}");
-//
-//                        var taskResultObject = taskObject.GetObjectField("m_result");
-//                        if (taskResultObject.Address != NullAddress)
-//                        {
-//// TODO get content from System.Net.Http.HttpResponseMessage
-//                            var contentObject = taskResultObject.GetObjectField("content");
-//
-//                            using (logger.BeginScope("content"))
-//                            {
-//                                if (contentObject.Address != NullAddress)
-//                                {
-//                                    var contentConsumed = contentObject.GetField<bool>("contentConsumed");
-//                                    var disposed = contentObject.GetField<bool>("disposed");
-//
-//                                    var logLevel = contentConsumed || disposed
-//                                        ? LogLevel.Information
-//                                        : LogLevel.Warning;
-//
-//                                    logger.Log(logLevel, $"contentConsumed: {contentConsumed}");
-//                                    logger.Log(logLevel, $"disposed: {disposed}");
-//                                }
-//                                else
-//                                {
-//                                    logger.LogInformation("NULL");
-//                                }
-//                            }
-//                        }
-//                    }
-//                    else
-//                    {
-//                        logger.LogInformation("tcs.m_task == null");
-//                    }
-//                }
-//            }
-//
-//            //                            foreach (var requestStateObject in GetAllReferencesTo(runtime, elAddress, "System.Net.Http.HttpClientHandler+RequestState"))
-////                            {
-////                                var taskObject = requestStateObject.GetObjectField("tcs")
-////                                    .GetObjectField("m_task");
-////
-////                                var taskIsCompelted = TaskObjectTypeExtensions.TaskIsCompelted(taskObject.Address, taskObject.Type);
-////                                logger.LogInformation($" taskIsCompelted = {taskIsCompelted}");
-////
-//////                                foreach (var o in GetAllReferencesTo(runtime, taskObject.Address))
-//////                                {
-//////                                    logger.LogInformation(o);
-//////                                }
-////                            }
-//        }
-//
-//        public static void LogHttpWebRequests(ILogger logger, RuntimeContext runtimeContext)
-//        {
-//            foreach (var httpWebRequestObject in runtimeContext.EnumerateObjectsByTypeName("System.Net.HttpWebRequest", TraversingHeapModes.All))
-//            {
-//                var httpWebRequestProxy = new HttpWebRequestProxy(runtimeContext, httpWebRequestObject);
-//                LogHttpWebRequest(logger, httpWebRequestProxy);
-//            }
-//        }
+        //        public static void LogHttpClientHandlerRequestState(this ClrHeap heap, ILogger logger, RuntimeContext runtimeContext)
+        //        {
+        //            foreach (var requestStateObject in runtimeContext.EnumerateObjectsByTypeName(
+        //                "System.Net.Http.HttpClientHandler+RequestState", TraversingHeapModes.Live))
+        //            {
+        //                using (logger.BeginScope(requestStateObject.ToString()))
+        //                {
+        //                    var webRequestObject = requestStateObject.GetObjectField("webRequest");
+        //                    var webRequestProxy = new HttpWebRequestProxy(runtimeContext, webRequestObject);
+        //                    LogHttpWebRequest(logger, webRequestProxy);
+        //
+        //                    var tcsObject = requestStateObject.GetObjectField("tcs");
+        //                    var taskObject = tcsObject.GetObjectField("m_task");
+        //                    if (taskObject.Address != NullAddress)
+        //                    {
+        //                        var taskStatus = TaskProxy.GetStatus(taskObject);
+        //
+        //                        logger.LogInformation($"tcs.m_task status = {taskStatus}");
+        //
+        //                        var taskResultObject = taskObject.GetObjectField("m_result");
+        //                        if (taskResultObject.Address != NullAddress)
+        //                        {
+        //// TODO get content from System.Net.Http.HttpResponseMessage
+        //                            var contentObject = taskResultObject.GetObjectField("content");
+        //
+        //                            using (logger.BeginScope("content"))
+        //                            {
+        //                                if (contentObject.Address != NullAddress)
+        //                                {
+        //                                    var contentConsumed = contentObject.GetField<bool>("contentConsumed");
+        //                                    var disposed = contentObject.GetField<bool>("disposed");
+        //
+        //                                    var logLevel = contentConsumed || disposed
+        //                                        ? LogLevel.Information
+        //                                        : LogLevel.Warning;
+        //
+        //                                    logger.Log(logLevel, $"contentConsumed: {contentConsumed}");
+        //                                    logger.Log(logLevel, $"disposed: {disposed}");
+        //                                }
+        //                                else
+        //                                {
+        //                                    logger.LogInformation("NULL");
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        logger.LogInformation("tcs.m_task == null");
+        //                    }
+        //                }
+        //            }
+        //
+        //            //                            foreach (var requestStateObject in GetAllReferencesTo(runtime, elAddress, "System.Net.Http.HttpClientHandler+RequestState"))
+        ////                            {
+        ////                                var taskObject = requestStateObject.GetObjectField("tcs")
+        ////                                    .GetObjectField("m_task");
+        ////
+        ////                                var taskIsCompelted = TaskObjectTypeExtensions.TaskIsCompelted(taskObject.Address, taskObject.Type);
+        ////                                logger.LogInformation($" taskIsCompelted = {taskIsCompelted}");
+        ////
+        //////                                foreach (var o in GetAllReferencesTo(runtime, taskObject.Address))
+        //////                                {
+        //////                                    logger.LogInformation(o);
+        //////                                }
+        ////                            }
+        //        }
+        //
+        //        public static void LogHttpWebRequests(ILogger logger, RuntimeContext runtimeContext)
+        //        {
+        //            foreach (var httpWebRequestObject in runtimeContext.EnumerateObjectsByTypeName("System.Net.HttpWebRequest", TraversingHeapModes.All))
+        //            {
+        //                var httpWebRequestProxy = new HttpWebRequestProxy(runtimeContext, httpWebRequestObject);
+        //                LogHttpWebRequest(logger, httpWebRequestProxy);
+        //            }
+        //        }
 
         public static void LogTaskCompletionSources(ILogger logger, RuntimeContext runtimeContext)
         {
@@ -297,7 +305,7 @@ namespace Heartbeat.Runtime
                           || (type.Name.StartsWith("System.Threading.Tasks.Task<", StringComparison.Ordinal) &&
                               type.Name.EndsWith(">", StringComparison.Ordinal)))
                     && (type.BaseType.Name == "System.Threading.Tasks.Task" || type.EnumerateInterfaces().Any(i => i.Name == "System.IAsyncResult"))
-                select new {Type = type, Address = address};
+                select new { Type = type, Address = address };
 
             var taskStat = new Dictionary<string, int>();
 
@@ -368,66 +376,66 @@ namespace Heartbeat.Runtime
                             }
 
                             // logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
-//                            continue;
+                            //                            continue;
                         }
 
-//                        if (clrInstanceField.IsObjectReference)
-//                        {
-//                            var fieldAaddress = (ulong) fieldValue;
-//                            if (fieldAaddress == 0)
-//                            {
-//                                logger.LogInformation($"{clrInstanceField.Name} = {{null}}");
-//                                continue;
-//                            }
-//
-//                            var fieldType = heap.GetObjectType(fieldAaddress);
-//                            logger.LogInformation($"{clrInstanceField.Name} = {fieldAaddress:X} {fieldType}");
-//                            if (fieldType.Name == "System.Action")
-//                            {
-//                                //heap.PrintObjectFields(fieldAaddress, fieldType, 1);
-//
-//                                var targetField = fieldType.GetFieldByName("_target");
-//                                var targetFieldAddress = (ulong) targetField.GetValue(fieldAaddress);
-//                                if (targetFieldAddress == 0)
-//                                {
-//                                    logger.LogInformation("\t_target = {null}");
-//                                }
-//                                else
-//                                {
-//                                    logger.LogInformation($"\t_target = {heap.GetObjectType(targetFieldAddress)}");
-//
-//                                    // TODO if it is "System.Runtime.CompilerServices.AsyncMethodBuilderCore+MoveNextRunner" then take "m_stateMachine" field
-//                                }
-//
-//                                var methodPtrField = fieldType.GetFieldByName("_methodPtr");
-//                                var methodPtrValue = (long) methodPtrField.GetValue(fieldAaddress);
-//
-//                                var methodPtrWithOffset = 5UL + (ulong) methodPtrValue;
-//                                heap.ReadPointer(methodPtrWithOffset + 2, out ulong someVal1);
-//                                heap.ReadPointer(methodPtrWithOffset + 1, out ulong someVal2);
-//                                heap.ReadPointer(methodPtrWithOffset + (someVal1 & 0xFF) * 8 + 3, out ulong baseMethodDesc);
-//                                var offset = (someVal2 & 0xFF) * 8;
-//                                var handle = baseMethodDesc + offset;
-//                                var method = runtime.GetMethodByHandle(handle);
-//
-//                                //var methodByAddress = runtime.GetMethodByAddress(methodPtrValue);
-//                                //var methodByHandle = runtime.GetMethodByHandle(methodPtrValue);
-//
-//                                //logger.LogInformation($"methodByAddress = {methodByAddress}");
-//                                PrintIndention(1);
-//                                logger.LogInformation($"methodByHandle = {method}");
-//                            }
-//
-//                            continue;
-//                        }
-//
-//                        if (clrInstanceField.IsValueClass)
-//                        {
-//                            logger.LogInformation($"{clrInstanceField.Name} {clrInstanceField.Type}");
-//                            continue;
-//                        }
-//
-//                        logger.LogInformation($"{clrInstanceField.Name} UNKNOWN TYPE");
+                        //                        if (clrInstanceField.IsObjectReference)
+                        //                        {
+                        //                            var fieldAaddress = (ulong) fieldValue;
+                        //                            if (fieldAaddress == 0)
+                        //                            {
+                        //                                logger.LogInformation($"{clrInstanceField.Name} = {{null}}");
+                        //                                continue;
+                        //                            }
+                        //
+                        //                            var fieldType = heap.GetObjectType(fieldAaddress);
+                        //                            logger.LogInformation($"{clrInstanceField.Name} = {fieldAaddress:X} {fieldType}");
+                        //                            if (fieldType.Name == "System.Action")
+                        //                            {
+                        //                                //heap.PrintObjectFields(fieldAaddress, fieldType, 1);
+                        //
+                        //                                var targetField = fieldType.GetFieldByName("_target");
+                        //                                var targetFieldAddress = (ulong) targetField.GetValue(fieldAaddress);
+                        //                                if (targetFieldAddress == 0)
+                        //                                {
+                        //                                    logger.LogInformation("\t_target = {null}");
+                        //                                }
+                        //                                else
+                        //                                {
+                        //                                    logger.LogInformation($"\t_target = {heap.GetObjectType(targetFieldAddress)}");
+                        //
+                        //                                    // TODO if it is "System.Runtime.CompilerServices.AsyncMethodBuilderCore+MoveNextRunner" then take "m_stateMachine" field
+                        //                                }
+                        //
+                        //                                var methodPtrField = fieldType.GetFieldByName("_methodPtr");
+                        //                                var methodPtrValue = (long) methodPtrField.GetValue(fieldAaddress);
+                        //
+                        //                                var methodPtrWithOffset = 5UL + (ulong) methodPtrValue;
+                        //                                heap.ReadPointer(methodPtrWithOffset + 2, out ulong someVal1);
+                        //                                heap.ReadPointer(methodPtrWithOffset + 1, out ulong someVal2);
+                        //                                heap.ReadPointer(methodPtrWithOffset + (someVal1 & 0xFF) * 8 + 3, out ulong baseMethodDesc);
+                        //                                var offset = (someVal2 & 0xFF) * 8;
+                        //                                var handle = baseMethodDesc + offset;
+                        //                                var method = runtime.GetMethodByHandle(handle);
+                        //
+                        //                                //var methodByAddress = runtime.GetMethodByAddress(methodPtrValue);
+                        //                                //var methodByHandle = runtime.GetMethodByHandle(methodPtrValue);
+                        //
+                        //                                //logger.LogInformation($"methodByAddress = {methodByAddress}");
+                        //                                PrintIndention(1);
+                        //                                logger.LogInformation($"methodByHandle = {method}");
+                        //                            }
+                        //
+                        //                            continue;
+                        //                        }
+                        //
+                        //                        if (clrInstanceField.IsValueClass)
+                        //                        {
+                        //                            logger.LogInformation($"{clrInstanceField.Name} {clrInstanceField.Type}");
+                        //                            continue;
+                        //                        }
+                        //
+                        //                        logger.LogInformation($"{clrInstanceField.Name} UNKNOWN TYPE");
                     }
                 }
             }
@@ -460,22 +468,22 @@ namespace Heartbeat.Runtime
 
                 if (clrInstanceField.IsPrimitive)
                 {
-//                    if (clrInstanceField.Name == "m_stateFlags")
-//                    {
-//                        var stateValue = (int) fieldValue;
-//                        logger.LogInformation($"{clrInstanceField.Name} = ");
-//
-//                        foreach (var statePair in TaskConstants.TASK_STATES)
-//                        {
-//                            if ((statePair.Key & stateValue) == statePair.Key)
-//                            {
-//                                logger.LogInformation($"{statePair.Value} |");
-//                            }
-//                        }
-//
-//                        logger.LogInformation();
-//                        continue;
-//                    }
+                    //                    if (clrInstanceField.Name == "m_stateFlags")
+                    //                    {
+                    //                        var stateValue = (int) fieldValue;
+                    //                        logger.LogInformation($"{clrInstanceField.Name} = ");
+                    //
+                    //                        foreach (var statePair in TaskConstants.TASK_STATES)
+                    //                        {
+                    //                            if ((statePair.Key & stateValue) == statePair.Key)
+                    //                            {
+                    //                                logger.LogInformation($"{statePair.Value} |");
+                    //                            }
+                    //                        }
+                    //
+                    //                        logger.LogInformation();
+                    //                        continue;
+                    //                    }
 
                     // var fieldValue = clrInstanceField.read<????>(address);
                     // logger.LogInformation($"{clrInstanceField.Name} = {fieldValue}");
@@ -508,20 +516,20 @@ namespace Heartbeat.Runtime
                     logger.LogInformation($"{clrInstanceField.Name} = {value}");
 
                     //                    if (fieldType.Name == "System.Action")
-//                    {
-//                        var targetField = fieldType.GetFieldByName("_target");
-//                        var targetFieldAddress = (ulong) targetField.GetValue(fieldAaddress);
-//                        if (targetFieldAddress == 0)
-//                        {
-//                            logger.LogInformation("\t_target = {null}");
-//                        }
-//                        else
-//                        {
-//                            logger.LogInformation($"\t_target = {runtime.Heap.GetObjectType(targetFieldAddress)}");
-//
-//                            // TODO if it is "System.Runtime.CompilerServices.AsyncMethodBuilderCore+MoveNextRunner" then take "m_stateMachine" field
-//                        }
-//                    }
+                    //                    {
+                    //                        var targetField = fieldType.GetFieldByName("_target");
+                    //                        var targetFieldAddress = (ulong) targetField.GetValue(fieldAaddress);
+                    //                        if (targetFieldAddress == 0)
+                    //                        {
+                    //                            logger.LogInformation("\t_target = {null}");
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            logger.LogInformation($"\t_target = {runtime.Heap.GetObjectType(targetFieldAddress)}");
+                    //
+                    //                            // TODO if it is "System.Runtime.CompilerServices.AsyncMethodBuilderCore+MoveNextRunner" then take "m_stateMachine" field
+                    //                        }
+                    //                    }
 
                     continue;
                 }
@@ -545,7 +553,7 @@ namespace Heartbeat.Runtime
             bool withState,
             bool aliveOnly)
         {
-//            var managedThreadNames = runtime.Heap.GetManagedThreadNames();
+            //            var managedThreadNames = runtime.Heap.GetManagedThreadNames();
             var managedThreadNames = new Dictionary<int, string>();
 
             foreach (var thread in runtime.Threads)
@@ -609,7 +617,7 @@ namespace Heartbeat.Runtime
 
 
                     // logger.LogInformation($"Stack trace ({thread.StackTrace.Count}):");
-//                    foreach (var x in thread.StackTrace.Select(frame => GetFrameDisplayString(frame)))
+                    //                    foreach (var x in thread.StackTrace.Select(frame => GetFrameDisplayString(frame)))
                     foreach (var x in thread.EnumerateStackTrace().Select(frame => GetFrameDisplayString(frame)))
                     {
                         logger.LogInformation(x);
@@ -622,19 +630,19 @@ namespace Heartbeat.Runtime
                     // method.GetFullSignature()
                 }
 
-//                 if (withBlockingObjects && thread.BlockingObjects.Count != 0)
-//                 {
-//                     logger.LogInformation("Blocking objects:");
-//                     foreach (var blockingObject in thread.BlockingObjects)
-//                     {
-//                         logger.LogInformation(
-//                             $"\tReason: {blockingObject.Reason}, Object: {blockingObject.Object:X} {runtime.Heap.GetObjectType(blockingObject.Object)}");
-// //                        foreach (var blockingObjectWaiter in blockingObject.Waiters)
-// //                        {
-// //                            logger.LogInformation($"\tIs waited by {blockingObjectWaiter.ManagedThreadId}");
-// //                        }
-//                     }
-//                 }
+                //                 if (withBlockingObjects && thread.BlockingObjects.Count != 0)
+                //                 {
+                //                     logger.LogInformation("Blocking objects:");
+                //                     foreach (var blockingObject in thread.BlockingObjects)
+                //                     {
+                //                         logger.LogInformation(
+                //                             $"\tReason: {blockingObject.Reason}, Object: {blockingObject.Object:X} {runtime.Heap.GetObjectType(blockingObject.Object)}");
+                // //                        foreach (var blockingObjectWaiter in blockingObject.Waiters)
+                // //                        {
+                // //                            logger.LogInformation($"\tIs waited by {blockingObjectWaiter.ManagedThreadId}");
+                // //                        }
+                //                     }
+                //                 }
 
                 // TODO Dump stack objects https://github.com/Microsoft/dotnet-samples/blob/master/Microsoft.Diagnostics.Runtime/CLRMD/ClrStack/Program.cs
             }
@@ -696,10 +704,10 @@ namespace Heartbeat.Runtime
 
             foreach (var refFromClrObject in heap.GetAllReferencesTo(clrObject.Address))
             {
-//                if (refFromClrObject.Type.IsInternal)
-//                {
-//                    continue;
-//                }`
+                //                if (refFromClrObject.Type.IsInternal)
+                //                {
+                //                    continue;
+                //                }`
 
                 if (visitedAddresses.Contains(refFromClrObject.Address))
                 {
@@ -709,7 +717,7 @@ namespace Heartbeat.Runtime
                 logger.LogInformation($"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
                 if (refFromClrObject.Type.IsString)
                 {
-                    logger.LogInformation($"Value = '{((string) refFromClrObject).Substring(0, 100)}'");
+                    logger.LogInformation($"Value = '{((string)refFromClrObject).Substring(0, 100)}'");
                 }
 
                 LogObjectFields(
@@ -745,7 +753,7 @@ namespace Heartbeat.Runtime
                 let type = clrObject.Type
                 where type != null
                       && !type.IsFree
-//                            && !type.IsString
+                      //                            && !type.IsString
                       && !type.IsInternal
                 orderby clrObject.Size descending
                 select clrObject;
@@ -757,7 +765,7 @@ namespace Heartbeat.Runtime
 
                 if (clrObject.Type.IsString)
                 {
-                    logger.LogInformation($"Value = '{((string) clrObject).Substring(0, 100)}'");
+                    logger.LogInformation($"Value = '{((string)clrObject).Substring(0, 100)}'");
                 }
 
                 var visitedAddresses = ImmutableHashSet<ulong>.Empty.Add(clrObject.Address);

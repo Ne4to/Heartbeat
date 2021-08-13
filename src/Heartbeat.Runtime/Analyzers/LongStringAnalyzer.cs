@@ -53,10 +53,10 @@ namespace Heartbeat.Runtime.Analyzers
         {
             foreach (var stringClrObject in GetLongestStrings(count, traversingMode))
             {
-                var stringValue = (string) stringClrObject;
+                var stringValue = (string?) stringClrObject;
                 var displayString = stringValue.Truncate(maxLength);
 
-                logger.LogInformation($"Length = {stringValue.Length} symbols, Value = {displayString}");
+                logger.LogInformation($"Length = {stringValue!.Length} symbols, Value = {displayString}");
             }
         }
     }

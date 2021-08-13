@@ -27,6 +27,12 @@ namespace Heartbeat.Runtime.Proxies
 
             //using (logger.BeginScope(GetAsyncMethodName(stateMachineObject.Type.Name)))
             {
+                if (stateMachineObject.Type.GetFieldByName("<>1__state") == null)
+                {
+                    logger.LogInformation("state is not found. skipping");
+                    return;
+                }
+
                 var state = stateMachineObject.ReadField<int>("<>1__state");
                 if (_fullLog)
                 {
@@ -79,31 +85,40 @@ namespace Heartbeat.Runtime.Proxies
                         continue;
                     }
 
-
-                    var uTaskObject = uField.ReadObjectField("m_task");
-                    var statusTask = "NULL";
-                    if (!uTaskObject.IsNull)
+                    if (uField.Type.Name.StartsWith("System.Runtime.CompilerServices.ConfiguredValueTaskAwaitable<", StringComparison.Ordinal))
                     {
-                        var taskProxy = new TaskProxy(Context, uTaskObject);
-                        statusTask = $"{taskProxy.Status} (IsCompleted:{taskProxy.IsCompleted}) {field.Type.Name}";
-                        // TASK is System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Threading.Tasks.VoidTaskResult, System.Private.CoreLib],[Npgsql.NpgsqlReadBuffer+<>c__DisplayClass31_0+<<Ensure>g__EnsureLong|0>d, Npgsql]]
+                        var valueTask = uField.ReadValueTypeField("_value");
+                        var valueTaskProxy = new ValueTaskProxy(Context, valueTask);
+                        var completed = valueTaskProxy.IsCompleted;
+                    }
+                    else
+                    {
+                        ClrObject uTaskObject = uField.ReadObjectField("m_task");
 
-                        foreach (var refAddress in Context.HeapIndex.GetReferencesTo(uTaskObject.Address))
+                        var statusTask = "NULL";
+                        if (!uTaskObject.IsNull)
                         {
-                            var refObject = Context.Heap.GetObject(refAddress);
+                            var taskProxy = new TaskProxy(Context, uTaskObject);
+                            statusTask = $"{taskProxy.Status} (IsCompleted:{taskProxy.IsCompleted}) {field.Type.Name}";
+                            // TASK is System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[[System.Threading.Tasks.VoidTaskResult, System.Private.CoreLib],[Npgsql.NpgsqlReadBuffer+<>c__DisplayClass31_0+<<Ensure>g__EnsureLong|0>d, Npgsql]]
 
-                            if (_fullLog)
-                                logger.LogInformation($"ref by {refObject}");
-
-                            if (refObject.Type.EnumerateInterfaces().Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox"))
+                            foreach (var refAddress in Context.HeapIndex.GetReferencesTo(uTaskObject.Address))
                             {
-                                new AsyncStateMachineBoxProxy(Context, refObject).Dump(logger);
+                                var refObject = Context.Heap.GetObject(refAddress);
+
+                                if (_fullLog)
+                                    logger.LogInformation($"ref by {refObject}");
+
+                                if (refObject.Type.EnumerateInterfaces().Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox"))
+                                {
+                                    new AsyncStateMachineBoxProxy(Context, refObject).Dump(logger);
+                                }
                             }
                         }
-                    }
 
-                    //if (_fullLog)
+                        //if (_fullLog)
                         logger.LogInformation($"{field.Name}: {statusTask}");
+                    }
                 }
             }
         }

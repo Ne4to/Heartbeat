@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Humanizer" Version="2.8.26" />
-    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.217201" />
+    <PackageReference Include="Humanizer" Version="2.11.10" />
+    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.226801" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
