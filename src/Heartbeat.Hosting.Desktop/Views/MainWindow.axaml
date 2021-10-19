@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Heartbeat.Hosting.Desktop.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Heartbeat.Hosting.Desktop.Views"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Heartbeat.Hosting.Desktop.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Heartbeat">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+
+    <!-- <views:SelectDump DataContext="{Binding SelectDumpViewModel}" /> -->
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+
+                <MenuItem Header="_Open..." Command="{Binding OpenDumpCommand}" />
+                <!-- <Separator/> -->
+                <!-- <MenuItem Header="_Exit"/> -->
+            </MenuItem>
+            <!-- <MenuItem Header="_Edit"> -->
+            <!--     <MenuItem Header="Copy"/> -->
+            <!--     <MenuItem Header="Paste"/> -->
+            <!-- </MenuItem> -->
+        </Menu>
+
+        <ListBox DockPanel.Dock="Left" Items="{Binding Dumps}" SelectedItem="{Binding SelectedDump}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Title}" ToolTip.Tip="{Binding DumpPath}" />
+                        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsLoading}"  />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <TabControl>
+            <TabItem Header="Top object types">
+                <views:ObjectTypeStatisticsView DataContext="{Binding SelectedDump.ObjectTypeStatisticsViewModel}" />
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+
+</Window>
