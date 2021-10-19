@@ -48,14 +48,11 @@ namespace DumpHelper
 
         private Process RunProject(FileInfo projectFile)
         {
+            var dir = Path.Combine(projectFile.DirectoryName, @"bin\Release\net6.0");
+            var exeFile = Path.ChangeExtension(projectFile.Name, "exe");
+
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = "dotnet";
-            startInfo.ArgumentList.Add("run");
-            startInfo.ArgumentList.Add("-c");
-            startInfo.ArgumentList.Add("Release");
-            startInfo.ArgumentList.Add("--no-build");
-            startInfo.ArgumentList.Add("--project");
-            startInfo.ArgumentList.Add(projectFile.FullName);
+            startInfo.FileName = Path.Combine(dir, exeFile);
 
             var process = Process.Start(startInfo);
             return process;
