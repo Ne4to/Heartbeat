@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Implementation;
 
 namespace Heartbeat.Runtime
 {
@@ -27,16 +29,16 @@ namespace Heartbeat.Runtime
             while (eval.Count > 0)
             {
                 // Pop an object, ignore it if we've seen it before.
-                var obj = eval.Pop();
-                if (_walkableFromRoot.Contains(obj))
+                var address = eval.Pop();
+                if (_walkableFromRoot.Contains(address))
                 {
                     continue;
                 }
 
-                _walkableFromRoot.Add(obj);
+                _walkableFromRoot.Add(address);
 
                 // Grab the type. We will only get null here in the case of heap corruption.
-                ClrType? type = heap.GetObjectType(obj);
+                ClrType? type = heap.GetObjectType(address);
                 if (type == null)
                 {
                     continue;
@@ -44,16 +46,55 @@ namespace Heartbeat.Runtime
 
                 // Now enumerate all objects that this object points to, add them to the
                 // evaluation stack if we haven't seen them before.
-                // type.EnumerateRefsOfObject(obj, delegate(ulong child, int offset)
-                // {
-                //     if (child != NullAddress && !_walkableFromRoot.Contains(child))
-                //     {
-                //         // obj -> child
-                //         AddReference(obj, child);
-                //
-                //         eval.Push(child);
-                //     }
-                // });
+                if (type.IsArray)
+                {
+                    EnumerateArrayElements(address);
+                }
+                else
+                {
+                    EnumerateFields(type, address);
+                }
+            }
+
+            void EnumerateArrayElements(ulong address)
+            {
+
+                var obj = heap.GetObject(address);
+                var array = obj.AsArray();
+                var componentType = ((ClrmdArrayType)array.Type).ComponentType;
+
+                if (componentType.IsObjectReference)
+                {
+                    foreach (var arrayElement in ArrayProxy.EnumerateObjectItems(array))
+                    {
+                        if (!arrayElement.IsNull)
+                        {
+                            AddReference(address, arrayElement.Address);
+                            eval.Push(arrayElement.Address);
+                        }
+                    }
+                }
+                else
+                {
+                    // throw new NotSupportedException($"Enumerating array of {componentType} type is not supported");
+                }
+            }
+
+            void EnumerateFields(ClrType? type, ulong address)
+            {
+
+                foreach (var instanceField in type.Fields)
+                {
+                    if (instanceField.IsObjectReference)
+                    {
+                        var fieldObject = instanceField.ReadObject(address, false);
+                        if (!fieldObject.IsNull)
+                        {
+                            AddReference(address, fieldObject.Address);
+                            eval.Push(fieldObject.Address);
+                        }
+                    }
+                }
             }
         }
 

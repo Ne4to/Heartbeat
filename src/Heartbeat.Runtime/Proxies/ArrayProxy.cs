@@ -1,20 +1,24 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime.Proxies
 {
     public sealed class ArrayProxy : ProxyBase
     {
-        public int Length => TargetObject.AsArray().Length;
+        private ClrArray _clrArray;
+        public int Length => _clrArray.Length;
 
-        public ArrayProxy(RuntimeContext context, ClrObject targetObject) 
+        public ArrayProxy(RuntimeContext context, ClrObject targetObject)
             : base(context, targetObject)
         {
+            _clrArray = TargetObject.AsArray();
         }
 
-        public ArrayProxy(RuntimeContext context, ulong address) 
+        public ArrayProxy(RuntimeContext context, ulong address)
             : base(context, address)
         {
+            _clrArray = TargetObject.AsArray();
         }
 
         public string?[] GetStringArray()
@@ -28,7 +32,7 @@ namespace Heartbeat.Runtime.Proxies
 
             for (int itemIndex = 0; itemIndex < Length; itemIndex++)
             {
-                var arrayElement = TargetObject.AsArray()
+                var arrayElement = _clrArray
                    .GetObjectValue(itemIndex)
                    .AsString();
 
@@ -45,7 +49,7 @@ namespace Heartbeat.Runtime.Proxies
                 return Array.Empty<int>();
             }
 
-            return TargetObject.AsArray()
+            return _clrArray
                .ReadValues<int>(0, Length);
         }
 
@@ -60,10 +64,25 @@ namespace Heartbeat.Runtime.Proxies
 
             for (int itemIndex = 0; itemIndex < Length; itemIndex++)
             {
-                result[itemIndex] = TargetObject.AsArray().GetObjectValue(itemIndex);
+                result[itemIndex] = _clrArray.GetObjectValue(itemIndex);
             }
 
             return result;
+        }
+
+        public static IEnumerable<ClrObject> EnumerateObjectItems(ClrArray array)
+        {
+            var length = array.Length;
+
+            if (length == 0)
+            {
+                yield break;
+            }
+
+            for (int itemIndex = 0; itemIndex < length; itemIndex++)
+            {
+                yield return array.GetObjectValue(itemIndex);
+            }
         }
     }
 }
