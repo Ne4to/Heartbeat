@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
-using DynamicData;
+
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Models;
+
 using ReactiveUI;
 
 namespace Heartbeat.Hosting.Desktop.ViewModels

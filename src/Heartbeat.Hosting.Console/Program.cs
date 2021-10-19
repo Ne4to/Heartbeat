@@ -2,14 +2,16 @@ using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
+
 using Heartbeat.Hosting.Console.Logging;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
-using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+
 using Process = System.Diagnostics.Process;
 
 namespace Heartbeat.Hosting.Console
@@ -47,7 +49,7 @@ namespace Heartbeat.Hosting.Console
         {
             using var serviceProvider = new ServiceCollection().AddLogging(
                     x => x.ClearProviders()
-                        //.AddConsole(loggerOptions => { loggerOptions.IncludeScopes = true; })
+                       //.AddConsole(loggerOptions => { loggerOptions.IncludeScopes = true; })
                        .Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, CustomLoggerProvider>()))
                .BuildServiceProvider();
 
@@ -192,6 +194,9 @@ namespace Heartbeat.Hosting.Console
             // var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccd2dd198);
             // var dictionaryProxy2 = new DictionaryProxy(runtimeContext, 0x000001dccef138b8);
             // dictionaryProxy2.Dump<char, int>(logger);
+
+            //var obj = runtimeContext.Heap.GetObject(0x00007fc40079f2d0);
+            //LogExtensions.LogClrTypeInfo(obj.Type, logger);
         }
     }
 }
