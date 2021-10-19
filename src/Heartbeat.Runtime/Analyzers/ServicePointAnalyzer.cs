@@ -31,7 +31,7 @@ namespace Heartbeat.Runtime.Analyzers
                 //logger.LogInformation($"host: {host}");
                 //logger.LogInformation($"port: {port}");
                 logger.LogInformation($"connectionLimit: {connectionLimit}");
-                logger.LogInformation($"CurrentConnections: {servicePoint.CurrentConnections}");
+                // logger.LogInformation($"CurrentConnections: {servicePoint.CurrentConnections}");
                 logger.LogInformation($"useNagleAlgorithm: {useNagleAlgorithm}");
                 //logger.LogInformation($"UseTcpKeepAlive: {servicePoint.UseTcpKeepAlive}");
                 //logger.LogInformation($"LastDnsResolve: {servicePoint.LastDnsResolve}");

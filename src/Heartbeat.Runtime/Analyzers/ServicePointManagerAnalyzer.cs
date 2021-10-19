@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Exceptions;
 using Heartbeat.Runtime.Extensions;
+using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
@@ -48,6 +49,11 @@ namespace Heartbeat.Runtime.Analyzers
 
                 foreach (var keyValuePair in servicePointTableProxy)
                 {
+                    if (keyValuePair.Value.IsNull)
+                    {
+                        continue;
+                    }
+                    
                     var weakRefValue = Context.GetWeakRefValue(keyValuePair.Value);
                     var weakRefTarget = heap.GetObject(weakRefValue);
                     logger.LogInformation($"{(string) keyValuePair.Key}: {weakRefTarget}");
@@ -60,6 +66,17 @@ namespace Heartbeat.Runtime.Analyzers
                     }
                 }
             }
+
+            foreach (var spObject in Context.EnumerateObjectsByTypeName("System.Net.ServicePoint", TraversingHeapModes.All))
+            {
+                var servicePointProxy = new ServicePointProxy(Context, spObject);
+                var servicePointAnalyzer = new ServicePointAnalyzer(Context, servicePointProxy)
+                {
+                    WithAllConnections = true
+                };
+                    
+                servicePointAnalyzer.Dump(logger);
+            } 
         }
     }
 }

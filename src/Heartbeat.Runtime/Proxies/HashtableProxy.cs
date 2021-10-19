@@ -38,11 +38,11 @@ namespace Heartbeat.Runtime.Proxies
                 //var arrayProxy = new ArrayProxy(Context, bucketsObject);
                 // TODO move to ArrayProxy
                 var elementAddress = bucketsObject.Type.GetArrayElementAddress(bucketsObject.Address, bucketIndex);
-                var keyObject = bucketKeyField.ReadObject(elementAddress, false);
+                var keyObject = bucketKeyField.ReadObject(elementAddress, true);
 
                 if (!keyObject.IsNull)
                 {
-                    var valObject = bucketValField.ReadObject(elementAddress, false);
+                    var valObject = bucketValField.ReadObject(elementAddress, true);
 
                     var kvp = new KeyValuePair<ClrObject, ClrObject>(keyObject, valObject);
                     result.Add(kvp);

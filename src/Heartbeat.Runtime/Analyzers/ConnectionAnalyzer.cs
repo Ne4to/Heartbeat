@@ -48,8 +48,8 @@ namespace Heartbeat.Runtime.Analyzers
                     }
                 }
 
-                LogConnectionWriteList(logger, out var writeItemTimestamp);
-                LogConnectionWaitList(logger, writeItemTimestamp);
+                //LogConnectionWriteList(logger, out var writeItemTimestamp);
+                //LogConnectionWaitList(logger, writeItemTimestamp);
             }
         }
 
