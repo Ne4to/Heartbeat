@@ -16,5 +16,18 @@ namespace Heartbeat.Runtime.Extensions
                 workItemTypeCount[key] = 1;
             }
         }
+        
+        public static void IncrementValue<TKey>(this IDictionary<TKey, long> workItemTypeCount, TKey key, long value)
+            where TKey : notnull
+        {
+            if (workItemTypeCount.TryGetValue(key, out var currentValue))
+            {
+                workItemTypeCount[key] = currentValue + value;
+            }
+            else
+            {
+                workItemTypeCount[key] = value;
+            }
+        }        
     }
 }

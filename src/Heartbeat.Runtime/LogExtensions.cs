@@ -1,16 +1,13 @@
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
-
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
 using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime
@@ -19,13 +16,20 @@ namespace Heartbeat.Runtime
     {
         public static void LogHeapSegments(this ClrHeap heap, ILogger logger)
         {
-            // logger.LogInformation($"TotalHeapSize: {heap.TotalHeapSize.ToMemorySizeString()}");
+            ulong totalSize = 0;
 
-            foreach (var heapSegment in heap.Segments)
+            foreach (var segment in heap.Segments)
             {
                 logger.LogInformation(
-                    $"\t{heapSegment} IsEphemeralSegment: {heapSegment.IsEphemeralSegment}, IsLargeObjectSegment: {heapSegment.IsLargeObjectSegment}");
+                    $"\t{segment} ObjectRange: {segment.ObjectRange} {segment.ObjectRange.Length.ToMemorySizeString()} " +
+                    $"CommittedMemory: {segment.CommittedMemory} {segment.CommittedMemory.Length.ToMemorySizeString()} " +
+                    $"ReservedMemory: {segment.ReservedMemory} {segment.ReservedMemory.Length.ToMemorySizeString()} " +
+                    $"IsEphemeralSegment: {segment.IsEphemeralSegment}, IsLargeObjectSegment: {segment.IsLargeObjectSegment}");
+
+                totalSize += segment.Length;
             }
+
+            logger.LogInformation($"TotalHeapSize: {totalSize.ToMemorySizeString()}");
         }
 
         public static void LogClrTypeInfo(this ClrType clrType, ILogger logger)
@@ -65,6 +69,7 @@ namespace Heartbeat.Runtime
             {
                 logger.LogInformation(clrInterface.Name);
             }
+
             logger.LogInformation($"Interfaces.Count: {clrType.EnumerateInterfaces().Count()}");
 
             //            clrType.
@@ -288,7 +293,8 @@ namespace Heartbeat.Runtime
             logger.LogInformation($"Completed task: {completedTaskCount}");
         }
 
-        public static void LogTaskObjects(RuntimeContext runtimeContext, ILogger logger, bool includeCompleted, bool statOnly)
+        public static void LogTaskObjects(RuntimeContext runtimeContext, ILogger logger, bool includeCompleted,
+            bool statOnly)
         {
             ClrHeap heap = runtimeContext.Heap;
 
@@ -304,7 +310,8 @@ namespace Heartbeat.Runtime
                       && (type.Name == "System.Threading.Tasks.Task"
                           || (type.Name.StartsWith("System.Threading.Tasks.Task<", StringComparison.Ordinal) &&
                               type.Name.EndsWith(">", StringComparison.Ordinal)))
-                    && (type.BaseType.Name == "System.Threading.Tasks.Task" || type.EnumerateInterfaces().Any(i => i.Name == "System.IAsyncResult"))
+                      && (type.BaseType.Name == "System.Threading.Tasks.Task" ||
+                          type.EnumerateInterfaces().Any(i => i.Name == "System.IAsyncResult"))
                 select new { Type = type, Address = address };
 
             var taskStat = new Dictionary<string, int>();
@@ -336,8 +343,8 @@ namespace Heartbeat.Runtime
                     if (!actionObject.IsNull && actionObject.Type.Name == "System.Action")
                     {
                         var ptr = actionObject.ReadValueTypeField("_methodPtr")
-                           .ReadField<UIntPtr>("m_value")
-                           .ToUInt64();
+                            .ReadField<UIntPtr>("m_value")
+                            .ToUInt64();
 
                         var clrMethod = heap.Runtime.GetMethodByInstructionPointer(ptr);
                         if (clrMethod != null)
@@ -714,7 +721,8 @@ namespace Heartbeat.Runtime
                     continue;
                 }
 
-                logger.LogInformation($"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
+                logger.LogInformation(
+                    $"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
                 if (refFromClrObject.Type.IsString)
                 {
                     logger.LogInformation($"Value = '{((string)refFromClrObject).Substring(0, 100)}'");
