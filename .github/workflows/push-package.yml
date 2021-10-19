@@ -2,7 +2,7 @@ name: Push NuGet package
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master-disabled ]
 
 jobs:
   build:
