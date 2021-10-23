@@ -7,6 +7,7 @@ using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime.Proxies
 {
+    // TODO investogate https://github.com/dotnet/diagnostics/blob/dc9d61a876d6153306b2d59c769d9581e3d5ab2d/src/SOS/Strike/strike.cpp#L4470
     public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
     {
         private static bool _fullLog = false;

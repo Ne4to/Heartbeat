@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
@@ -30,20 +32,12 @@ namespace Heartbeat.Runtime.Analyzers
 
             logger.LogInformation("State machines");
 
-            var stateMachineBoxQuery =
-                from clrObject in Context.EnumerateObjects(TraversingHeapMode)
-                where clrObject.Type
-                    !.EnumerateInterfaces()
-                    .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachineBox")
-                select clrObject;
-
-            foreach (var stateMachineBoxObject in stateMachineBoxQuery)
+            foreach (var stateMachineBoxObject in EnumerateAsyncStateMachineObjects())
             {
                 var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
                 logger.LogInformation(stateMachineBoxObject.ToString());
-
-                logger.LogInformation("------------");
                 stateMachineBoxProxy.Dump(logger);
+                logger.LogInformation("------------");
             }
 
             var stateMachineQuery =
@@ -146,6 +140,63 @@ namespace Heartbeat.Runtime.Analyzers
                 //                        logger.LogInformation($"\treferences {objectReference.Address:X} {objectReference.Type}");
                 //                        // TODO <>1__state
                 //                    }
+            }
+        }
+
+        private IEnumerable<ClrObject> EnumerateAsyncStateMachineObjects()
+        {
+            var (asyncStateMachineBoxType, debugFinalizableAsyncStateMachineBoxType, taskType) = FindStateMachineTypes();
+
+            return
+                from clrObject in Context.EnumerateObjects(TraversingHeapMode)
+                where
+                    // Skip objects too small to be state machines or tasks, avoiding some compiler-generated caching data structures.
+                    // https://github.com/dotnet/diagnostics/blob/dc9d61a876d6153306b2d59c769d9581e3d5ab2d/src/SOS/Strike/strike.cpp#L4749
+                    clrObject.Size > 24
+                    && (clrObject.Type.MetadataToken == asyncStateMachineBoxType?.MetadataToken
+                        || clrObject.Type.MetadataToken == debugFinalizableAsyncStateMachineBoxType?.MetadataToken)
+                    // TODO add Task support
+                select clrObject;
+        }
+
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <remarks>https://github.com/dotnet/diagnostics/blob/dc9d61a876d6153306b2d59c769d9581e3d5ab2d/src/SOS/Strike/strike.cpp#L4658</remarks>
+        private (ClrType? asyncStateMachineBoxType, ClrType? debugFinalizableAsyncStateMachineBoxType, ClrType? taskType) FindStateMachineTypes()
+        {
+            var coreLibModule = Context.Heap.Runtime
+                .EnumerateModules()
+                .SingleOrDefault(m => Path.GetFileName(m.Name) == "System.Private.CoreLib.dll");
+
+            if (coreLibModule == null)
+            {
+                throw new InvalidOperationException("Module 'System.Private.CoreLib.dll' is not found.");
+            }
+
+            ClrType? asyncStateMachineBoxType = null;
+            ClrType? debugFinalizableAsyncStateMachineBoxType = null;
+            ClrType? taskType = null;
+
+            foreach (var (_, token) in coreLibModule.EnumerateTypeDefToMethodTableMap())
+            {
+                var clrType = coreLibModule.ResolveToken(token);
+                if (clrType?.Name == null)
+                {
+                    continue;
+                }
+
+                FindType(clrType, ref asyncStateMachineBoxType, "System.Runtime.CompilerServices.AsyncTaskMethodBuilder<T1>+AsyncStateMachineBox<T1>");
+                FindType(clrType, ref debugFinalizableAsyncStateMachineBoxType, "System.Runtime.CompilerServices.AsyncTaskMethodBuilder<T1>+DebugFinalizableAsyncStateMachineBox<T1>");
+                FindType(clrType, ref taskType, "System.Threading.Tasks.Task");
+            }
+
+            return (asyncStateMachineBoxType, debugFinalizableAsyncStateMachineBoxType, taskType);
+
+            static void FindType(ClrType checkClrType, ref ClrType? foundClrType, string typeName)
+            {
+                if (foundClrType == null && checkClrType.Name == typeName)
+                {
+                    foundClrType = checkClrType;
+                }
             }
         }
     }
