@@ -1,4 +1,5 @@
 using Heartbeat.Runtime.Extensions;
+using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
@@ -8,7 +9,6 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime
 {
@@ -511,7 +511,7 @@ namespace Heartbeat.Runtime
                     switch (fieldValue)
                     {
                         case ulong fieldAddress:
-                            if (fieldAddress != NullAddress)
+                            if (fieldAddress != Address.Null.Value)
                             {
                                 var fieldType = heap.GetObjectType(fieldAddress);
                                 value = $"{fieldAddress:X} {fieldType}";

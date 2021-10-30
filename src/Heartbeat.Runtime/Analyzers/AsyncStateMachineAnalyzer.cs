@@ -10,7 +10,6 @@ using Heartbeat.Runtime.Proxies;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 
-using static Heartbeat.Runtime.Constants;
 
 namespace Heartbeat.Runtime.Analyzers
 {
@@ -39,6 +38,12 @@ namespace Heartbeat.Runtime.Analyzers
                 stateMachineBoxProxy.Dump(logger);
                 logger.LogInformation("------------");
             }
+
+            //ProcessAsyncStateMachine(logger);
+        }
+
+        private void ProcessAsyncStateMachine(ILogger logger)
+        {
 
             var stateMachineQuery =
                 from clrObject in Context.EnumerateObjects(TraversingHeapMode)
@@ -104,7 +109,7 @@ namespace Heartbeat.Runtime.Analyzers
                             continue;
                         }
 
-                        if (uField.Address == NullAddress)
+                        if (uField.Address == Address.Null.Value)
                         {
                             // TODO
                             logger.LogWarning("SKIP uField.Address == NullAddress");
