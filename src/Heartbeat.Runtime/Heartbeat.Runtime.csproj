@@ -1,22 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-	  <LangVersion>10.0</LangVersion>
-    <Configurations>Debug;Release;DebugLocal</Configurations>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Configurations>Debug;Release;DebugLocal</Configurations>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
+    <ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="Heartbeat.Domain" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Humanizer" Version="2.11.10" />
-    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.226801" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\.editorconfig" Link=".editorconfig" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Humanizer" Version="2.11.10" />
+        <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="2.0.226801" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+        <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+        <PackageReference Include="System.Memory" Version="4.5.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Heartbeat.Domain\Heartbeat.Domain.csproj" />
+    </ItemGroup>
 
 </Project>

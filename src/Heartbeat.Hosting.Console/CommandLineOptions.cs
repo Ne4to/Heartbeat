@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.IO;
-using Heartbeat.Runtime.Models;
+
+using Heartbeat.Domain;
 
 namespace Heartbeat.Hosting.Console
 {

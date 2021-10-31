@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 
+using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Models;

@@ -1,4 +1,4 @@
-﻿namespace Heartbeat.Runtime.Models;
+﻿namespace Heartbeat.Domain;
 
 public record struct Address(ulong Value)
 {
@@ -6,6 +6,6 @@ public record struct Address(ulong Value)
 
     public override string ToString()
     {
-        return Value.ToString("x");
+        return $"0x{Value:x}";
     }
 }

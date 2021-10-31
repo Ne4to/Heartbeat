@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using Heartbeat.Domain;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;

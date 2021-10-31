@@ -2,23 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Text.Unicode;
 using System.Threading.Tasks;
 
 using Heartbeat.Hosting.Console.Logging;
+using Heartbeat.Rpc.Contract;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
+using Heartbeat.Runtime.Rpc;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Primitives;
+
 using Process = System.Diagnostics.Process;
 
 namespace Heartbeat.Hosting.Console
@@ -62,9 +63,41 @@ namespace Heartbeat.Hosting.Console
 
             var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
+            //ProcessCommand2(logger);
+
             using var dataTarget = GetDataTarget(logger);
             ProcessCommand(dataTarget, logger);
             return 0;
+        }
+
+        private async Task ProcessCommand2(ILogger<Program> logger)
+        {
+            IRpcClient rpcClient = _commandLineOptions.DacPath != null
+                ? RpcServer.LoadDump(
+                    _commandLineOptions.Dump.FullName,
+                    _commandLineOptions.DacPath.FullName,
+                    _commandLineOptions.IgnoreDacMismatch)
+                : RpcServer.LoadDump(_commandLineOptions.Dump.FullName);
+
+            var traversingMode = _commandLineOptions.TraversingHeapMode;
+
+            if (_commandLineOptions.HttpClient)
+            {
+                var httpclients = await rpcClient.GetHttpClients(traversingMode);
+                foreach (var httpclient in httpclients)
+                {
+                    logger.LogInformation($"{httpclient.Address} timeout = {httpclient.Timeout.TotalSeconds:F2} seconds");
+                }
+            }
+
+            if (_commandLineOptions.StringDuplicate)
+            {
+                var duplicates = await rpcClient.GetStringDuplicates(traversingMode, 10, 100);
+                foreach (var duplicate in duplicates)
+                {
+                    logger.LogInformation($"{duplicate.Count} instances of: {duplicate.String}");
+                }
+            }
         }
 
         private DataTarget GetDataTarget(ILogger logger)
@@ -124,13 +157,6 @@ namespace Heartbeat.Hosting.Console
 
             // heap.LogTopMemObjects(logger, 10, 1, 1);
 
-            if (_commandLineOptions.HttpClient)
-            {
-                var httpClientAnalyzer = new HttpClientAnalyzer(runtimeContext);
-                httpClientAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
-                httpClientAnalyzer.Dump(logger);
-            }
-
             if (_commandLineOptions.TaskCompletionSource)
             {
                 LogExtensions.LogTaskCompletionSources(logger, runtimeContext);
@@ -161,13 +187,6 @@ namespace Heartbeat.Hosting.Console
                 LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
                 longStringAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
                 longStringAnalyzer.Dump(logger);
-            }
-
-            if (_commandLineOptions.StringDuplicate)
-            {
-                var stringDuplicateAnalyzer = new StringDuplicateAnalyzer(runtimeContext);
-                stringDuplicateAnalyzer.TraversingHeapMode = _commandLineOptions.TraversingHeapMode;
-                stringDuplicateAnalyzer.Dump(logger);
             }
 
             if (_commandLineOptions.AsyncStateMachine)
@@ -232,7 +251,7 @@ namespace Heartbeat.Hosting.Console
                 totalLohSegmentSize += segment.Length;
 
                 var query = from obj in segment.EnumerateObjects()
-                    select obj;
+                            select obj;
 
                 foreach (var obj in query)
                 {
@@ -252,8 +271,8 @@ namespace Heartbeat.Hosting.Console
             System.Console.WriteLine($"LOH: segments {totalLohSegmentSize.ToMemorySizeString()} all objects {totalLohObjSize.ToMemorySizeString()} byte arrays {totalLohArraySize.ToMemorySizeString()}");
 
             var q = from obj in runtime.Heap.EnumerateObjects()
-                where obj.Type?.Name == "System.Net.Http.HttpResponseMessage"
-                select obj;
+                    where obj.Type?.Name == "System.Net.Http.HttpResponseMessage"
+                    select obj;
 
             var countByDiscoveryKey = new Dictionary<string, int>();
 
@@ -315,8 +334,8 @@ namespace Heartbeat.Hosting.Console
                 if (!segment.IsLargeObjectSegment) continue;
 
                 var query = from obj in segment.EnumerateObjects()
-                    where obj.Type?.Name == "System.Byte[]"
-                    select obj;
+                            where obj.Type?.Name == "System.Byte[]"
+                            select obj;
 
                 foreach (var arrayObject in query.Take(10))
                 {
@@ -377,13 +396,13 @@ namespace Heartbeat.Hosting.Console
             Dictionary<string, int> countByDiscoveryKey)
         {
             var q = from kvp in totalByDiscoveryKey
-                let totalSize = kvp.Value
-                let discoveryKey = kvp.Key
-                let service = GetServiceName(discoveryKey)
-                let count = countByDiscoveryKey[discoveryKey]
-                let avgSize = totalSize / count
-                orderby totalSize descending
-                select $"{discoveryKey} {totalSize.ToMemorySizeString()}, {count} requests, avg size = {avgSize.ToMemorySizeString()}, {service}";
+                    let totalSize = kvp.Value
+                    let discoveryKey = kvp.Key
+                    let service = GetServiceName(discoveryKey)
+                    let count = countByDiscoveryKey[discoveryKey]
+                    let avgSize = totalSize / count
+                    orderby totalSize descending
+                    select $"{discoveryKey} {totalSize.ToMemorySizeString()}, {count} requests, avg size = {avgSize.ToMemorySizeString()}, {service}";
 
             foreach (var msg in q)
             {
@@ -405,8 +424,6 @@ namespace Heartbeat.Hosting.Console
                 }
             }
         }
-
-
 
         private static string? GetDiscoveryKey(UriProxy uriProxy)
         {
@@ -453,7 +470,7 @@ namespace Heartbeat.Hosting.Console
             return (null, null);
         }
 
-        private static (int? Length, bool? IsLargeObjectSegment ) GetResponseLength(ClrObject responseObj, RuntimeContext runtimeContext)
+        private static (int? Length, bool? IsLargeObjectSegment) GetResponseLength(ClrObject responseObj, RuntimeContext runtimeContext)
         {
             var contentObject = responseObj.ReadObjectField("content");
             if (contentObject.IsNull)
@@ -486,8 +503,8 @@ namespace Heartbeat.Hosting.Console
                 if (!segment.IsLargeObjectSegment) continue;
 
                 var query = from obj in segment.EnumerateObjects()
-                    where obj.Type?.Name == "System.Byte[]"
-                    select obj;
+                            where obj.Type?.Name == "System.Byte[]"
+                            select obj;
 
                 foreach (var clrObject in query)
                 {

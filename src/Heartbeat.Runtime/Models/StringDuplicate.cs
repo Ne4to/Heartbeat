@@ -1,19 +1,15 @@
-using System;
-using Humanizer;
+namespace Heartbeat.Runtime.Models;
 
-namespace Heartbeat.Runtime.Models
+public class StringDuplicate
 {
-    public class StringDuplicate
-    {
-        public string Value { get; }
-        public string ShortValue { get; }
-        public int InstanceCount { get; }
+    public string String { get; }
+    public int InstanceCount { get; }
+    public int Length { get; }
 
-        public StringDuplicate(string value, int instanceCount)
-        {
-            Value = value ?? throw new ArgumentNullException(nameof(value));
-            ShortValue = Value.Truncate(80);
-            InstanceCount = instanceCount;
-        }
+    public StringDuplicate(string value, int instanceCount, int length)
+    {
+        String = value;
+        InstanceCount = instanceCount;
+        Length = length;
     }
 }

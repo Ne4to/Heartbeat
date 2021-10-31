@@ -1,3 +1,4 @@
+using Heartbeat.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;

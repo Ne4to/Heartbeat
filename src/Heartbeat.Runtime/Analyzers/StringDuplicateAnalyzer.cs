@@ -1,10 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
+
 using Humanizer;
+
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers
@@ -28,9 +29,9 @@ namespace Heartbeat.Runtime.Analyzers
         {
             var stringDuplicates = GetStringDuplicates();
 
-            foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.Value))
+            foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
             {
-                var stringValue = stringDuplicate.Value;
+                var stringValue = stringDuplicate.String;
                 var instanceCount = stringDuplicate.InstanceCount;
 
                 if (instanceCount < minDuplicateCount)
@@ -48,7 +49,7 @@ namespace Heartbeat.Runtime.Analyzers
 
             var query =
                 from clrObject in Context.EnumerateObjectsByTypeName("System.String", TraversingHeapMode)
-                select (string) clrObject;
+                select (string)clrObject;
 
             foreach (var stringInstance in query)
             {
@@ -57,8 +58,29 @@ namespace Heartbeat.Runtime.Analyzers
 
             return stringCount
                 .Where(kvp => kvp.Value > 1)
-                .Select(kvp => new StringDuplicate(kvp.Key, kvp.Value))
+                .Select(kvp => new StringDuplicate(kvp.Key, kvp.Value, kvp.Key.Length))
                 .ToArray();
+        }
+
+        public IReadOnlyList<StringDuplicate> GetStringDuplicates(int minDuplicateCount, int truncateLength)
+        {
+            var stringDuplicates = GetStringDuplicates();
+            var result = new List<StringDuplicate>();
+
+            foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
+            {
+                var stringValue = stringDuplicate.String;
+                var instanceCount = stringDuplicate.InstanceCount;
+
+                if (instanceCount < minDuplicateCount)
+                {
+                    continue;
+                }
+
+                result.Add(new StringDuplicate(stringValue.Truncate(truncateLength), instanceCount, stringDuplicate.Length));
+            }
+
+            return result;
         }
     }
 }

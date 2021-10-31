@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+
+using Heartbeat.Domain;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 
@@ -47,7 +49,7 @@ public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
                 asyncRecord.StateMachineMT = new(stateMachineField.Type.MethodTable);
                 //stateFieldOffset = stateMachineField.Type.GetFieldByName("<>1__state").Offset;
 
-                asyncRecord.StateValue = stateMachineField.Type.GetFieldByName("<>1__state").Read<int>(TargetObject.Address, false)
+                asyncRecord.StateValue = stateMachineField.Type.GetFieldByName("<>1__state").Read<int>(TargetObject.Address, false);
             }
             else
             {
