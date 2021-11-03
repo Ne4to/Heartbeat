@@ -22,6 +22,16 @@ public class ThreadPoolRpcClient : IRpcClient
         return await Task.Run(async () => await _innerClient.GetStringDuplicates(traversingMode, minDuplicateCount, truncateLength));
     }
 
+    public async ValueTask<IReadOnlyCollection<ObjectTypeStatistics>> GetObjectTypeStatistics(TraversingHeapModes traversingMode)
+    {
+        return await Task.Run(async () => await _innerClient.GetObjectTypeStatistics(traversingMode));
+    }
+
+    public async ValueTask<IReadOnlyCollection<TimerQueueTimerInfo>> GetTimerQueueTimers(TraversingHeapModes traversingMode)
+    {
+        return await Task.Run(async () => await _innerClient.GetTimerQueueTimers(traversingMode));
+    }
+
     public void Dispose()
     {
         _innerClient.Dispose();

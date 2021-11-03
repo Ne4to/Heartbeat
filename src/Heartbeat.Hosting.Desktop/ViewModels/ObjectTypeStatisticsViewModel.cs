@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
-using Heartbeat.Runtime.Models;
 
 using ReactiveUI;
 
@@ -15,7 +14,7 @@ namespace Heartbeat.Hosting.Desktop.ViewModels
     {
         private readonly RuntimeContext _runtimeContext;
         private bool _isLoading;
-        private ObservableCollection<ObjectTypeInstanceStatistics> _objectTypes;
+        private ObservableCollection<ObjectTypeStatistics> _objectTypes;
 
         public bool IsLoading
         {
@@ -27,7 +26,7 @@ namespace Heartbeat.Hosting.Desktop.ViewModels
             }
         }
 
-        public ObservableCollection<ObjectTypeInstanceStatistics> ObjectTypes
+        public ObservableCollection<ObjectTypeStatistics> ObjectTypes
         {
             get => _objectTypes;
             set
@@ -47,12 +46,12 @@ namespace Heartbeat.Hosting.Desktop.ViewModels
             IsLoading = true;
 
             var statistics = await Task.Run(GetStatistics);
-            ObjectTypes = new ObservableCollection<ObjectTypeInstanceStatistics>(statistics);
+            ObjectTypes = new ObservableCollection<ObjectTypeStatistics>(statistics);
 
             IsLoading = false;
         }
 
-        private IEnumerable<ObjectTypeInstanceStatistics> GetStatistics()
+        private IEnumerable<ObjectTypeStatistics> GetStatistics()
         {
             var objectTypeStatisticsAnalyzer = new ObjectTypeStatisticsAnalyzer(_runtimeContext);
             objectTypeStatisticsAnalyzer.TraversingHeapMode = TraversingHeapModes.Live;

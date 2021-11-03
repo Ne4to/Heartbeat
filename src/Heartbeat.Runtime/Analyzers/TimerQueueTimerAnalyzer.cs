@@ -1,6 +1,6 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
-using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers
@@ -18,8 +18,10 @@ namespace Heartbeat.Runtime.Analyzers
             WriteLog(logger, TraversingHeapMode);
         }
 
-        private void WriteLog(ILogger logger, TraversingHeapModes traversingMode)
+        public IReadOnlyCollection<TimerQueueTimerInfo> GetTimers(TraversingHeapModes traversingMode)
         {
+            var result = new List<TimerQueueTimerInfo>();
+
             foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Threading.TimerQueueTimer", traversingMode))
             {
                 var timerObjectType = Context.Heap.GetObjectType(address);
@@ -29,29 +31,42 @@ namespace Heartbeat.Runtime.Analyzers
                 var period = timerObjectType.GetFieldByName("m_period").Read<uint>(address, true);
                 var canceled = timerObjectType.GetFieldByName("m_canceled").Read<bool>(address, true);
 
-//                var timerCallback = timerObjectType.GetFieldByName("m_timerCallback")
-//                   .GetValue(address);
+                //        var timerCallback = timerObjectType.GetFieldByName("m_timerCallback")
+                //           .GetValue(address);
 
-                //     public delegate void TimerCallback(Object state);
-//                var timerCallbackObjectType = heap.GetObjectType((ulong)timerCallback);
+                //             public delegate void TimerCallback(Object state);
+                //var timerCallbackObjectType = heap.GetObjectType((ulong)timerCallback);
 
-
-                logger.LogInformation(
-                    $"{address:X} m_dueTime = {dueTime}, m_period = {period}, m_canceled = {canceled}, m_state = {state}");
-
-
+                CancellationTokenSourceInfo? cancellationTokenSourceInfo = null;
                 if (state.IsValid)
                 {
                     var stateObjectType = state.Type;
-                    logger.LogInformation($"m_state is {stateObjectType.Name}");
 
                     if (stateObjectType.Name == "System.Threading.CancellationTokenSource")
                     {
                         var cancellationTokenSourceProxy = new CancellationTokenSourceProxy(Context, state);
-                        logger.LogInformation($"CanBeCanceled: {cancellationTokenSourceProxy.CanBeCanceled}");
-                        logger.LogInformation($"IsCancellationRequested: {cancellationTokenSourceProxy.IsCancellationRequested}");
-                        logger.LogInformation($"IsCancellationCompleted: {cancellationTokenSourceProxy.IsCancellationCompleted}");
+                        cancellationTokenSourceInfo = new(cancellationTokenSourceProxy.CanBeCanceled, cancellationTokenSourceProxy.IsCancellationRequested, cancellationTokenSourceProxy.IsCancellationCompleted);
                     }
+                }
+
+                var timerInfo = new TimerQueueTimerInfo(new(address), dueTime, period, canceled, cancellationTokenSourceInfo);
+                result.Add(timerInfo);
+            }
+
+            return result;
+        }
+
+        private void WriteLog(ILogger logger, TraversingHeapModes traversingMode)
+        {
+            foreach (var timer in GetTimers(traversingMode))
+            {
+                logger.LogInformation($"{timer.Address} m_dueTime = {timer.DueTime}, m_period = {timer.Period}, m_canceled = {timer.Cancelled}");
+
+                if (timer.CancellationState != null)
+                {
+                    logger.LogInformation($"CanBeCanceled: {timer.CancellationState.CanBeCanceled}");
+                    logger.LogInformation($"IsCancellationRequested: {timer.CancellationState.IsCancellationRequested}");
+                    logger.LogInformation($"IsCancellationCompleted: {timer.CancellationState.IsCancellationCompleted}");
                 }
             }
         }

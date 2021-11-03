@@ -1,5 +1,3 @@
-using System;
-
 namespace Heartbeat.Domain;
 
 [Flags]

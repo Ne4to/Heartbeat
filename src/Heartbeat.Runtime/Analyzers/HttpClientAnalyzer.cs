@@ -13,8 +13,10 @@ namespace Heartbeat.Runtime.Analyzers
         {
         }
 
-        public IEnumerable<(Address Address, TimeSpan Timeout)> GetClientsInfo()
+        public IReadOnlyCollection<HttpClientInfo> GetClientsInfo()
         {
+            var result = new List<HttpClientInfo>();
+
             foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", TraversingHeapMode))
             {
                 var httpClientObjectType = Context.Heap.GetObjectType(address);
@@ -31,8 +33,11 @@ namespace Heartbeat.Runtime.Analyzers
                 var timeoutValue = ticksField.Read<long>(timeoutAddress, true);
                 var timeoutInSeconds = timeoutValue / TimeSpan.TicksPerSecond;
 
-                yield return (new (address), TimeSpan.FromSeconds(timeoutInSeconds));
+                HttpClientInfo httpClientInfo = new HttpClientInfo(new (address), TimeSpan.FromSeconds(timeoutInSeconds));
+                result.Add(httpClientInfo);
             }
+
+            return result;
         }
 
         public void Dump(ILogger logger)

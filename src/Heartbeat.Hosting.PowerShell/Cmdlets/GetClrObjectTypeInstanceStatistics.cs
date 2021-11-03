@@ -4,13 +4,13 @@ using System.Threading;
 using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
-using Heartbeat.Runtime.Models;
+
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Hosting.PowerShell.Cmdlets
 {
     [Cmdlet(VerbsCommon.Get, "ClrObjectTypeInstanceStatistics", DefaultParameterSetName = AttachParameterSet)]
-    [OutputType(typeof(ObjectTypeInstanceStatistics))]
+    [OutputType(typeof(ObjectTypeStatistics))]
     // ReSharper disable once UnusedMember.Global
     public class GetClrObjectTypeInstanceStatistics : ClrHeapCmdlet
     {

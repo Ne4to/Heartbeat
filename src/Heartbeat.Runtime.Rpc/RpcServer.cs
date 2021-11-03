@@ -37,11 +37,8 @@ public class RpcServer : IRpcClient
         var analyzer = new HttpClientAnalyzer(_runtimeContext);
         analyzer.TraversingHeapMode = traversingMode;
 
-        IReadOnlyCollection<HttpClientInfo> clientsInfo = analyzer.GetClientsInfo()
-            .Select(client => new HttpClientInfo(client.Address, client.Timeout))
-            .ToArray();
-
-        return ValueTask.FromResult(clientsInfo);
+        var httpClients = analyzer.GetClientsInfo();
+        return ValueTask.FromResult(httpClients);
     }
 
     public ValueTask<IReadOnlyCollection<StringDuplicate>> GetStringDuplicates(
@@ -52,11 +49,26 @@ public class RpcServer : IRpcClient
         var analyzer = new StringDuplicateAnalyzer(_runtimeContext);
         analyzer.TraversingHeapMode = traversingMode;
 
-        IReadOnlyCollection<StringDuplicate> duplicates = analyzer.GetStringDuplicates(minDuplicateCount, truncateLength)
-            .Select(d => new StringDuplicate(d.String, d.InstanceCount, d.Length))
-            .ToArray();
-
+        var duplicates = analyzer.GetStringDuplicates(minDuplicateCount, truncateLength);
         return ValueTask.FromResult(duplicates);
+    }
+
+    public ValueTask<IReadOnlyCollection<ObjectTypeStatistics>> GetObjectTypeStatistics(TraversingHeapModes traversingMode)
+    {
+        var analyzer = new ObjectTypeStatisticsAnalyzer(_runtimeContext);
+        analyzer.TraversingHeapMode = traversingMode;
+
+        var statistics = analyzer.GetObjectTypeStatistics();
+        return ValueTask.FromResult(statistics);
+    }
+
+    public ValueTask<IReadOnlyCollection<TimerQueueTimerInfo>> GetTimerQueueTimers(TraversingHeapModes traversingMode)
+    {
+        var analyzer = new TimerQueueTimerAnalyzer(_runtimeContext);
+        analyzer.TraversingHeapMode = traversingMode;
+
+        var result = analyzer.GetTimers(traversingMode);
+        return ValueTask.FromResult(result);
     }
 
     public void Dispose()

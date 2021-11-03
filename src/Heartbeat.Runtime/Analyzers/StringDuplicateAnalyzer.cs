@@ -32,7 +32,7 @@ namespace Heartbeat.Runtime.Analyzers
             foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
             {
                 var stringValue = stringDuplicate.String;
-                var instanceCount = stringDuplicate.InstanceCount;
+                var instanceCount = stringDuplicate.Count;
 
                 if (instanceCount < minDuplicateCount)
                 {
@@ -62,7 +62,7 @@ namespace Heartbeat.Runtime.Analyzers
                 .ToArray();
         }
 
-        public IReadOnlyList<StringDuplicate> GetStringDuplicates(int minDuplicateCount, int truncateLength)
+        public IReadOnlyCollection<StringDuplicate> GetStringDuplicates(int minDuplicateCount, int truncateLength)
         {
             var stringDuplicates = GetStringDuplicates();
             var result = new List<StringDuplicate>();
@@ -70,7 +70,7 @@ namespace Heartbeat.Runtime.Analyzers
             foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
             {
                 var stringValue = stringDuplicate.String;
-                var instanceCount = stringDuplicate.InstanceCount;
+                var instanceCount = stringDuplicate.Count;
 
                 if (instanceCount < minDuplicateCount)
                 {
