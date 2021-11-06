@@ -1,5 +1,4 @@
 ﻿using Microsoft.Diagnostics.Runtime;
-using System;
 
 namespace Heartbeat.Runtime.Extensions
 {

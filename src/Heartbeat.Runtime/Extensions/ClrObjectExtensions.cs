@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime.Extensions

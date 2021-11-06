@@ -1,11 +1,9 @@
-using Heartbeat.Domain;
 using Heartbeat.Runtime.Extensions;
-using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
+
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;

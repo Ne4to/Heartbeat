@@ -1,5 +1,3 @@
-using System;
-
 namespace Heartbeat.Runtime.Analyzers
 {
     public abstract class AnalyzerBase

@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
+
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime.Proxies

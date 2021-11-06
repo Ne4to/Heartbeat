@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Diagnostics.Runtime.Implementation;
 

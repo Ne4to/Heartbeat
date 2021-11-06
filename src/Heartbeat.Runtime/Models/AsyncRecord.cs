@@ -1,8 +1,5 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 
-using System;
-using System.Collections.Generic;
-
 namespace Heartbeat.Runtime.Models;
 
 public class AsyncRecord

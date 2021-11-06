@@ -1,6 +1,6 @@
-using System;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers

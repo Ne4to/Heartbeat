@@ -1,8 +1,6 @@
-using System;
 using System.Diagnostics;
 using System.Linq;
 
-using Heartbeat.Domain;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 

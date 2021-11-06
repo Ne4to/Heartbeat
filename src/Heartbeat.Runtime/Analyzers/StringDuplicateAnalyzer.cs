@@ -2,7 +2,6 @@ using System.Linq;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Extensions;
-using Heartbeat.Runtime.Models;
 
 using Humanizer;
 

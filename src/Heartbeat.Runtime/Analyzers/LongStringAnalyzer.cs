@@ -1,8 +1,9 @@
-using System.Collections.Generic;
 using System.Linq;
+
 using Heartbeat.Runtime.Analyzers.Interfaces;
-using Heartbeat.Runtime.Models;
+
 using Humanizer;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 

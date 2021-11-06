@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
+
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
+
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime

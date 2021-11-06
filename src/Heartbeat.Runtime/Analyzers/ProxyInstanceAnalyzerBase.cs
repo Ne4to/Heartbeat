@@ -1,4 +1,3 @@
-using System;
 using Heartbeat.Runtime.Proxies;
 
 namespace Heartbeat.Runtime.Analyzers

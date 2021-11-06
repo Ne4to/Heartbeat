@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Heartbeat.Runtime.Extensions
 {
     public static class DictionaryExtensions

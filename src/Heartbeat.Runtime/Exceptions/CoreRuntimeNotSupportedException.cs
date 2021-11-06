@@ -1,5 +1,3 @@
-using System;
-
 namespace Heartbeat.Runtime.Exceptions
 {
     public class CoreRuntimeNotSupportedException : Exception

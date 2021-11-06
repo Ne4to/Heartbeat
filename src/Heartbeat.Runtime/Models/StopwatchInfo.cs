@@ -1,5 +1,3 @@
-using System;
-
 namespace Heartbeat.Runtime.Models
 {
     public class StopwatchInfo

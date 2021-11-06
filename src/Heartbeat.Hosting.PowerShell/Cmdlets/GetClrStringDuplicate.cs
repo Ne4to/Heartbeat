@@ -4,7 +4,6 @@ using System.Threading;
 using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
-using Heartbeat.Runtime.Models;
 
 using Microsoft.Diagnostics.Runtime;
 

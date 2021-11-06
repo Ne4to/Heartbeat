@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Exceptions;
 using Heartbeat.Runtime.Extensions;
-using Heartbeat.Runtime.Models;
 using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 
@@ -35,7 +34,7 @@ namespace Heartbeat.Runtime.Analyzers
 
             foreach (var appDomain in heap.Runtime.AppDomains)
             {
-                if (!servicePointTableField.IsInitialized(appDomain))
+                if (!servicePointTableField!.IsInitialized(appDomain))
                 {
                     logger.LogWarning($"ServicePointManager is not initialized in '{appDomain.Name}' appdomain");
                     continue;

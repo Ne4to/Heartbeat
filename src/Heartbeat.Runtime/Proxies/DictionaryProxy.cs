@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Heartbeat.Runtime.Analyzers.Interfaces;
+﻿using Heartbeat.Runtime.Analyzers.Interfaces;
+
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 

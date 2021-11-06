@@ -1,7 +1,5 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 
-using System;
-
 namespace Heartbeat.Runtime.Proxies
 {
     public abstract class ValueTypeProxyBase
