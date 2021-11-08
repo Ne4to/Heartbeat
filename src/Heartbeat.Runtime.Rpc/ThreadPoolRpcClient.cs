@@ -32,6 +32,11 @@ public class ThreadPoolRpcClient : IRpcClient
         return await Task.Run(async () => await _innerClient.GetTimerQueueTimers(traversingMode));
     }
 
+    public async ValueTask<IReadOnlyCollection<LongStringInfo>> GetLongStrings(TraversingHeapModes traversingMode, int count, int? truncateLength)
+    {
+        return await Task.Run(async () => await _innerClient.GetLongStrings(traversingMode, count, truncateLength));
+    }
+
     public void Dispose()
     {
         _innerClient.Dispose();

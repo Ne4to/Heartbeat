@@ -71,6 +71,15 @@ public class RpcServer : IRpcClient
         return ValueTask.FromResult(result);
     }
 
+    public ValueTask<IReadOnlyCollection<LongStringInfo>> GetLongStrings(TraversingHeapModes traversingMode, int count, int? truncateLength)
+    {
+        var analyzer = new LongStringAnalyzer(_runtimeContext);
+        analyzer.TraversingHeapMode = traversingMode;
+
+        var result = analyzer.GetStrings(count, truncateLength);
+        return ValueTask.FromResult(result);
+    }
+
     public void Dispose()
     {
         _clrRuntime.Dispose();

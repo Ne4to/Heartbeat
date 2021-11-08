@@ -72,11 +72,12 @@ namespace Heartbeat.Runtime.Analyzers
                     var builderValueClass = stateMachineObject.ReadValueTypeField("<>t__builder");
 
                     ClrObject taskObject;
-                    if (builderValueClass.Type!.Name == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
+                    string? typeName = builderValueClass.Type!.Name;
+                    if (typeName == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
                     {
                         taskObject = builderValueClass.ReadValueTypeField("m_builder").ReadObjectField("m_task");
                     }
-                    else if (builderValueClass.Type.Name.StartsWith("System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder", StringComparison.Ordinal))
+                    else if (typeName.StartsWith("System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder", StringComparison.Ordinal))
                     {
                         taskObject = builderValueClass.ReadValueTypeField("_methodBuilder").ReadObjectField("m_task");
                     }

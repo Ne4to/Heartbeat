@@ -18,6 +18,7 @@ using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 
 using Process = System.Diagnostics.Process;
 
@@ -62,10 +63,10 @@ class Program
 
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-        //ProcessCommand2(logger);
+        ProcessCommand2(logger).Wait();
 
-        using var dataTarget = GetDataTarget(logger);
-        ProcessCommand(dataTarget, logger);
+        //using var dataTarget = GetDataTarget(logger);
+        //ProcessCommand(dataTarget, logger);
         return 0;
     }
 
@@ -84,6 +85,7 @@ class Program
         await ExecuteWhenTrue(PrintStringDuplicates, _commandLineOptions.StringDuplicate);
         await ExecuteWhenTrue(PrintObjectTypeStatistics, _commandLineOptions.ObjectTypeStatistics);
         await ExecuteWhenTrue(PrintTimerQueueTimers, _commandLineOptions.TimerQueueTimer);
+        await ExecuteWhenTrue(PrintLongStrings, _commandLineOptions.LongString);
 
         async Task PrintHttpClients()
         {
@@ -127,6 +129,15 @@ class Program
                     logger.LogInformation($"IsCancellationRequested: {timer.CancellationState.IsCancellationRequested}");
                     logger.LogInformation($"IsCancellationCompleted: {timer.CancellationState.IsCancellationCompleted}");
                 }
+            }
+        }
+
+        async Task PrintLongStrings()
+        {
+            var strings = await rpcClient.GetLongStrings(traversingMode, 20, null);
+            foreach (var s in strings)
+            {
+                logger.LogInformation($"{s.Address} Length = {s.Length} chars, Value = {s.Value}");
             }
         }
     }
