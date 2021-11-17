@@ -20,15 +20,15 @@ namespace Heartbeat.Runtime
             foreach (var segment in heap.Segments)
             {
                 logger.LogInformation(
-                    $"\t{segment} ObjectRange: {segment.ObjectRange} {segment.ObjectRange.Length.ToMemorySizeString()} " +
-                    $"CommittedMemory: {segment.CommittedMemory} {segment.CommittedMemory.Length.ToMemorySizeString()} " +
-                    $"ReservedMemory: {segment.ReservedMemory} {segment.ReservedMemory.Length.ToMemorySizeString()} " +
+                    $"\t{segment} ObjectRange: {segment.ObjectRange} {Size.ToString(segment.ObjectRange.Length)} " +
+                    $"CommittedMemory: {segment.CommittedMemory} {Size.ToString(segment.CommittedMemory.Length)} " +
+                    $"ReservedMemory: {segment.ReservedMemory} {Size.ToString(segment.ReservedMemory.Length)} " +
                     $"IsEphemeralSegment: {segment.IsEphemeralSegment}, IsLargeObjectSegment: {segment.IsLargeObjectSegment}");
 
                 totalSize += segment.Length;
             }
 
-            logger.LogInformation($"TotalHeapSize: {totalSize.ToMemorySizeString()}");
+            logger.LogInformation($"TotalHeapSize: {Size.ToString(totalSize)}");
         }
 
         public static void LogClrTypeInfo(this ClrType clrType, ILogger logger)
@@ -721,7 +721,7 @@ namespace Heartbeat.Runtime
                 }
 
                 logger.LogInformation(
-                    $"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
+                    $"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {Size.ToString(clrObject.Size)}");
                 if (refFromClrObject.Type.IsString)
                 {
                     logger.LogInformation($"Value = '{((string)refFromClrObject).Substring(0, 100)}'");
@@ -768,7 +768,7 @@ namespace Heartbeat.Runtime
             foreach (var clrObject in objectQuery.Take(count))
             {
                 logger.LogInformation(
-                    $"{clrObject.Type.GetClrTypeName()} {clrObject.Address:x} {clrObject.Size.ToMemorySizeString()}");
+                    $"{clrObject.Type.GetClrTypeName()} {clrObject.Address:x} {Size.ToString(clrObject.Size)}");
 
                 if (clrObject.Type.IsString)
                 {

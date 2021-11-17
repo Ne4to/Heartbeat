@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Heartbeat.Runtime.Rpc\Heartbeat.Runtime.Rpc.csproj" />
+    <ProjectReference Include="..\Heartbeat.Rpc.Server\Heartbeat.Rpc.Server.csproj" />
     <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
   </ItemGroup>
 

@@ -1,7 +1,7 @@
 ﻿using Heartbeat.Domain;
 using Heartbeat.Rpc.Contract;
 
-namespace Heartbeat.Runtime.Rpc;
+namespace Heartbeat.Rpc;
 
 public class ThreadPoolRpcClient : IRpcClient
 {

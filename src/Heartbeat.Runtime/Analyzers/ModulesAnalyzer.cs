@@ -18,10 +18,10 @@ namespace Heartbeat.Runtime.Analyzers
             {
                 totalSize += module.Size;
 
-                logger.LogInformation($"Name: {module.Name} AssemblyName: {module.AssemblyName} IsDynamic: {module.IsDynamic} Size: {module.Size.ToMemorySizeString()}");
+                logger.LogInformation($"Name: {module.Name} AssemblyName: {module.AssemblyName} IsDynamic: {module.IsDynamic} Size: {Size.ToString(module.Size)}");
             }
 
-            logger.LogInformation($"Total size: {totalSize.ToMemorySizeString()}");
+            logger.LogInformation($"Total size: {Size.ToString(totalSize)}");
         }
     }
 }

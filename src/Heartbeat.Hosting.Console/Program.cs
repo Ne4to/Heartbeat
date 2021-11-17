@@ -6,19 +6,19 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Heartbeat.Domain;
 using Heartbeat.Hosting.Console.Logging;
 using Heartbeat.Rpc.Contract;
+using Heartbeat.Rpc.Server;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
-using Heartbeat.Runtime.Rpc;
 
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 
 using Process = System.Diagnostics.Process;
 
@@ -304,7 +304,7 @@ class Program
             }
         }
 
-        System.Console.WriteLine($"LOH: segments {totalLohSegmentSize.ToMemorySizeString()} all objects {totalLohObjSize.ToMemorySizeString()} byte arrays {totalLohArraySize.ToMemorySizeString()}");
+        System.Console.WriteLine($"LOH: segments {Size.ToString(totalLohSegmentSize)} all objects {Size.ToString(totalLohObjSize)} byte arrays {Size.ToString(totalLohArraySize)}");
 
         var q = from obj in runtime.Heap.EnumerateObjects()
                 where obj.Type?.Name == "System.Net.Http.HttpResponseMessage"
@@ -356,7 +356,7 @@ class Program
             // var bufferObj = streamObject.ReadObjectField("_buffer");
         }
 
-        System.Console.WriteLine($"Total Request LOH: {totalRequestLoh.ToMemorySizeString()} Total Response LOH: {totalResponseLoh.ToMemorySizeString()}");
+        System.Console.WriteLine($"Total Request LOH: {Size.ToString(totalRequestLoh)} Total Response LOH: {Size.ToString(totalResponseLoh)}");
 
         System.Console.WriteLine("Requests by service");
         WriteTotals(requestTotalByDiscoveryKey, countByDiscoveryKey);
@@ -438,7 +438,7 @@ class Program
                 let count = countByDiscoveryKey[discoveryKey]
                 let avgSize = totalSize / count
                 orderby totalSize descending
-                select $"{discoveryKey} {totalSize.ToMemorySizeString()}, {count} requests, avg size = {avgSize.ToMemorySizeString()}, {service}";
+                select $"{discoveryKey} {Size.ToString(totalSize)}, {count} requests, avg size = {Size.ToString(avgSize)}, {service}";
 
         foreach (var msg in q)
         {
@@ -547,7 +547,7 @@ class Program
                 totalSize += clrObject.Size;
                 totalCount++;
 
-                System.Console.WriteLine($"{clrObject} {clrObject.Size.ToMemorySizeString()}");
+                System.Console.WriteLine($"{clrObject} {Size.ToString(clrObject.Size)}");
                 // if (clrObject.Address == 0x202eed90288)
                 // {
                 //     System.Console.WriteLine($"{clrObject} {clrObject.Size}");
@@ -563,6 +563,6 @@ class Program
             }
         }
 
-        System.Console.WriteLine($"Total size {totalSize.ToMemorySizeString()} in {totalCount} objects");
+        System.Console.WriteLine($"Total size {Size.ToString(totalSize)} in {totalCount} objects");
     }
 }

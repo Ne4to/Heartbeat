@@ -1,10 +1,11 @@
 ﻿using Heartbeat.Domain;
 using Heartbeat.Rpc.Contract;
+using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Runtime.Rpc;
+namespace Heartbeat.Rpc.Server;
 
 public class RpcServer : IRpcClient
 {

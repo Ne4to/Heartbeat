@@ -25,4 +25,21 @@ public readonly record struct Size(ulong Bytes)
 
         return $"{Bytes} B";
     }
+
+    public static string ToString(ulong bytes)
+    {
+        var size = new Size(bytes);
+        return size.ToString();
+    }
+
+    public static string ToString(long bytes)
+    {
+        if (bytes < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(bytes));
+        }
+
+        var size = new Size((ulong)bytes);
+        return size.ToString();
+    }
 }
