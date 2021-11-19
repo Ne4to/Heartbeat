@@ -38,11 +38,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Domain", "src\Hea
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.Contract", "src\Heartbeat.Rpc.Contract\Heartbeat.Rpc.Contract.csproj", "{6AEEB45F-6F56-459F-B10E-AA900003F684}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Rpc.GrpcClient", "src\Heartbeat.Rpc.GrpcClient\Heartbeat.Rpc.GrpcClient.csproj", "{CAFC497F-FF46-4353-A71D-61F0836C7203}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.GrpcClient", "src\Heartbeat.Rpc.GrpcClient\Heartbeat.Rpc.GrpcClient.csproj", "{CAFC497F-FF46-4353-A71D-61F0836C7203}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.Server", "src\Heartbeat.Rpc.Server\Heartbeat.Rpc.Server.csproj", "{D84F02EC-1412-4969-AE01-9A4A9962E8CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Rpc.GrpcServer", "src\Heartbeat.Rpc.GrpcServer\Heartbeat.Rpc.GrpcServer.csproj", "{960565B9-DCAD-449E-8E64-204132DB2B05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.GrpcServer", "src\Heartbeat.Rpc.GrpcServer\Heartbeat.Rpc.GrpcServer.csproj", "{960565B9-DCAD-449E-8E64-204132DB2B05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Hosting.Blazor.Client", "src\Heartbeat.Hosting.Blazor\Heartbeat.Hosting.Blazor.Client.csproj", "{86878054-9F2C-43CC-82FC-985C95FC061B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +257,24 @@ Global
 		{960565B9-DCAD-449E-8E64-204132DB2B05}.Release|x64.Build.0 = Release|Any CPU
 		{960565B9-DCAD-449E-8E64-204132DB2B05}.Release|x86.ActiveCfg = Release|Any CPU
 		{960565B9-DCAD-449E-8E64-204132DB2B05}.Release|x86.Build.0 = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|x64.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Debug|x86.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|x64.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|x64.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|x86.ActiveCfg = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.DebugLocal|x86.Build.0 = Debug|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|x64.ActiveCfg = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|x64.Build.0 = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|x86.ActiveCfg = Release|Any CPU
+		{86878054-9F2C-43CC-82FC-985C95FC061B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -274,6 +294,7 @@ Global
 		{CAFC497F-FF46-4353-A71D-61F0836C7203} = {CC16B70E-40A8-4F22-A099-E32232DCFECB}
 		{D84F02EC-1412-4969-AE01-9A4A9962E8CE} = {CC16B70E-40A8-4F22-A099-E32232DCFECB}
 		{960565B9-DCAD-449E-8E64-204132DB2B05} = {CC16B70E-40A8-4F22-A099-E32232DCFECB}
+		{86878054-9F2C-43CC-82FC-985C95FC061B} = {A541E5DF-DD2D-4ED8-8F6F-6AE55E27EF99}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BC4B059-33F1-4B7C-B5D9-DA6D2F1E5076}

@@ -10,6 +10,11 @@ namespace Heartbeat.Rpc.GrpcClient
         private HeartbeatRpc.HeartbeatRpcClient _client;
         private bool _disposed;
 
+        public GrpcRpcClient(HeartbeatRpc.HeartbeatRpcClient client)
+        {
+            _client = client;
+        }
+
         public GrpcRpcClient()
         {
             var channel = GrpcChannel.ForAddress("https://localhost:5001");
@@ -28,7 +33,7 @@ namespace Heartbeat.Rpc.GrpcClient
 
         public async ValueTask<IReadOnlyCollection<ObjectTypeStatistics>> GetObjectTypeStatistics(TraversingHeapModes traversingMode)
         {
-            ObjectTypeStatisticsRequest request = new ObjectTypeStatisticsRequest { TraversingHeapMode = traversingMode.ToRpc() };
+            ObjectTypeStatisticsRequest request = new ObjectTypeStatisticsRequest { TraversingHeapMode = traversingMode.ToRpc(), TypeCount = 20 };
             var reply = await _client.GetObjectTypeStatisticsAsync(request);
             var result = reply.ObjectTypes
                 .Select(t => new ObjectTypeStatistics(t.TypeName, t.TotalSize.ToDomain(), t.InstanceCount))

@@ -18,7 +18,7 @@ public class HeartbeatRpcServer : HeartbeatRpc.HeartbeatRpcBase
         var statistics = await _client.GetObjectTypeStatistics(request.TraversingHeapMode.ToDomain());
 
         var reply = new ObjectTypeStatisticsReply();
-        reply.ObjectTypes.AddRange(statistics, s => s.ToRpc());
+        reply.ObjectTypes.AddRange(statistics.OrderByDescending(s => s.TotalSize).Take(request.TypeCount), s => s.ToRpc());
 
         return reply;
     }

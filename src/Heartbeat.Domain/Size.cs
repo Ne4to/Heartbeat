@@ -1,10 +1,10 @@
 ﻿namespace Heartbeat.Domain;
 
-public readonly record struct Size(ulong Bytes)
+public readonly record struct Size(ulong Bytes) : IComparable<Size>
 {
     private const ulong K = 1024;
-    private const ulong MB = 1024;
-    private const ulong GB = 1024;
+    private const ulong MB = K * K;
+    private const ulong GB = MB * K;
 
     public override string ToString()
     {
@@ -41,5 +41,10 @@ public readonly record struct Size(ulong Bytes)
 
         var size = new Size((ulong)bytes);
         return size.ToString();
+    }
+
+    public int CompareTo(Size other)
+    {
+        return Bytes.CompareTo(other.Bytes);
     }
 }

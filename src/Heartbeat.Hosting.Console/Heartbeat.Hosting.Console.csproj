@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -30,11 +30,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Heartbeat.Hosting.Blazor\Heartbeat.Hosting.Blazor.Client.csproj" />
+    <ProjectReference Include="..\Heartbeat.Rpc.GrpcServer\Heartbeat.Rpc.GrpcServer.csproj" />
     <ProjectReference Include="..\Heartbeat.Rpc.Server\Heartbeat.Rpc.Server.csproj" />
     <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
+	<PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.40.0" />
+	<PackageReference Include="Grpc.AspNetCore.Web" Version="2.40.0" />
+	<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
