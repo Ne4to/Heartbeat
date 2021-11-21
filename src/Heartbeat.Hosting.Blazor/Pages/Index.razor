@@ -1,9 +1,24 @@
 ﻿@page "/"
+@using Heartbeat.Rpc.Contract
+@inject IRpcClient RpcClient 
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (dump == null)
+{
+    <FluentProgressRing />
+}
+else
+{
+    <FluentTextField Readonly="true" Value=@dump.DumpFileName style="width: 100%;">Dump</FluentTextField>
+    <FluentTextField Readonly="true" Value=@dump.DacFileName style="width: 100%;">Dac</FluentTextField>
+    <FluentCheckbox Value=@dump.CanWalkHeap Readonly=true>Can walh heap</FluentCheckbox>
+}
 
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    private Domain.DumpInfo? dump;
+    protected override async Task OnInitializedAsync()
+    {
+        dump = await RpcClient.GetDump();
+    }
+}

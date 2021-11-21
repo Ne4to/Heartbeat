@@ -9,12 +9,14 @@ namespace Heartbeat.Rpc.Server;
 
 public class RpcServer : IRpcClient
 {
+    private readonly string _dumpPath;
     private readonly DataTarget _dataTarget;
     private readonly ClrRuntime _clrRuntime;
     private readonly RuntimeContext _runtimeContext;
 
     private RpcServer(string filePath, string? dacPath = null, bool ignoreMismatch = false)
     {
+        _dumpPath = filePath;
         _dataTarget = DataTarget.LoadDump(filePath);
         ClrInfo clrInfo = _dataTarget.ClrVersions[0];
         _clrRuntime = dacPath == null
@@ -31,6 +33,13 @@ public class RpcServer : IRpcClient
     public static RpcServer LoadDump(string filePath, string dacPath, bool ignoreMismatch = false)
     {
         return new RpcServer(filePath, dacPath, ignoreMismatch);
+    }
+
+    public ValueTask<DumpInfo> GetDump()
+    {
+        ClrInfo clrInfo = _dataTarget.ClrVersions[0];
+        DumpInfo dumpInfo = new DumpInfo(_dumpPath, clrInfo.DacInfo.PlatformAgnosticFileName, _clrRuntime.Heap.CanWalkHeap);
+        return ValueTask.FromResult(dumpInfo);
     }
 
     public ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode)

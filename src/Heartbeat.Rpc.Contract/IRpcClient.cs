@@ -4,6 +4,7 @@ namespace Heartbeat.Rpc.Contract;
 
 public interface IRpcClient : IDisposable
 {
+    ValueTask<DumpInfo> GetDump();
     ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode);
     ValueTask<IReadOnlyCollection<StringDuplicate>> GetStringDuplicates(TraversingHeapModes traversingMode, int minDuplicateCount, int truncateLength);
     ValueTask<IReadOnlyCollection<ObjectTypeStatistics>> GetObjectTypeStatistics(TraversingHeapModes traversingMode);

@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "provider": "jsdelivr",
+      "library": "@fluentui/web-components@2.0.2",
+      "destination": "wwwroot/lib/fluentui/"
+    }
+  ]
+}

@@ -21,6 +21,12 @@ namespace Heartbeat.Rpc.GrpcClient
             _client = new HeartbeatRpc.HeartbeatRpcClient(channel);
         }
 
+        public async ValueTask<DumpInfo> GetDump()
+        {
+            var dumpInfo = await _client.GetDumpAsync(new Google.Protobuf.WellKnownTypes.Empty());
+            return new DumpInfo(dumpInfo.DumpFileName, dumpInfo.DacFileName, dumpInfo.CanWalkHeap);
+        }
+
         public ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode)
         {
             throw new NotImplementedException();

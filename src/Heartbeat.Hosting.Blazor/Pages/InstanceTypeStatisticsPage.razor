@@ -1,0 +1,136 @@
+﻿@page "/instance-type-statistics"
+@using Heartbeat.Rpc.Contract
+@inject IRpcClient RpcClient
+
+<PageTitle>Instance type statistics</PageTitle>
+
+<h1>Instance type statistics</h1>
+
+@if (stats == null)
+{
+    <FluentProgressRing />
+}
+else
+{
+    <FluentTextField @oninput="FilterChanged">Filter type</FluentTextField>
+    <FluentDataGrid id="sortingGrid" GridTemplateColumns="1fr 1fr 1fr" RowsData=statsFiltered ColumnDefinitions=SortingColumnsGrid>
+        <HeaderCellTemplate>
+            <FluentButton @onclick=@(()=>SortColumn(context))>
+                @context.Title
+                @if (context.Title == lastSortColumn?.Title)
+            {
+                @(isAscending ? " ↑" : " ↓")
+            }
+        </FluentButton>
+    </HeaderCellTemplate>
+</FluentDataGrid>
+}
+
+
+@code {
+    private List<Domain.ObjectTypeStatistics>? stats;
+    private List<Domain.ObjectTypeStatistics>? statsFiltered;
+
+    public List<ColumnDefinition<Domain.ObjectTypeStatistics>> SortingColumnsGrid = new();
+    private ColumnDefinition<Domain.ObjectTypeStatistics>? lastSortColumn = null;
+    private bool isAscending = false;
+    public string filterValue = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Type", x => x.TypeName));
+        SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Count", x => x.InstanceCount));
+        SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Total size", x => x.TotalSize));
+
+        stats = (await RpcClient.GetObjectTypeStatistics(Domain.TraversingHeapModes.All)).ToList();
+        statsFiltered = stats; ;
+
+        base.OnInitialized();
+    }
+
+    private void FilterChanged(ChangeEventArgs args)
+    {
+        var filter = args.Value as string;
+
+        if (stats == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            statsFiltered = stats;
+        }
+        else
+        {
+            statsFiltered = stats.Where(s => s.TypeName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        if (lastSortColumn != null)
+        {
+            statsFiltered.Sort(new StatisticsComparer(lastSortColumn.FieldSelector!, isAscending));
+        }
+    }
+
+    private void SortColumn(ColumnDefinition<Domain.ObjectTypeStatistics> columnDefinition)
+    {
+        if (statsFiltered == null)
+        {
+            return;           
+        }
+
+        if (lastSortColumn?.Title == columnDefinition.Title)
+        {
+            isAscending = !isAscending;
+        }
+        else
+        {
+            lastSortColumn = columnDefinition;
+            isAscending = true;
+        }
+        statsFiltered.Sort(new StatisticsComparer(columnDefinition.FieldSelector!, isAscending));
+    }
+
+    class StatisticsComparer : IComparer<Domain.ObjectTypeStatistics>
+    {
+        Func<Domain.ObjectTypeStatistics, object> _selector;
+        bool _isAscending;
+
+        public StatisticsComparer(Func<Domain.ObjectTypeStatistics, object> selector, bool isAscending)
+        {
+            _selector = selector;
+            _isAscending = isAscending;
+        }
+
+        int IComparer<Domain.ObjectTypeStatistics>.Compare(Domain.ObjectTypeStatistics? x, Domain.ObjectTypeStatistics? y)
+        {
+            var xval = _selector(x!);
+            var yval = _selector(y!);
+
+            if (xval == null || yval == null)
+            {
+                return 0;
+            }
+
+            if (xval is string xString && yval is string yString)
+            {
+                if (xString == null || yString == null)
+                    return 0;
+
+                return string.Compare(xString, yString) * (_isAscending ? 1 : -1);
+            }
+
+            if (xval is int xInt && yval is int yInt)
+            {
+                return xInt.CompareTo(yInt) * (_isAscending ? 1 : -1);
+            }
+
+            if (xval is Domain.Size xSize && yval is Domain.Size ySize)
+            {
+                return xSize.CompareTo(ySize) * (_isAscending ? 1 : -1);
+            }
+
+            return 0;
+        }
+    }
+}

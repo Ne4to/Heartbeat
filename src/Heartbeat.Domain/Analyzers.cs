@@ -1,5 +1,6 @@
 ﻿namespace Heartbeat.Domain;
 
+public record DumpInfo(string DumpFileName, string DacFileName, bool CanWalkHeap);
 public record HttpClientInfo(Address Address, TimeSpan Timeout);
 public record StringDuplicate(string String, int Count, int Length);
 public record ObjectTypeStatistics(string TypeName, Size TotalSize, int InstanceCount);

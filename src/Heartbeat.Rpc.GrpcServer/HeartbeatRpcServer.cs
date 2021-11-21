@@ -1,4 +1,6 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+
+using Grpc.Core;
 
 using Heartbeat.Rpc.Contract;
 
@@ -11,6 +13,17 @@ public class HeartbeatRpcServer : HeartbeatRpc.HeartbeatRpcBase
     public HeartbeatRpcServer(IRpcClient client)
     {
         _client = client;
+    }
+
+    public override async Task<DumpReply> GetDump(Empty request, ServerCallContext context)
+    {
+        var dumpInfo = await _client.GetDump();
+        return new DumpReply
+        {
+            DumpFileName = dumpInfo.DumpFileName,
+            DacFileName = dumpInfo.DacFileName,
+            CanWalkHeap = dumpInfo.CanWalkHeap
+        };
     }
 
     public override async Task<ObjectTypeStatisticsReply> GetObjectTypeStatistics(ObjectTypeStatisticsRequest request, ServerCallContext context)
