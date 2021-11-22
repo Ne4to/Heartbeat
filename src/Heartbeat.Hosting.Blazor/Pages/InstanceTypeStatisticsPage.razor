@@ -6,14 +6,14 @@
 
 <h1>Instance type statistics</h1>
 
-@if (stats == null)
+@if (statsRaw == null)
 {
     <FluentProgressRing />
 }
 else
 {
     <FluentTextField @oninput="FilterChanged">Filter type</FluentTextField>
-    <FluentDataGrid id="sortingGrid" GridTemplateColumns="1fr 1fr 1fr" RowsData=statsFiltered ColumnDefinitions=SortingColumnsGrid>
+    <FluentDataGrid id="sortingGrid" GridTemplateColumns="4fr 1fr 1fr" RowsData=stats ColumnDefinitions=SortingColumnsGrid>
         <HeaderCellTemplate>
             <FluentButton @onclick=@(()=>SortColumn(context))>
                 @context.Title
@@ -28,8 +28,8 @@ else
 
 
 @code {
+    private List<Domain.ObjectTypeStatistics>? statsRaw;
     private List<Domain.ObjectTypeStatistics>? stats;
-    private List<Domain.ObjectTypeStatistics>? statsFiltered;
 
     public List<ColumnDefinition<Domain.ObjectTypeStatistics>> SortingColumnsGrid = new();
     private ColumnDefinition<Domain.ObjectTypeStatistics>? lastSortColumn = null;
@@ -42,8 +42,8 @@ else
         SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Count", x => x.InstanceCount));
         SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Total size", x => x.TotalSize));
 
-        stats = (await RpcClient.GetObjectTypeStatistics(Domain.TraversingHeapModes.All)).ToList();
-        statsFiltered = stats; ;
+        statsRaw = (await RpcClient.GetObjectTypeStatistics(Domain.TraversingHeapModes.All)).ToList();
+        stats = statsRaw;
 
         base.OnInitialized();
     }
@@ -52,29 +52,29 @@ else
     {
         var filter = args.Value as string;
 
-        if (stats == null)
+        if (statsRaw == null)
         {
             return;
         }
 
         if (string.IsNullOrWhiteSpace(filter))
         {
-            statsFiltered = stats;
+            stats = statsRaw;
         }
         else
         {
-            statsFiltered = stats.Where(s => s.TypeName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+            stats = statsRaw.Where(s => s.TypeName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         if (lastSortColumn != null)
         {
-            statsFiltered.Sort(new StatisticsComparer(lastSortColumn.FieldSelector!, isAscending));
+            stats.Sort(new StatisticsComparer(lastSortColumn.FieldSelector!, isAscending));
         }
     }
 
     private void SortColumn(ColumnDefinition<Domain.ObjectTypeStatistics> columnDefinition)
     {
-        if (statsFiltered == null)
+        if (stats == null)
         {
             return;           
         }
@@ -86,9 +86,9 @@ else
         else
         {
             lastSortColumn = columnDefinition;
-            isAscending = true;
         }
-        statsFiltered.Sort(new StatisticsComparer(columnDefinition.FieldSelector!, isAscending));
+
+        stats.Sort(new StatisticsComparer(columnDefinition.FieldSelector!, isAscending));
     }
 
     class StatisticsComparer : IComparer<Domain.ObjectTypeStatistics>

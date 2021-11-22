@@ -26,6 +26,32 @@ public class HeartbeatRpcServer : HeartbeatRpc.HeartbeatRpcBase
         };
     }
 
+    public override async Task<NullableObjectReply> GetObject(UInt64Value request, ServerCallContext context)
+    {
+        var obj = await _client.GetObject(new Domain.Address(request.Value));
+        
+        if (obj == null)
+        {
+            return new NullableObjectReply 
+            {
+                Null = NullValue.NullValue
+            };
+        }
+
+        return new NullableObjectReply
+        {
+            Obj = new Object
+            {
+                Address = obj.Address.Value,
+                Type = new TypeInfo
+                {
+                    MethodTable = obj.Type.MethodTable.Value,
+                    Name = obj.Type.Name
+                }
+            }
+        };
+    }
+
     public override async Task<ObjectTypeStatisticsReply> GetObjectTypeStatistics(ObjectTypeStatisticsRequest request, ServerCallContext context)
     {
         var statistics = await _client.GetObjectTypeStatistics(request.TraversingHeapMode.ToDomain());

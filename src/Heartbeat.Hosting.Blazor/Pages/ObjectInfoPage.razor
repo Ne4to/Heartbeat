@@ -1,0 +1,55 @@
+﻿@page "/object-info"
+@using Heartbeat.Rpc.Contract
+@inject IRpcClient RpcClient
+
+<PageTitle>Object info</PageTitle>
+
+<h1>Object info</h1>
+
+<div>
+    <FluentTextField @bind-Value="_objectAddress">Address</FluentTextField>
+    <FluentButton class="v-center-button" onclick=@(async () => await AddObject())>Add object</FluentButton>
+</div>
+<div>
+    <FluentTextField @bind-Value="_structAddress">Address</FluentTextField>
+    <FluentTextField @bind-Value="_structMethodTable">Method table</FluentTextField>
+    <FluentButton class="v-center-button">Add struct</FluentButton>
+</div>
+
+<FluentTabs>
+    @foreach (var obj in _objects)
+    {
+        <FluentTab>@obj.Address</FluentTab>
+        <FluentTabPanel>
+            @obj.Type.Name
+        </FluentTabPanel>
+    }
+</FluentTabs>
+
+@code {
+    string _objectAddress { get; set; } = string.Empty;
+    string _structAddress { get; set; } = string.Empty;
+    string _structMethodTable { get; set; } = string.Empty;
+
+    private List<Domain.ObjectInfo> _objects = new();
+
+    private async Task AddObject()
+    {
+        if (ulong.TryParse(_objectAddress, System.Globalization.NumberStyles.HexNumber, null, out var addressValue))
+        {
+            var address = new Domain.Address(addressValue);
+            if (_objects.Any(o => o.Address == address))
+            {
+                return;
+            }
+
+            var obj = await RpcClient.GetObject(address);
+            if (obj != null)
+            {
+                _objects.Add(obj);
+            }
+        }
+    }
+}
+
+    

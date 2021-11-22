@@ -42,6 +42,31 @@ public class RpcServer : IRpcClient
         return ValueTask.FromResult(dumpInfo);
     }
 
+    public ValueTask<ObjectInfo?> GetObject(Address address)
+    {
+        var obj = _runtimeContext.Heap.GetObject(address.Value);
+        if (obj.Type == null)
+        {
+            return ValueTask.FromResult<ObjectInfo?>(null);
+        }
+
+        foreach(var f in obj.Type.Fields)
+        {
+            //f.Type
+            //f.Name
+            //f.IsObjectReference
+            //f.IsPrimitive
+            //f.IsValueType
+            //f.Size
+            //f.Offset
+        }
+        //obj.Type.com
+        //obj.Type.ComponentSize
+        TypeInfo typeInfo = new TypeInfo(new MethodTable(obj.Type.MethodTable), obj.Type.Name);
+        var objInfo = new ObjectInfo(new Address(obj.Address), typeInfo);
+        return ValueTask.FromResult<ObjectInfo?>(objInfo);
+    }
+
     public ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode)
     {
         var analyzer = new HttpClientAnalyzer(_runtimeContext);

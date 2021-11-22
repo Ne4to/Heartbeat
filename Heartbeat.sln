@@ -44,7 +44,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.Server", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Rpc.GrpcServer", "src\Heartbeat.Rpc.GrpcServer\Heartbeat.Rpc.GrpcServer.csproj", "{960565B9-DCAD-449E-8E64-204132DB2B05}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Heartbeat.Hosting.Blazor.Client", "src\Heartbeat.Hosting.Blazor\Heartbeat.Hosting.Blazor.Client.csproj", "{86878054-9F2C-43CC-82FC-985C95FC061B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Heartbeat.Hosting.Blazor.Client", "src\Heartbeat.Hosting.Blazor\Heartbeat.Hosting.Blazor.Client.csproj", "{86878054-9F2C-43CC-82FC-985C95FC061B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -107,3 +107,7 @@
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.v-center-button {
+    transform: translateY(-50%);
+}

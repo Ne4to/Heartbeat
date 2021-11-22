@@ -27,6 +27,23 @@ namespace Heartbeat.Rpc.GrpcClient
             return new DumpInfo(dumpInfo.DumpFileName, dumpInfo.DacFileName, dumpInfo.CanWalkHeap);
         }
 
+        public async ValueTask<ObjectInfo?> GetObject(Address address)
+        {
+            Google.Protobuf.WellKnownTypes.UInt64Value request = new Google.Protobuf.WellKnownTypes.UInt64Value() { Value = address.Value };
+            var reply = await _client.GetObjectAsync(request);
+
+            if (reply.KindCase == NullableObjectReply.KindOneofCase.Null)
+            {
+                return null;
+            }
+
+            var obj = reply.Obj;
+
+            Address address1 = new Address(obj.Address);
+            Domain.TypeInfo typeInfo = new Domain.TypeInfo(new MethodTable(obj.Type.MethodTable), obj.Type.Name);
+            return new ObjectInfo(address1, typeInfo);
+        }
+
         public ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode)
         {
             throw new NotImplementedException();

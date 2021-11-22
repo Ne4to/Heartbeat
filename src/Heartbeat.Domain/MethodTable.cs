@@ -1,5 +1,4 @@
-﻿namespace Heartbeat.Runtime.Models;
-
+﻿namespace Heartbeat.Domain;
 public readonly record struct MethodTable(ulong Value)
 {    
     public override string ToString()

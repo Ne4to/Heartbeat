@@ -17,6 +17,11 @@ public class ThreadPoolRpcClient : IRpcClient
         return await Task.Run(async () => await _innerClient.GetDump());
     }
 
+    public async ValueTask<ObjectInfo?> GetObject(Address address)
+    {
+        return await Task.Run(async () => await _innerClient.GetObject(address));
+    }
+
     public async ValueTask<IReadOnlyCollection<HttpClientInfo>> GetHttpClients(TraversingHeapModes traversingMode)
     {
         return await Task.Run(async () => await _innerClient.GetHttpClients(traversingMode));
