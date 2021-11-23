@@ -22,7 +22,7 @@ public class RpcServer : IRpcClient
         _clrRuntime = dacPath == null
             ? clrInfo.CreateRuntime()
             : clrInfo.CreateRuntime(dacPath, ignoreMismatch);
-        _runtimeContext = new RuntimeContext(_clrRuntime);
+        _runtimeContext = new RuntimeContext(_clrRuntime, filePath);
     }
 
     public static RpcServer LoadDump(string filePath)

@@ -1,6 +1,6 @@
 ﻿@page "/object-info"
-@using Heartbeat.Rpc.Contract
-@inject IRpcClient RpcClient
+@using Heartbeat.Domain
+@inject RuntimeContext Context
 
 <PageTitle>Object info</PageTitle>
 
@@ -8,7 +8,7 @@
 
 <div>
     <FluentTextField @bind-Value="_objectAddress">Address</FluentTextField>
-    <FluentButton class="v-center-button" onclick=@(async () => await AddObject())>Add object</FluentButton>
+    <FluentButton class="v-center-button" onclick=@(() => AddObject())>Add object</FluentButton>
 </div>
 <div>
     <FluentTextField @bind-Value="_structAddress">Address</FluentTextField>
@@ -33,7 +33,7 @@
 
     private List<Domain.ObjectInfo> _objects = new();
 
-    private async Task AddObject()
+    private void AddObject()
     {
         if (ulong.TryParse(_objectAddress, System.Globalization.NumberStyles.HexNumber, null, out var addressValue))
         {
@@ -43,10 +43,12 @@
                 return;
             }
 
-            var obj = await RpcClient.GetObject(address);
-            if (obj != null)
+            var obj = Context.Runtime.Heap.GetObject(address.Value);
+            if (obj.Type != null)
             {
-                _objects.Add(obj);
+                TypeInfo typeInfo = new TypeInfo(new MethodTable(obj.Type.MethodTable), obj.Type.Name);
+                var objInfo = new ObjectInfo(new Address(obj.Address), typeInfo);
+                _objects.Add(objInfo);
             }
         }
     }

@@ -1,6 +1,5 @@
 ﻿@page "/instance-type-statistics"
-@using Heartbeat.Rpc.Contract
-@inject IRpcClient RpcClient
+@inject RuntimeContext Context
 
 <PageTitle>Instance type statistics</PageTitle>
 
@@ -36,16 +35,17 @@ else
     private bool isAscending = false;
     public string filterValue = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
+        base.OnInitialized();
+
         SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Type", x => x.TypeName));
         SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Count", x => x.InstanceCount));
         SortingColumnsGrid.Add(new ColumnDefinition<Domain.ObjectTypeStatistics>("Total size", x => x.TotalSize));
 
-        statsRaw = (await RpcClient.GetObjectTypeStatistics(Domain.TraversingHeapModes.All)).ToList();
+        var analyzer = new Heartbeat.Runtime.Analyzers.ObjectTypeStatisticsAnalyzer(Context);
+        statsRaw = (analyzer.GetObjectTypeStatistics()).ToList();
         stats = statsRaw;
-
-        base.OnInitialized();
     }
 
     private void FilterChanged(ChangeEventArgs args)
@@ -76,7 +76,7 @@ else
     {
         if (stats == null)
         {
-            return;           
+            return;
         }
 
         if (lastSortColumn?.Title == columnDefinition.Title)

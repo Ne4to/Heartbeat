@@ -1,0 +1,30 @@
+﻿@page "/"
+@inject RuntimeContext Context 
+
+<PageTitle>Index</PageTitle>
+
+@*@if (dump == null)
+{
+    <FluentProgressRing />
+}
+else
+{*@
+    <FluentTextField Readonly="true" Value=@_dumpFileName style="width: 100%;">Dump</FluentTextField>
+    <FluentTextField Readonly="true" Value=@_dacFileName style="width: 100%;">Dac</FluentTextField>
+    <FluentCheckbox Value=@_canWalkHeap Readonly=true>Can walh heap</FluentCheckbox>
+@*}*@
+
+@code {
+    private string _dumpFileName;
+    private string _dacFileName;
+    private bool _canWalkHeap;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _dumpFileName = Context.DumpPath;
+        _dacFileName = Context.Runtime.ClrInfo.DacInfo.PlatformAgnosticFileName;
+        _canWalkHeap = Context.Heap.CanWalkHeap;
+    }
+}

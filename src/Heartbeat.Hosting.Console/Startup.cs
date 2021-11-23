@@ -1,20 +1,12 @@
-﻿using Heartbeat.Rpc.Contract;
-using Heartbeat.Rpc.Server;
-
-using Humanizer;
+﻿
+using Heartbeat.Runtime;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Heartbeat.Hosting.Console
 {
@@ -30,10 +22,21 @@ namespace Heartbeat.Hosting.Console
         // This method gets called by the runtime.Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddGrpc();
-            services.AddGrpcReflection();
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
 
-            services.AddSingleton<IRpcClient, RpcServer>(sp => RpcServer.LoadDump(@"C:\Users\Ne4to\projects\GitHub\Ne4to\Heartbeat\tests\dumps\AsyncStask.dmp"));
+            string filePath = @"C:\Users\Ne4to\projects\GitHub\Ne4to\Heartbeat\tests\dumps\AsyncStask.dmp";
+            string? dacPath = null;
+            bool ignoreMismatch = false;
+
+            var dataTarget = DataTarget.LoadDump(filePath);
+            ClrInfo clrInfo = dataTarget.ClrVersions[0];
+            var clrRuntime = dacPath == null
+                ? clrInfo.CreateRuntime()
+                : clrInfo.CreateRuntime(dacPath, ignoreMismatch);
+
+            var runtimeContext = new RuntimeContext(clrRuntime, filePath);
+            services.AddSingleton(runtimeContext);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,28 +47,22 @@ namespace Heartbeat.Hosting.Console
                 app.UseWebAssemblyDebugging();
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Error");
+            }
 
             app.UseHttpsRedirection();
 
-            app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
-
             app.UseRouting();
-            app.UseGrpcWeb();
 
             // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGrpcService<Heartbeat.Rpc.GrpcServer.HeartbeatRpcServer>()
-                    .EnableGrpcWeb();
-
-                if (env.IsDevelopment())
-                {
-                    endpoints.MapGrpcReflectionService();
-                }
-
-                endpoints.MapFallbackToFile("index.html");
+                endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
             });
         }
     }

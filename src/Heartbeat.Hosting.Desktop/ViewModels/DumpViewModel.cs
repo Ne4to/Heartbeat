@@ -58,7 +58,7 @@ namespace Heartbeat.Hosting.Desktop.ViewModels
 
             var clrInfo = dataTarget.ClrVersions[0];
             var runtime = clrInfo.CreateRuntime();
-            return new RuntimeContext(runtime);
+            return new RuntimeContext(runtime, DumpPath);
         }
     }
 }

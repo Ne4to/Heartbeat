@@ -214,7 +214,7 @@ class Program
         logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
 
         using var runtime = CreateRuntime(clrInfo);
-        var runtimeContext = new RuntimeContext(runtime);
+        var runtimeContext = new RuntimeContext(runtime, string.Empty);
 
         var heap = runtime.Heap;
         logger.LogInformation($"Can Walk Heap: {heap.CanWalkHeap}");

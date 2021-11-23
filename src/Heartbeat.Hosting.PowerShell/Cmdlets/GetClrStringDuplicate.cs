@@ -19,7 +19,7 @@ namespace Heartbeat.Hosting.PowerShell.Cmdlets
 
         protected override void ProcessRuntime(ClrRuntime runtime, CancellationToken cancellationToken)
         {
-            var runtimeContext = new RuntimeContext(runtime);
+            var runtimeContext = new RuntimeContext(runtime, string.Empty);
             var analyzer = new StringDuplicateAnalyzer(runtimeContext)
             {
                 TraversingHeapMode = TraversingMode

@@ -12,14 +12,18 @@ namespace Heartbeat.Runtime
         private readonly ClrRuntime _runtime;
         private readonly Lazy<HeapIndex> _heapIndex;
 
+        public ClrRuntime Runtime => _runtime;
         public ClrHeap Heap => _runtime.Heap;
         public HeapIndex HeapIndex => _heapIndex.Value;
 
         public bool IsCoreRuntime => Heap.Runtime.ClrInfo.Flavor == ClrFlavor.Core;
 
-        public RuntimeContext(ClrRuntime runtime)
+        public string DumpPath { get; }
+
+        public RuntimeContext(ClrRuntime runtime, string dumpPath)
         {
             _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
+            DumpPath = dumpPath;
             _heapIndex = new Lazy<HeapIndex>(() => new HeapIndex(Heap));
         }
 
