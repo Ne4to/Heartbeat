@@ -1,26 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using Heartbeat.Domain;
 using Heartbeat.Hosting.Console.Logging;
-using Heartbeat.Rpc.Contract;
-using Heartbeat.Rpc.Server;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Diagnostics.Runtime;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 using Process = System.Diagnostics.Process;
 
@@ -86,42 +74,56 @@ class Program
 
     private async Task ProcessCommand2(ILogger<Program> logger)
     {
-        IRpcClient rpcClient = _commandLineOptions.DacPath != null
-            ? RpcServer.LoadDump(
-                _commandLineOptions.Dump.FullName,
-                _commandLineOptions.DacPath.FullName,
-                _commandLineOptions.IgnoreDacMismatch)
-            : RpcServer.LoadDump(_commandLineOptions.Dump.FullName);
+        string filePath = @"C:\Users\Ne4to\projects\GitHub\Ne4to\Heartbeat\tests\dumps\AsyncStask.dmp";
+        string? dacPath = null;
+        bool ignoreMismatch = false;
 
+        var dataTarget = DataTarget.LoadDump(filePath);
+        ClrInfo clrInfo = dataTarget.ClrVersions[0];
+        var clrRuntime = dacPath == null
+            ? clrInfo.CreateRuntime()
+            : clrInfo.CreateRuntime(dacPath, ignoreMismatch);
+
+        var runtimeContext = new RuntimeContext(clrRuntime, filePath);
         var traversingMode = _commandLineOptions.TraversingHeapMode;
 
-        await ExecuteWhenTrue(PrintHttpClients, _commandLineOptions.HttpClient);
-        await ExecuteWhenTrue(PrintStringDuplicates, _commandLineOptions.StringDuplicate);
-        await ExecuteWhenTrue(PrintObjectTypeStatistics, _commandLineOptions.ObjectTypeStatistics);
-        await ExecuteWhenTrue(PrintTimerQueueTimers, _commandLineOptions.TimerQueueTimer);
-        await ExecuteWhenTrue(PrintLongStrings, _commandLineOptions.LongString);
+        ExecuteWhenTrue(PrintHttpClients, _commandLineOptions.HttpClient);
+        ExecuteWhenTrue(PrintStringDuplicates, _commandLineOptions.StringDuplicate);
+        ExecuteWhenTrue(PrintObjectTypeStatistics, _commandLineOptions.ObjectTypeStatistics);
+        ExecuteWhenTrue(PrintTimerQueueTimers, _commandLineOptions.TimerQueueTimer);
+        ExecuteWhenTrue(PrintLongStrings, _commandLineOptions.LongString);
 
-        async Task PrintHttpClients()
+        void PrintHttpClients()
         {
-            var httpclients = await rpcClient.GetHttpClients(traversingMode);
-            foreach (var httpclient in httpclients)
+            var analyzer = new HttpClientAnalyzer(runtimeContext);
+            analyzer.TraversingHeapMode = traversingMode;
+
+            var httpClients = analyzer.GetClientsInfo();
+            foreach (var httpclient in httpClients)
             {
                 logger.LogInformation($"{httpclient.Address} timeout = {httpclient.Timeout.TotalSeconds:F2} seconds");
             }
         }
 
-        async Task PrintStringDuplicates()
+        void PrintStringDuplicates()
         {
-            var duplicates = await rpcClient.GetStringDuplicates(traversingMode, 10, 100);
+            var analyzer = new StringDuplicateAnalyzer(runtimeContext);
+            analyzer.TraversingHeapMode = traversingMode;
+
+            var duplicates = analyzer.GetStringDuplicates(10, 100);
+
             foreach (var duplicate in duplicates)
             {
                 logger.LogInformation($"{duplicate.Count} instances of: {duplicate.String}");
             }
         }
 
-        async Task PrintObjectTypeStatistics()
+        void PrintObjectTypeStatistics()
         {
-            var statistics = await rpcClient.GetObjectTypeStatistics(traversingMode);
+            var analyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext);
+            analyzer.TraversingHeapMode = traversingMode;
+
+            var statistics = analyzer.GetObjectTypeStatistics();
 
             foreach (var stat in statistics)
             {
@@ -129,9 +131,12 @@ class Program
             }
         }
 
-        async Task PrintTimerQueueTimers()
+        void PrintTimerQueueTimers()
         {
-            var timers = await rpcClient.GetTimerQueueTimers(traversingMode);
+            var analyzer = new TimerQueueTimerAnalyzer(runtimeContext);
+            analyzer.TraversingHeapMode = traversingMode;
+
+            var timers = analyzer.GetTimers(traversingMode);
 
             foreach (var timer in timers)
             {
@@ -146,9 +151,12 @@ class Program
             }
         }
 
-        async Task PrintLongStrings()
+        void PrintLongStrings()
         {
-            var strings = await rpcClient.GetLongStrings(traversingMode, 20, null);
+            var analyzer = new LongStringAnalyzer(runtimeContext);
+            analyzer.TraversingHeapMode = traversingMode;
+
+            var strings = analyzer.GetStrings(20, null);
             foreach (var s in strings)
             {
                 logger.LogInformation($"{s.Address} Length = {s.Length} chars, Value = {s.Value}");
@@ -156,11 +164,11 @@ class Program
         }
     }
 
-    private static async Task ExecuteWhenTrue(Func<Task> func, bool condition)
+    private static void ExecuteWhenTrue(Action action, bool condition)
     {
         if (condition)
         {
-            await func();
+            action();
         }
     }
 
