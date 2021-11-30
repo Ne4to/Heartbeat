@@ -1,0 +1,24 @@
+﻿<Page
+    x:Class="Heartbeat.WinUI.Pages.IconsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Heartbeat.WinUI.Pages"
+    xmlns:models="using:Heartbeat.WinUI.ViewModels.Models"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <GridView x:Name="grid" ItemsSource="{Binding Symbols}">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="models:SymbolItem">
+                    <StackPanel Orientation="Vertical" Margin="5">
+                        <SymbolIcon Symbol="{x:Bind Glyph}" />
+                        <TextBlock Text="{Binding Glyph}" />
+                    </StackPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </GridView>
+    </Grid>
+</Page>

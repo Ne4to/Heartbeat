@@ -19,11 +19,9 @@ namespace Heartbeat.Hosting.Console
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime.Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddControllers();
 
             string filePath = @"C:\Users\Ne4to\projects\GitHub\Ne4to\Heartbeat\tests\dumps\AsyncStask.dmp";
             string? dacPath = null;
@@ -39,12 +37,10 @@ namespace Heartbeat.Hosting.Console
             services.AddSingleton(runtimeContext);
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
-                app.UseWebAssemblyDebugging();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -52,17 +48,13 @@ namespace Heartbeat.Hosting.Console
                 app.UseExceptionHandler("/Error");
             }
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
-            app.UseStaticFiles();
             app.UseRouting();
-
-            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapBlazorHub();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapControllers();
             });
         }
     }

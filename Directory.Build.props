@@ -4,4 +4,18 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <VersionPrefix>0.1.0</VersionPrefix>
+        <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Authors>Alexey Sosnin</Authors>
+        <PackageTags>ClrMd diagnostics</PackageTags>
+        <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>none</DebugType>
+    </PropertyGroup>
 </Project>

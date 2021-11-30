@@ -1,0 +1,20 @@
+﻿<Page
+    x:Class="Heartbeat.WinUI.Pages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Heartbeat.WinUI.Pages"
+    xmlns:vm="using:Heartbeat.WinUI.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    >
+
+    <Grid>
+        <StackPanel>
+            <TextBox Header="Dump" Text="{x:Bind ViewModel.Dump.DumpFileName, Mode=OneWay}" IsReadOnly="True"  />
+            <TextBox Header="Dac" Text="{x:Bind ViewModel.Dump.DacFileName, Mode=OneWay}" IsReadOnly="True" />
+            <CheckBox Content="Can walk heap" IsChecked="{x:Bind ViewModel.Dump.CanWalkHeap, Mode=OneWay}" IsEnabled="False" />
+        </StackPanel>
+    </Grid>
+</Page>

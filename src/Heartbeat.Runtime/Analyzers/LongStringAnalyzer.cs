@@ -1,8 +1,4 @@
-using System.Linq;
-
 using Heartbeat.Runtime.Analyzers.Interfaces;
-
-using Humanizer;
 
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
