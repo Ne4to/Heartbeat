@@ -14,11 +14,14 @@
         PaneDisplayMode="Auto"
         AlwaysShowHeader="True"
         Header="Home"
-        IsBackButtonVisible="Collapsed"
-        IsBackEnabled="False"
+        IsBackButtonVisible="Auto"
+        IsBackEnabled="True"
         IsSettingsVisible="False"
         SelectionChanged="NavView_SelectionChanged">
-        
+
+        <!--IsBackButtonVisible="Collapsed"
+        IsBackEnabled="False"-->
+
         <muxc:NavigationView.MenuItems>
             <muxc:NavigationViewItem Icon="Home" Content="Home" Tag="home" />
             <muxc:NavigationViewItem Icon="Library" Content="Instance type statistics" Tag="instanceTypeStatistics" />

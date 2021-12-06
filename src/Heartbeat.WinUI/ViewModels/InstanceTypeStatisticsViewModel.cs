@@ -28,7 +28,6 @@ public partial class InstanceTypeStatisticsViewModel : ObservableRecipient, IAsy
         private set => SetProperty(ref _statistics, value); 
     }
 
-
     public TraversingHeapModes HeapMode 
     { 
         get => _heapMode; 

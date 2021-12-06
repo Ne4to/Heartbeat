@@ -10,11 +10,18 @@ public class HomeViewModel : ObservableRecipient, IAsyncInitViewModel
     private readonly HeartbeatService _service;
 
     private DumpInfo? _dump;
+    private HeapSegment[] _heapSegments;
 
     public DumpInfo? Dump
     {
         get => _dump;
         private set => SetProperty(ref _dump, value);
+    }
+
+    public HeapSegment[] HeapSegments
+    {
+        get => _heapSegments;
+        private set => SetProperty(ref _heapSegments, value);
     }
 
 
@@ -31,5 +38,6 @@ public class HomeViewModel : ObservableRecipient, IAsyncInitViewModel
     private async Task LoadDump()
     {
         Dump = await _service.GetDumpAsync();
+        HeapSegments = await _service.GetHeapSegmentsAsync();
     }    
 }

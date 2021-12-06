@@ -8,3 +8,4 @@ public record ObjectTypeStatistics(string TypeName, Size TotalSize, int Instance
 public record CancellationTokenSourceInfo(bool CanBeCanceled, bool IsCancellationRequested, bool IsCancellationCompleted);
 public record TimerQueueTimerInfo(Address Address, uint DueTime, uint Period, bool Cancelled, CancellationTokenSourceInfo? CancellationState);
 public record LongStringInfo(Address Address, Size Size, int Length, string Value);
+public record HeapSegment(Address Start, Address End, bool IsEphemeralSegment, bool IsLargeObjectSegment, bool IsPinnedObjectSegment);

@@ -36,5 +36,17 @@ namespace Heartbeat.Hosting.Console.Controlers
             analyzer.TraversingHeapMode = traversingMode;
             return analyzer.GetObjectTypeStatistics();
         }
+
+        [HttpGet]
+        [Route("heap-segments")]
+        public IReadOnlyCollection<HeapSegment> GetHeapSegments()
+        {
+            return _runtimeContext.Heap.Segments.Select(s => new HeapSegment(
+                new Address(s.Start),
+                new Address(s.End),
+                s.IsEphemeralSegment,
+                s.IsLargeObjectSegment,
+                s.IsPinnedObjectSegment)).ToArray();
+        }
     }
 }

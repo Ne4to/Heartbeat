@@ -2,7 +2,8 @@
     x:Class="Heartbeat.WinUI.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Heartbeat.WinUI">
+    xmlns:local="using:Heartbeat.WinUI" 
+    xmlns:converters="using:Heartbeat.WinUI.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -31,6 +32,8 @@
 
             <!--original <Thickness x:Key="NavigationViewHeaderMargin">56,44,0,0</Thickness>-->
             <Thickness x:Key="NavigationViewHeaderMargin">55,22,0,0</Thickness>
+
+            <converters:HeapSegmentToSizeConverter x:Key="HeapSegmentToSizeConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

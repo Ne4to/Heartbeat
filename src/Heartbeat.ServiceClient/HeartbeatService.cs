@@ -22,4 +22,9 @@ public class HeartbeatService
     {
         return await _httpClient.GetFromJsonAsync<ObjectTypeStatistics[]>($"dump/instance-type-statistics?traversing-heap-mode={traversingMode:G}");
     }
+
+    public async Task<HeapSegment[]> GetHeapSegmentsAsync()
+    {
+        return await _httpClient.GetFromJsonAsync<HeapSegment[]>("dump/heap-segments");
+    }
 }

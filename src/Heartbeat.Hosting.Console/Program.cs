@@ -1,3 +1,5 @@
+using System.CommandLine;
+using System.CommandLine.Invocation;
 using System.Text.RegularExpressions;
 
 using Heartbeat.Domain;
@@ -23,10 +25,10 @@ class Program
         _commandLineOptions = commandLineOptions;
     }
 
-    //static async Task<int> Main(string[] args)
+    //public static async Task<int> Main(string[] args)
     //{
     //    var command = CommandLineOptions.RootCommand();
-    //    command.Handler = CommandHandler.Create<CommandLineOptions>((CommandLineOptions options) => InnerMain(options));
+    //    command.Handler = CommandHandler.Create<CommandLineOptions>((options) => InnerMain(options));
     //    return await command.InvokeAsync(args);
     //}
 
@@ -42,11 +44,12 @@ class Program
                 webBuilder.UseStartup<Startup>();
             });
 
-    private static int InnerMain(CommandLineOptions commandLineOptions)
+    private static async Task<int> InnerMain(CommandLineOptions commandLineOptions)
     {
         try
         {
-            return new Program(commandLineOptions).Run();
+            var program = new Program(commandLineOptions);
+            return await program.Run();
         }
         catch (Exception e)
         {
@@ -55,7 +58,7 @@ class Program
         }
     }
 
-    private int Run()
+    private async Task<int> Run()
     {
         using var serviceProvider = new ServiceCollection().AddLogging(
                 x => x.ClearProviders()
@@ -65,7 +68,7 @@ class Program
 
         var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-        ProcessCommand2(logger).Wait();
+        await ProcessCommand2(logger);
 
         //using var dataTarget = GetDataTarget(logger);
         //ProcessCommand(dataTarget, logger);
