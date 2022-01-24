@@ -1,6 +1,6 @@
 ﻿namespace Heartbeat.Domain;
 
-public readonly record struct Size(ulong Bytes) : IComparable<Size>
+public readonly record struct Size(ulong Bytes) : IComparable<Size>, IComparable
 {
     private const ulong K = 1024;
     private const ulong MB = K * K;
@@ -46,5 +46,16 @@ public readonly record struct Size(ulong Bytes) : IComparable<Size>
     public int CompareTo(Size other)
     {
         return Bytes.CompareTo(other.Bytes);
+    }
+
+    // used in Linq OrderBy
+    public int CompareTo(object? obj)
+    {
+        if (obj is Size other)
+        {
+            return CompareTo(other);
+        }
+
+        return 0;
     }
 }

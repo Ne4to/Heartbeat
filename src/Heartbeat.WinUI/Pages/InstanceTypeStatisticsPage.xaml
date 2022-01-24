@@ -20,6 +20,8 @@
         <StackPanel Orientation="Horizontal">
             <hc:TraversingHeapModeComboBox Mode="{x:Bind ViewModel.HeapMode, Mode=TwoWay}" />
             <Button Content="Refresh" Command="{x:Bind ViewModel.RefreshCommand}" VerticalAlignment="Bottom" Margin="8,0,0,0" />
+            <TextBox Header="Search term"  Text="{x:Bind ViewModel.SearchTerm, Mode=TwoWay}" Width="200" />
+            <Button Content="Search" Command="{x:Bind ViewModel.SearchCommand}" VerticalAlignment="Bottom" />
         </StackPanel>
 
         <ProgressBar Grid.Row="1" IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />
@@ -34,9 +36,9 @@
             Sorting="DataGrid_Sorting">
             
             <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn Header="Count" Binding="{Binding InstanceCount}" />
-                <controls:DataGridTextColumn Header="Total size" Binding="{Binding TotalSize}" />
-                <controls:DataGridTextColumn Header="Type" Width="*" Binding="{Binding TypeName}" />
+                <controls:DataGridTextColumn Header="Count" Binding="{Binding InstanceCount}" Tag="InstanceCount" />
+                <controls:DataGridTextColumn Header="Total size" Binding="{Binding TotalSize}" Tag="TotalSize" />
+                <controls:DataGridTextColumn Header="Type" Width="*" Binding="{Binding TypeName}" Tag="TypeName" />
             </controls:DataGrid.Columns>
         </controls:DataGrid>
     </Grid>

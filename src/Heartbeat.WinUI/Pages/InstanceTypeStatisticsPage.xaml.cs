@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.WinUI.UI.Controls;
 
+using Heartbeat.WinUI.Controls;
 using Heartbeat.WinUI.ViewModels;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +35,9 @@ namespace Heartbeat.WinUI.Pages
                     dgColumn.SortDirection = null;
                 }
             }
+
+            GridSortOptions sortOptions = new GridSortOptions(e.Column.Tag, e.Column.SortDirection);
+            ViewModel.SortCommand.Execute(sortOptions);
         }
 
         private static DataGridSortDirection GetSortDirection(DataGrid grid, DataGridColumn column)
