@@ -10,7 +10,9 @@ using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Logging;
 
 using Process = System.Diagnostics.Process;
 
@@ -25,24 +27,24 @@ class Program
         _commandLineOptions = commandLineOptions;
     }
 
-    //public static async Task<int> Main(string[] args)
-    //{
-    //    var command = CommandLineOptions.RootCommand();
-    //    command.Handler = CommandHandler.Create<CommandLineOptions>((options) => InnerMain(options));
-    //    return await command.InvokeAsync(args);
-    //}
-
-    public static void Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        CreateHostBuilder(args).Build().Run();
+        var command = CommandLineOptions.RootCommand();
+        command.SetHandler((CommandLineOptions options) => InnerMain(options));
+        return await command.InvokeAsync(args);
     }
 
-    public static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<Startup>();
-            });
+    //public static void Main(string[] args)
+    //{
+    //    CreateHostBuilder(args).Build().Run();
+    //}
+
+    //public static IHostBuilder CreateHostBuilder(string[] args) =>
+    //    Host.CreateDefaultBuilder(args)
+    //        .ConfigureWebHostDefaults(webBuilder =>
+    //        {
+    //            webBuilder.UseStartup<Startup>();
+    //        });
 
     private static async Task<int> InnerMain(CommandLineOptions commandLineOptions)
     {

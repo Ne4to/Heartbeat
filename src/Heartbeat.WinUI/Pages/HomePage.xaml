@@ -25,7 +25,7 @@
         </StackPanel>
 
         <TextBlock Grid.Row="1" Text="Heap segments" FontSize="22" Margin="8,8,0,0" />
-        <controls:DataGrid 
+        <controls:DataGrid
             Grid.Row="2"
             ItemsSource="{x:Bind ViewModel.HeapSegments, Mode=OneWay}" 
             AutoGenerateColumns="False" 

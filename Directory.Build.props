@@ -14,8 +14,8 @@
         <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
     </PropertyGroup>
 
-    <PropertyGroup>
+    <!--<PropertyGroup>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
-    </PropertyGroup>
+    </PropertyGroup>-->
 </Project>

@@ -18,4 +18,4 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release --no-build --version-suffix "rc.${GITHUB_RUN_NUMBER}+${GITHUB_SHA::8}"
     - name: Push
-      run: dotnet nuget push ./src/Heartbeat.Hosting.Console/nupkg/*.nupkg -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push ./src/Heartbeat/nupkg/*.nupkg -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate

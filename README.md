@@ -2,9 +2,9 @@
 Diagnostics utility to analyze memory dumps of a .NET application
 
 ## Installation
-[![NuGet Badge](https://buildstats.info/nuget/heartbeat.hosting.console?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat.Hosting.Console/)
+[![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
 ```
-dotnet tool install --global Heartbeat.Hosting.Console --version <version>
+dotnet tool install --global Heartbeat --version <version>
 ```
 
 ## Summary
@@ -40,7 +40,7 @@ Issue Finder example:
 ## Usage
 
 ```
-Heartbeat.Hosting.Console [options]
+Heartbeat [options]
 
 Options:
   -pid, --process-id <pid>    Process Id

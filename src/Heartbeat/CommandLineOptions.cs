@@ -29,26 +29,14 @@ namespace Heartbeat.Hosting.Console
         {
             var rootCommand = new RootCommand("parent")
             {
-                new Option(new[] {"-pid", "--process-id"}, "Process Id")
-                {
-                    Argument = new Argument()
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
-                },
+                new Option(new[] {"-pid", "--process-id"}, "Process Id", arity: ArgumentArity.ExactlyOne),
                 new Option<FileInfo>("--dump", "Path to a dump file")
                 {
-                    Argument = new Argument<FileInfo>()
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
+                       Arity = ArgumentArity.ExactlyOne
                 },
                 new Option<FileInfo>("--dac-path", "A full path to the matching DAC dll for this process.")
                 {
-                    Argument = new Argument<FileInfo>()
-                    {
-                        Arity = ArgumentArity.ExactlyOne
-                    }
+                       Arity = ArgumentArity.ExactlyOne
                 },
                 new Option("--ignore-dac-mismatch", "Ignore mismatches between DAC versions"),
                 TraversingHeapModeOption(),
@@ -72,10 +60,8 @@ namespace Heartbeat.Hosting.Console
 
         public static Option TraversingHeapModeOption() =>
             new Option(
-                alias: "--traversing-heap-mode",
-                description: $"Traversing heap mode. Default is {DefaultTraversingHeapMode}.")
-            {
-                Argument = new Argument<TraversingHeapModes>(getDefaultValue: () => DefaultTraversingHeapMode)
-            };
+                "--traversing-heap-mode",
+                description: $"Traversing heap mode. Default is {DefaultTraversingHeapMode}.",
+                getDefaultValue: () => DefaultTraversingHeapMode);
     }
 }
