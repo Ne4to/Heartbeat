@@ -1,86 +1,85 @@
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.Runtime.Proxies
+namespace Heartbeat.Runtime.Proxies;
+
+public sealed class ArrayProxy : ProxyBase
 {
-    public sealed class ArrayProxy : ProxyBase
+    private ClrArray _clrArray;
+    public int Length => _clrArray.Length;
+
+    public ArrayProxy(RuntimeContext context, ClrObject targetObject)
+        : base(context, targetObject)
     {
-        private ClrArray _clrArray;
-        public int Length => _clrArray.Length;
+        _clrArray = TargetObject.AsArray();
+    }
 
-        public ArrayProxy(RuntimeContext context, ClrObject targetObject)
-            : base(context, targetObject)
+    public ArrayProxy(RuntimeContext context, ulong address)
+        : base(context, address)
+    {
+        _clrArray = TargetObject.AsArray();
+    }
+
+    public string?[] GetStringArray()
+    {
+        if (Length == 0)
         {
-            _clrArray = TargetObject.AsArray();
+            return Array.Empty<string>();
         }
 
-        public ArrayProxy(RuntimeContext context, ulong address)
-            : base(context, address)
+        var stringArray = new string?[Length];
+
+        for (int itemIndex = 0; itemIndex < Length; itemIndex++)
         {
-            _clrArray = TargetObject.AsArray();
+            var arrayElement = _clrArray
+                .GetObjectValue(itemIndex)
+                .AsString();
+
+            stringArray[itemIndex] = arrayElement;
         }
 
-        public string?[] GetStringArray()
+        return stringArray;
+    }
+
+    public int[]? GetInt32Array()
+    {
+        if (Length == 0)
         {
-            if (Length == 0)
-            {
-                return Array.Empty<string>();
-            }
-
-            var stringArray = new string?[Length];
-
-            for (int itemIndex = 0; itemIndex < Length; itemIndex++)
-            {
-                var arrayElement = _clrArray
-                   .GetObjectValue(itemIndex)
-                   .AsString();
-
-                stringArray[itemIndex] = arrayElement;
-            }
-
-            return stringArray;
+            return Array.Empty<int>();
         }
 
-        public int[]? GetInt32Array()
-        {
-            if (Length == 0)
-            {
-                return Array.Empty<int>();
-            }
+        return _clrArray
+            .ReadValues<int>(0, Length);
+    }
 
-            return _clrArray
-               .ReadValues<int>(0, Length);
+    public ClrObject[] GetItems()
+    {
+        if (Length == 0)
+        {
+            return Array.Empty<ClrObject>();
         }
 
-        public ClrObject[] GetItems()
+        var result = new ClrObject[Length];
+
+        for (int itemIndex = 0; itemIndex < Length; itemIndex++)
         {
-            if (Length == 0)
-            {
-                return Array.Empty<ClrObject>();
-            }
-
-            var result = new ClrObject[Length];
-
-            for (int itemIndex = 0; itemIndex < Length; itemIndex++)
-            {
-                result[itemIndex] = _clrArray.GetObjectValue(itemIndex);
-            }
-
-            return result;
+            result[itemIndex] = _clrArray.GetObjectValue(itemIndex);
         }
 
-        public static IEnumerable<ClrObject> EnumerateObjectItems(ClrArray array)
+        return result;
+    }
+
+    public static IEnumerable<ClrObject> EnumerateObjectItems(ClrArray array)
+    {
+        var length = array.Length;
+
+        if (length == 0)
         {
-            var length = array.Length;
+            yield break;
+        }
 
-            if (length == 0)
-            {
-                yield break;
-            }
-
-            for (int itemIndex = 0; itemIndex < length; itemIndex++)
-            {
-                yield return array.GetObjectValue(itemIndex);
-            }
+        for (int itemIndex = 0; itemIndex < length; itemIndex++)
+        {
+            yield return array.GetObjectValue(itemIndex);
         }
     }
 }

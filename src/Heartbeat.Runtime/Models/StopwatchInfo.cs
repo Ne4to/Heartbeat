@@ -1,34 +1,33 @@
-namespace Heartbeat.Runtime.Models
+namespace Heartbeat.Runtime.Models;
+
+public class StopwatchInfo
 {
-    public class StopwatchInfo
+    public double TickFrequency { get; }
+    public bool IsHighResolution { get; }
+
+    public StopwatchInfo(double tickFrequency, bool isHighResolution)
     {
-        public double TickFrequency { get; }
-        public bool IsHighResolution { get; }
+        TickFrequency = tickFrequency;
+        IsHighResolution = isHighResolution;
+    }
 
-        public StopwatchInfo(double tickFrequency, bool isHighResolution)
+    public long GetElapsedMilliseconds(long firstTimestamp, long secondTimestamp)
+    {
+        if (firstTimestamp == secondTimestamp)
         {
-            TickFrequency = tickFrequency;
-            IsHighResolution = isHighResolution;
+            return 0L;
         }
 
-        public long GetElapsedMilliseconds(long firstTimestamp, long secondTimestamp)
-        {
-            if (firstTimestamp == secondTimestamp)
-            {
-                return 0L;
-            }
+        var rawElapsedTicks = Math.Max(firstTimestamp, secondTimestamp) - Math.Min(firstTimestamp, secondTimestamp);
+        var elapsedDateTimeTicks = IsHighResolution
+            ? (long) (rawElapsedTicks * TickFrequency)
+            : rawElapsedTicks;
 
-            var rawElapsedTicks = Math.Max(firstTimestamp, secondTimestamp) - Math.Min(firstTimestamp, secondTimestamp);
-            var elapsedDateTimeTicks = IsHighResolution
-                ? (long) (rawElapsedTicks * TickFrequency)
-                : rawElapsedTicks;
+        return elapsedDateTimeTicks / 10000L;
+    }
 
-            return elapsedDateTimeTicks / 10000L;
-        }
-
-        public TimeSpan GetElapsed(long firstTimestamp, long secondTimestamp)
-        {
-            return TimeSpan.FromMilliseconds(GetElapsedMilliseconds(firstTimestamp, secondTimestamp));
-        }
+    public TimeSpan GetElapsed(long firstTimestamp, long secondTimestamp)
+    {
+        return TimeSpan.FromMilliseconds(GetElapsedMilliseconds(firstTimestamp, secondTimestamp));
     }
 }

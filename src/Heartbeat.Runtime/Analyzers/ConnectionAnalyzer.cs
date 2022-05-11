@@ -3,67 +3,67 @@ using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Runtime.Analyzers
+namespace Heartbeat.Runtime.Analyzers;
+
+public sealed class ConnectionAnalyzer : ProxyInstanceAnalyzerBase<ConnectionProxy>, ILoggerDump
 {
-    public sealed class ConnectionAnalyzer : ProxyInstanceAnalyzerBase<ConnectionProxy>, ILoggerDump
+    public ConnectionAnalyzer(RuntimeContext context, ConnectionProxy targetObject)
+        : base(context, targetObject)
     {
-        public ConnectionAnalyzer(RuntimeContext context, ConnectionProxy targetObject)
-            : base(context, targetObject)
-        {
-        }
+    }
 
-        public void Dump(ILogger logger)
-        {
-            var connection = TargetObject;
+    public void Dump(ILogger logger)
+    {
+        var connection = TargetObject;
 
-            using (logger.BeginScope(connection.TargetObject))
+        using (logger.BeginScope(connection.TargetObject))
+        {
+            logger.LogInformation($"m_CreateTime: {connection.CreateTime}");
+            logger.LogInformation($"m_Free: {connection.Free}");
+            logger.LogInformation($"m_Idle: {connection.Idle}");
+            logger.LogInformation($"m_IdleSinceUtc: {connection.IdleSinceUtc}");
+            // true when the connection should no longer be used.
+            logger.LogInformation($"m_ConnectionIsDoomed: {connection.ConnectionIsDoomed}");
+            logger.LogInformation($"m_ServerAddress: {connection.ServerAddress.Address}");
+            logger.LogInformation($"BusyCount: {connection.BusyCount}");
+
+            // This is the request whose response is being parsed, same as WriteList[0] but could be different if request was aborted.
+            var currentRequest = connection.CurrentRequest;
+            using (logger.BeginScope("m_CurrentRequest"))
             {
-                logger.LogInformation($"m_CreateTime: {connection.CreateTime}");
-                logger.LogInformation($"m_Free: {connection.Free}");
-                logger.LogInformation($"m_Idle: {connection.Idle}");
-                logger.LogInformation($"m_IdleSinceUtc: {connection.IdleSinceUtc}");
-                // true when the connection should no longer be used.
-                logger.LogInformation($"m_ConnectionIsDoomed: {connection.ConnectionIsDoomed}");
-                logger.LogInformation($"m_ServerAddress: {connection.ServerAddress.Address}");
-                logger.LogInformation($"BusyCount: {connection.BusyCount}");
-
-                // This is the request whose response is being parsed, same as WriteList[0] but could be different if request was aborted.
-                var currentRequest = connection.CurrentRequest;
-                using (logger.BeginScope("m_CurrentRequest"))
+                if (currentRequest != null)
                 {
-                    if (currentRequest != null)
-                    {
-                        var requestAnalyzer = new HttpWebRequestAnalyzer(Context, currentRequest);
-                        requestAnalyzer.Dump(logger);
-                    }
+                    var requestAnalyzer = new HttpWebRequestAnalyzer(Context, currentRequest);
+                    requestAnalyzer.Dump(logger);
                 }
-
-                var lockedRequest = connection.LockedRequest;
-                using (logger.BeginScope("m_LockedRequest"))
-                {
-                    if (lockedRequest != null)
-                    {
-                        var requestAnalyzer = new HttpWebRequestAnalyzer(Context, lockedRequest);
-                        requestAnalyzer.Dump(logger);
-                    }
-                }
-
-                //LogConnectionWriteList(logger, out var writeItemTimestamp);
-                //LogConnectionWaitList(logger, writeItemTimestamp);
             }
-        }
 
-        private void LogConnectionWriteList(ILogger logger, out long? timestamp)
-        {
-            timestamp = null;
-
-            using (logger.BeginScope("m_WriteList"))
+            var lockedRequest = connection.LockedRequest;
+            using (logger.BeginScope("m_LockedRequest"))
             {
-                foreach (var webRequestProxy in TargetObject.GetWriteListItems())
+                if (lockedRequest != null)
                 {
-                    timestamp = webRequestProxy.StartTimestamp;
-                    var httpWebRequestAnalyzer = new HttpWebRequestAnalyzer(Context, webRequestProxy);
-                    httpWebRequestAnalyzer.Dump(logger);
+                    var requestAnalyzer = new HttpWebRequestAnalyzer(Context, lockedRequest);
+                    requestAnalyzer.Dump(logger);
+                }
+            }
+
+            //LogConnectionWriteList(logger, out var writeItemTimestamp);
+            //LogConnectionWaitList(logger, writeItemTimestamp);
+        }
+    }
+
+    private void LogConnectionWriteList(ILogger logger, out long? timestamp)
+    {
+        timestamp = null;
+
+        using (logger.BeginScope("m_WriteList"))
+        {
+            foreach (var webRequestProxy in TargetObject.GetWriteListItems())
+            {
+                timestamp = webRequestProxy.StartTimestamp;
+                var httpWebRequestAnalyzer = new HttpWebRequestAnalyzer(Context, webRequestProxy);
+                httpWebRequestAnalyzer.Dump(logger);
 
 //                            runtime.Heap.EnumerateObjects().First().EnumerateObjectReferences(
 //                                )
@@ -87,37 +87,37 @@ namespace Heartbeat.Runtime.Analyzers
 //                            var requestStateObject = GetAllReferencesTo(runtime, elAddress, "System.Net.Http.HttpClientHandler+RequestState").FirstOrDefault();
 //                            var taskCompletionSourceObject = GetAllReferencesTo(runtime, requestStateObject.Address, "System.Threading.Tasks.TaskCompletionSource`1[[System.Net.Http.HttpResponseMessage, System.Net.Http]]")
 //                                .FirstOrDefault();
-                }
             }
         }
+    }
 
-        private void LogConnectionWaitList(ILogger logger,
-            long? writeItemTimestamp)
+    private void LogConnectionWaitList(ILogger logger,
+        long? writeItemTimestamp)
+    {
+        using (logger.BeginScope("m_WaitList"))
         {
-            using (logger.BeginScope("m_WaitList"))
+            foreach (var webRequestProxy in TargetObject.GetWaitListItems())
             {
-                foreach (var webRequestProxy in TargetObject.GetWaitListItems())
+                if (writeItemTimestamp != null)
                 {
-                    if (writeItemTimestamp != null)
+                    var stopwatchInfo = Context.GetStopwatchInfo();
+                    if (stopwatchInfo == null)
                     {
-                        var stopwatchInfo = Context.GetStopwatchInfo();
-                        if (stopwatchInfo == null)
-                        {
-                            return;
-                        }
+                        return;
+                    }
 
-                        var startTimestamp = webRequestProxy.StartTimestamp;
+                    var startTimestamp = webRequestProxy.StartTimestamp;
 //                        StopwatchInfo stopwatchInfo = null;
-                        var sinceWriteItemRequest = TimeSpan.FromMilliseconds(
-                            stopwatchInfo.GetElapsedMilliseconds(writeItemTimestamp.Value, startTimestamp));
+                    var sinceWriteItemRequest = TimeSpan.FromMilliseconds(
+                        stopwatchInfo.GetElapsedMilliseconds(writeItemTimestamp.Value, startTimestamp));
 //
 //                        // TODO m_WaitList.Add(new WaitListItem(request, NetworkingPerfCounters.GetTimestamp()));
 //
-                        logger.LogInformation($"Time since write item request: {sinceWriteItemRequest}");
-                    }
+                    logger.LogInformation($"Time since write item request: {sinceWriteItemRequest}");
+                }
 
-                    var httpWebRequestAnalyzer = new HttpWebRequestAnalyzer(Context, webRequestProxy);
-                    httpWebRequestAnalyzer.Dump(logger);
+                var httpWebRequestAnalyzer = new HttpWebRequestAnalyzer(Context, webRequestProxy);
+                httpWebRequestAnalyzer.Dump(logger);
 
 //                    var uri = GetHttpWebRequestUriAsString(heap, webRequestObject);
 //
@@ -129,7 +129,6 @@ namespace Heartbeat.Runtime.Analyzers
 //
 //                    var requestHeaders = heap.GetHttpWebRequestHeaders(webRequestObject);
 //                    LogHeaders(requestHeaders, logger);
-                }
             }
         }
     }

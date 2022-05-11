@@ -1,19 +1,18 @@
-namespace Heartbeat.Runtime.Exceptions
+namespace Heartbeat.Runtime.Exceptions;
+
+public class CoreRuntimeNotSupportedException : Exception
 {
-    public class CoreRuntimeNotSupportedException : Exception
+    public CoreRuntimeNotSupportedException()
     {
-        public CoreRuntimeNotSupportedException()
-        {
-        }
+    }
 
-        public CoreRuntimeNotSupportedException(string message)
-            : base(message)
-        {
-        }
+    public CoreRuntimeNotSupportedException(string message)
+        : base(message)
+    {
+    }
 
-        public CoreRuntimeNotSupportedException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+    public CoreRuntimeNotSupportedException(string message, Exception inner)
+        : base(message, inner)
+    {
     }
 }

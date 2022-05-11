@@ -1,7 +1,6 @@
-namespace Heartbeat.Runtime.Analyzers.Interfaces
+namespace Heartbeat.Runtime.Analyzers.Interfaces;
+
+public interface IWithTraversingHeapMode
 {
-    public interface IWithTraversingHeapMode
-    {
-        TraversingHeapModes TraversingHeapMode { get; set; }
-    }
+    TraversingHeapModes TraversingHeapMode { get; set; }
 }

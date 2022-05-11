@@ -2,54 +2,53 @@ using Heartbeat.Runtime.Analyzers.Interfaces;
 
 using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Runtime.Analyzers
+namespace Heartbeat.Runtime.Analyzers;
+
+public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
 {
-    public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+
+    public HttpClientAnalyzer(RuntimeContext context)
+        : base(context)
     {
-        public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    }
 
-        public HttpClientAnalyzer(RuntimeContext context)
-            : base(context)
+    public IReadOnlyCollection<HttpClientInfo> GetClientsInfo()
+    {
+        var result = new List<HttpClientInfo>();
+
+        foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", TraversingHeapMode))
         {
-        }
-
-        public IReadOnlyCollection<HttpClientInfo> GetClientsInfo()
-        {
-            var result = new List<HttpClientInfo>();
-
-            foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", TraversingHeapMode))
+            var httpClientObjectType = Context.Heap.GetObjectType(address);
+            var timeoutField = httpClientObjectType.GetFieldByName("_timeout");
+            if (timeoutField == null)
             {
-                var httpClientObjectType = Context.Heap.GetObjectType(address);
-                var timeoutField = httpClientObjectType.GetFieldByName("_timeout");
-                if (timeoutField == null)
-                {
-                    timeoutField = httpClientObjectType.GetFieldByName("timeout");
-                }
-
-                var ticksField = timeoutField.Type.GetFieldByName("_ticks");
-
-                var timeoutAddress = timeoutField.GetAddress(address);
-
-                var timeoutValue = ticksField.Read<long>(timeoutAddress, true);
-                var timeoutInSeconds = timeoutValue / TimeSpan.TicksPerSecond;
-
-                HttpClientInfo httpClientInfo = new HttpClientInfo(new (address), TimeSpan.FromSeconds(timeoutInSeconds));
-                result.Add(httpClientInfo);
+                timeoutField = httpClientObjectType.GetFieldByName("timeout");
             }
 
-            return result;
+            var ticksField = timeoutField.Type.GetFieldByName("_ticks");
+
+            var timeoutAddress = timeoutField.GetAddress(address);
+
+            var timeoutValue = ticksField.Read<long>(timeoutAddress, true);
+            var timeoutInSeconds = timeoutValue / TimeSpan.TicksPerSecond;
+
+            HttpClientInfo httpClientInfo = new HttpClientInfo(new (address), TimeSpan.FromSeconds(timeoutInSeconds));
+            result.Add(httpClientInfo);
         }
 
-        public void Dump(ILogger logger)
+        return result;
+    }
+
+    public void Dump(ILogger logger)
+    {
+        foreach ((Address Address, TimeSpan Timeout) in GetClientsInfo())
         {
-            foreach ((Address Address, TimeSpan Timeout) in GetClientsInfo())
-            {
-                logger.LogInformation($"{Address} timeout = {Timeout.TotalSeconds:F2} seconds");
+            logger.LogInformation($"{Address} timeout = {Timeout.TotalSeconds:F2} seconds");
 
-                // TODO LogObjectFields(Context.Heap, logger, address, Context.Heap.GetObjectType(address));
+            // TODO LogObjectFields(Context.Heap, logger, address, Context.Heap.GetObjectType(address));
 
-                logger.LogInformation("-----------------------------------");
-            }
+            logger.LogInformation("-----------------------------------");
         }
     }
 }

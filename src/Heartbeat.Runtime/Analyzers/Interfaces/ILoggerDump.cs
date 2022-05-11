@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Runtime.Analyzers.Interfaces
+namespace Heartbeat.Runtime.Analyzers.Interfaces;
+
+public interface ILoggerDump
 {
-    public interface ILoggerDump
-    {
-        void Dump(ILogger logger);
-    }
+    void Dump(ILogger logger);
 }
