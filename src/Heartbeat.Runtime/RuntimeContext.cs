@@ -1,4 +1,3 @@
-using System.Linq;
 
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
@@ -20,16 +19,22 @@ public sealed class RuntimeContext
 
     public string DumpPath { get; }
 
-    public RuntimeContext(ClrRuntime runtime, string dumpPath)
+    public RuntimeContext(string dumpPath, string? dacPath = null, bool ignoreMismatch = false)
     {
-        _runtime = runtime ?? throw new ArgumentNullException(nameof(runtime));
+        var dataTarget = DataTarget.LoadDump(dumpPath);
+        ClrInfo clrInfo = dataTarget.ClrVersions[0];
+        var clrRuntime = dacPath == null
+            ? clrInfo.CreateRuntime()
+            : clrInfo.CreateRuntime(dacPath, ignoreMismatch);
+
         DumpPath = dumpPath;
+        _runtime = clrRuntime;
         _heapIndex = new Lazy<HeapIndex>(() => new HeapIndex(Heap));
     }
 
     public string GetAutoPropertyFieldName(string propertyName)
     {
-        if (propertyName == null) throw new ArgumentNullException(nameof(propertyName));
+        ArgumentNullException.ThrowIfNull(propertyName);
 
         if (IsCoreRuntime)
         {

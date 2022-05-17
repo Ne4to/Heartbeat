@@ -24,9 +24,9 @@ public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
     {
         var stringDuplicates = GetStringDuplicates();
 
-        foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
+        foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.Value))
         {
-            var stringValue = stringDuplicate.String;
+            var stringValue = stringDuplicate.Value;
             var instanceCount = stringDuplicate.Count;
 
             if (instanceCount < minDuplicateCount)
@@ -62,9 +62,9 @@ public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
         var stringDuplicates = GetStringDuplicates();
         var result = new List<StringDuplicate>();
 
-        foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.String))
+        foreach (var stringDuplicate in stringDuplicates.OrderByDescending(t => t.Value))
         {
-            var stringValue = stringDuplicate.String;
+            var stringValue = stringDuplicate.Value;
             var instanceCount = stringDuplicate.Count;
 
             if (instanceCount < minDuplicateCount)

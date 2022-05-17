@@ -81,7 +81,7 @@ public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair
 
         public Enumerator(HashtableProxy proxy)
         {
-            if (proxy == null) throw new ArgumentNullException(nameof(proxy));
+            ArgumentNullException.ThrowIfNull(proxy);
             _items = proxy.GetKeyValuePair();
         }
 

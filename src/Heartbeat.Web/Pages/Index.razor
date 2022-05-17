@@ -1,9 +1,56 @@
 ﻿@page "/"
+@using Heartbeat.Domain
+@using Heartbeat.Runtime
+@inject RuntimeContext Context
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<p>
+    <RadzenLabel Text="Dump" Style="vertical-align: middle;" />
+    <RadzenTextBox Value="@Context.DumpPath" Disabled="true" Class="w-100" />
+</p>
+<p>
+    <RadzenLabel Text="Dac" Style="vertical-align: middle;" />
+    <RadzenTextBox Value="@Context.Runtime.ClrInfo.DacInfo.PlatformAgnosticFileName" Disabled="true" Class="w-100" />
+</p>
+<p>
+    <RadzenCheckBox Name="CanWalkHeapCheckBox" Value="@Context.Heap.CanWalkHeap" Disabled="true" TValue="bool" />
+    <RadzenLabel Text="Can walk heap" Component="CanWalkHeapCheckBox" Style="margin-left: 8px; vertical-align: middle;" />
+</p>
 
-Welcome to your new app.
+<RadzenDataGrid TItem="HeapSegment" AllowFiltering="true" AllowColumnResize="true" AllowSorting="true"
+    PageSize="12" AllowPaging="true" 
+    Data="@Segments">
+    <Columns>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsEphemeralSegment" Title="Ephemeral" />
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsLargeObjectSegment" Title="Large Object" />
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsPinnedObjectSegment" Title="Pinned Object" />
+        <RadzenDataGridColumn TItem="HeapSegment" Title="Size">
+            <Template Context="segment">
+                @(new Size(segment.End.Value - segment.Start.Value))
+            </Template>
+            <FooterTemplate>
+                @Size.Sum(@Segments.Select(s => new Size(s.End.Value - s.Start.Value)))
+            </FooterTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="Start" Title="Start" />
+        <RadzenDataGridColumn TItem="HeapSegment" Property="End" Title="End" />
+    </Columns>
+</RadzenDataGrid>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@code {
+    public IReadOnlyList<HeapSegment> Segments { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        Segments = Context.Heap.Segments.Select(s => new HeapSegment(
+                new Address(s.Start),
+                new Address(s.End),
+                s.IsEphemeralSegment,
+                s.IsLargeObjectSegment,
+                s.IsPinnedObjectSegment)).ToArray();
+    }
+
+}

@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
@@ -12,7 +11,7 @@ namespace Heartbeat.Runtime.Proxies;
 // TODO investogate https://github.com/dotnet/diagnostics/blob/dc9d61a876d6153306b2d59c769d9581e3d5ab2d/src/SOS/Strike/strike.cpp#L4470
 public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
 {
-    private static bool _fullLog = false;
+    private static bool _fullLog;
 
     public AsyncStateMachineBoxProxy(RuntimeContext context, ClrObject targetObject)
         : base(context, targetObject)

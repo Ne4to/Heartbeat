@@ -1,5 +1,5 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
-using Heartbeat.Runtime.Extensions;
+
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;

@@ -1,20 +1,27 @@
 ﻿<Project>
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <VersionPrefix>0.1.0</VersionPrefix>
-        <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <Authors>Alexey Sosnin</Authors>
-        <PackageTags>ClrMd diagnostics</PackageTags>
-        <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
-    </PropertyGroup>
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Alexey Sosnin</Authors>
+    <PackageTags>ClrMd diagnostics</PackageTags>
+    <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
+  </PropertyGroup>
 
-    <!--<PropertyGroup>
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!--<AnalysisLevel>6.0-all</AnalysisLevel>
+    <AnalysisMode>all</AnalysisMode>-->
+    <NoWarn>CA1848,CA2254</NoWarn>
+  </PropertyGroup>
+
+  <!--<PropertyGroup>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
     </PropertyGroup>-->

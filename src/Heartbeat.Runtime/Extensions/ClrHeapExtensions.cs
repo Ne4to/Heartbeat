@@ -1,8 +1,5 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 
-using System.IO;
-using System.Linq;
-
 namespace Heartbeat.Runtime.Extensions;
 
 internal static class ClrHeapExtensions

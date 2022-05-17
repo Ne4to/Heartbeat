@@ -2,25 +2,25 @@
 
 public readonly record struct Size(ulong Bytes) : IComparable<Size>, IComparable
 {
-    private const ulong K = 1024;
-    private const ulong MB = K * K;
-    private const ulong GB = MB * K;
+    private const ulong _k = 1024;
+    private const ulong _mb = _k * _k;
+    private const ulong _gb = _mb * _k;
 
     public override string ToString()
     {
-        if (Bytes >= GB)
+        if (Bytes >= _gb)
         {
-            return $"{(decimal)Bytes / GB:f1} GiB";
+            return $"{(decimal)Bytes / _gb:f1} GiB";
         }
 
-        if (Bytes >= MB)
+        if (Bytes >= _mb)
         {
-            return $"{(decimal)Bytes / MB:f1} MiB";
+            return $"{(decimal)Bytes / _mb:f1} MiB";
         }
 
-        if (Bytes >= K)
+        if (Bytes >= _k)
         {
-            return $"{(decimal)Bytes / K:f1} KiB";
+            return $"{(decimal)Bytes / _k:f1} KiB";
         }
 
         return $"{Bytes} B";
@@ -43,6 +43,16 @@ public readonly record struct Size(ulong Bytes) : IComparable<Size>, IComparable
         return size.ToString();
     }
 
+    public static Size Sum(IEnumerable<Size> collection)
+    {
+        ulong totalBytes = 0;
+        foreach (var item in collection)
+        {
+            totalBytes += item.Bytes;
+        }
+        return new Size(totalBytes);
+    }
+
     public int CompareTo(Size other)
     {
         return Bytes.CompareTo(other.Bytes);
@@ -57,5 +67,25 @@ public readonly record struct Size(ulong Bytes) : IComparable<Size>, IComparable
         }
 
         return 0;
+    }
+
+    public static bool operator <(Size left, Size right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+
+    public static bool operator <=(Size left, Size right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+
+    public static bool operator >(Size left, Size right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+
+    public static bool operator >=(Size left, Size right)
+    {
+        return left.CompareTo(right) >= 0;
     }
 }

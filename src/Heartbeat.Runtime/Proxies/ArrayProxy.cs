@@ -77,9 +77,32 @@ public sealed class ArrayProxy : ProxyBase
             yield break;
         }
 
-        for (int itemIndex = 0; itemIndex < length; itemIndex++)
+        //array.Rank
+
+        var lowerBound0 = array.GetLowerBound(0);
+        var upperBound0 = array.GetUpperBound(0);
+        for (int index0 = lowerBound0; index0 < upperBound0; index0++)
         {
-            yield return array.GetObjectValue(itemIndex);
+            if (array.Rank == 1)
+            {
+                yield return array.GetObjectValue(index0);
+            }
+            else
+            {
+                var lowerBound1 = array.GetLowerBound(1);
+                var upperBound1 = array.GetUpperBound(1);
+                for (int index1 = lowerBound1; index1 < upperBound1; index1++)
+                {
+                    if (array.Rank == 2)
+                    {
+                        yield return array.GetObjectValue(index0, index1);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException($"Arrays with {array.Rank} dimensions is not supported");
+                    }
+                }
+            }
         }
     }
 }

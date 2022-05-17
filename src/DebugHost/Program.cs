@@ -13,16 +13,7 @@ static void ProcessFile(string filePath)
 {
     Console.WriteLine($"Processing dump: {filePath}");
 
-    string? dacPath = null;
-    bool ignoreMismatch = false;
-
-    var dataTarget = DataTarget.LoadDump(filePath);
-    ClrInfo clrInfo = dataTarget.ClrVersions[0];
-    var clrRuntime = dacPath == null
-        ? clrInfo.CreateRuntime()
-        : clrInfo.CreateRuntime(dacPath, ignoreMismatch);
-
-    var runtimeContext = new RuntimeContext(clrRuntime, filePath);
+    var runtimeContext = new RuntimeContext(filePath);
     WriteWebRequests(runtimeContext);
 
     static void WriteWebRequests(RuntimeContext runtimeContext)

@@ -5,6 +5,8 @@ public static class DictionaryExtensions
     public static void IncrementValue<TKey>(this IDictionary<TKey, int> workItemTypeCount, TKey key)
         where TKey : notnull
     {
+        ArgumentNullException.ThrowIfNull(workItemTypeCount);
+
         if (workItemTypeCount.TryGetValue(key, out var currentValue))
         {
             workItemTypeCount[key] = currentValue + 1;
@@ -18,6 +20,8 @@ public static class DictionaryExtensions
     public static void IncrementValue<TKey>(this IDictionary<TKey, long> workItemTypeCount, TKey key, long value)
         where TKey : notnull
     {
+        ArgumentNullException.ThrowIfNull(workItemTypeCount);
+
         if (workItemTypeCount.TryGetValue(key, out var currentValue))
         {
             workItemTypeCount[key] = currentValue + value;

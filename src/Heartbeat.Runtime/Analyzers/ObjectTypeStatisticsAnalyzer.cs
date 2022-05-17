@@ -1,4 +1,3 @@
-using System.Linq;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Extensions;

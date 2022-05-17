@@ -1,5 +1,3 @@
-using System.IO;
-using System.Linq;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Proxies;
@@ -21,10 +19,7 @@ public class AsyncStateMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
 
     public void Dump(ILogger logger)
     {
-        if (logger is null)
-        {
-            throw new ArgumentNullException(nameof(logger));
-        }
+        ArgumentNullException.ThrowIfNull(logger);
 
         logger.LogInformation("State machines");
 

@@ -4,6 +4,8 @@ namespace Heartbeat.Runtime.Models;
 
 public class AsyncRecord
 {
+    private readonly List<Address> _continuations = new();
+
     public Address Address { get; set; }
     public MethodTable MT { get; set; }
     public Size Size { get; set; }
@@ -17,15 +19,9 @@ public class AsyncRecord
     public int TaskStateFlags { get; set; }
     public int StateValue { get; set; }
 
-    public List<Address> Continuations { get; }
-
-    public AsyncRecord()
-    {
-        Continuations = new List<Address>();
-    }
+    public IReadOnlyList<Address> Continuations => _continuations;
 
     public AsyncRecord(ClrObject clrObject)
-        : this()
     {
         if (clrObject.Type == null)
         {

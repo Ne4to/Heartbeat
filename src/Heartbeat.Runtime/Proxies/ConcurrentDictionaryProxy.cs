@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 
 using Microsoft.Diagnostics.Runtime;
 
@@ -74,7 +73,7 @@ public sealed class ConcurrentDictionaryProxy : ProxyBase, IReadOnlyCollection<K
 
         public Enumerator(ConcurrentDictionaryProxy proxy)
         {
-            if (proxy == null) throw new ArgumentNullException(nameof(proxy));
+            ArgumentNullException.ThrowIfNull(proxy);
             _items = proxy.GetKeyValuePair();
         }
 

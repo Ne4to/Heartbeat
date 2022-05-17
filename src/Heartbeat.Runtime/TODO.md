@@ -1,12 +1,12 @@
 - add two heap memory stat compare (https://github.com/dinazil/self-aware-applications/blob/master/Gatos.Monitor/LeakMonitor.cs#L87)
 - AggregatedStacks (https://github.com/dinazil/self-aware-applications/blob/master/Gatos.Monitor/AggregatedStacks.cs)
 
--[x] Live/Dead heap walk
--[ ] Dictionary KeyValuePairs
--[ ] Reconstruct
+- [x] Live/Dead heap walk
+- [ ] Dictionary KeyValuePairs
+- [ ] Reconstruct
     - create an instance using reflection
     - fill fields values
     - call method on an instance
--[ ] System.Threading.CancellationTokenSource    
--[ ] System.Threading.Tasks.TaskCompletionSource<TResult> 
--[ ] IAsyncStateMachine (DumpAsync SOS command - https://github.com/dotnet/coreclr/blob/master/src/ToolBox/SOS/Strike/strike.cpp#L4452)        
+- [ ] System.Threading.CancellationTokenSource    
+- [ ] System.Threading.Tasks.TaskCompletionSource<TResult> 
+- [ ] IAsyncStateMachine (DumpAsync SOS command - https://github.com/dotnet/coreclr/blob/master/src/ToolBox/SOS/Strike/strike.cpp#L4452)        
