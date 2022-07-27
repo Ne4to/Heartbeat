@@ -40,7 +40,8 @@ public sealed class ObjectTypeStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IW
             group objSize by obj.Type
             into g
             let totalSize = (ulong)g.Sum(t => (long)t)
-            select new ObjectTypeStatistics(g.Key.GetClrTypeName(), new Size(totalSize), g.Count())
+            let clrType = g.Key
+            select new ObjectTypeStatistics(new MethodTable(clrType.MethodTable), clrType.GetClrTypeName(), new Size(totalSize), g.Count())
         ).ToArray();
 
         //            return

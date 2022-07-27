@@ -5,4 +5,6 @@ public readonly record struct MethodTable(ulong Value)
     {
         return $"MT 0x{Value:x}";
     }
+
+    public static implicit operator ulong(MethodTable mt) => mt.Value;
 }

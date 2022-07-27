@@ -1,7 +1,4 @@
 ﻿@page "/instance-type-statistics"
-@using Heartbeat.Domain
-@using Heartbeat.Runtime
-@using Heartbeat.Runtime.Analyzers
 @inject RuntimeContext Context
 
 <PageTitle>Instance type statistics</PageTitle>
@@ -15,11 +12,16 @@
 
 <ProgressBar Grid.Row="1" IsIndeterminate="True" Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}" />*@
 
-<RadzenDataGrid TItem="ObjectTypeStatistics" AllowFiltering="true" AllowColumnResize="true" AllowSorting="true"
+<RadzenDataGrid TItem="ObjectTypeStatistics"
+                AllowFiltering="true" AllowColumnResize="true" AllowSorting="true"
                 PageSize="12" AllowPaging="true"
                 Data="@Statistics">
     <Columns>
-        <RadzenDataGridColumn TItem="ObjectTypeStatistics" Property="InstanceCount" Title="Count" TextAlign="TextAlign.Right" Width="100px" />
+        <RadzenDataGridColumn TItem="ObjectTypeStatistics" Property="InstanceCount" Title="Count" TextAlign="TextAlign.Right" Width="100px">
+            <Template Context="s">
+                <a href="/object-instances?mt=@s.MethodTable.Value.ToString("x")">@s.InstanceCount</a>
+            </Template>
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="ObjectTypeStatistics" Property="TotalSize" Title="Total size" TextAlign="TextAlign.Right" Width="140px">
             <FooterTemplate>
                 @Size.Sum(@Statistics.Select(s => s.TotalSize))
@@ -38,9 +40,6 @@
 
         var analyzer = new ObjectTypeStatisticsAnalyzer(Context);
         analyzer.TraversingHeapMode = TraversingHeapModes.All; // TODO add UI combobox
-
-        var res = analyzer.GetObjectTypeStatistics();
-        //Statistics = res.OrderByDescending(r => r.TotalSize).Take(200).ToArray();
-        Statistics = res;
+        Statistics = analyzer.GetObjectTypeStatistics();
     }
 }

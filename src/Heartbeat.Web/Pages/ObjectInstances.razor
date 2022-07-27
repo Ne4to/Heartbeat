@@ -1,0 +1,28 @@
+﻿@page "/object-instances"
+@using Heartbeat.Runtime.Extensions
+@inject RuntimeContext Context
+
+
+<PageTitle>Object Instances</PageTitle>
+
+<p>
+    @MethodTable @ClrType?.Name
+</p>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "mt")]
+    public string MethodTableParameter { get; set; }
+
+    public MethodTable? MethodTable { get; private set; }
+    public ClrType? ClrType { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        var mt = new MethodTable(ulong.Parse(MethodTableParameter, System.Globalization.NumberStyles.HexNumber));
+        MethodTable = mt;
+        ClrType = Context.Heap.FindTypeByMethodTable(mt);
+    }
+}

@@ -19,18 +19,27 @@
 </p>
 
 <RadzenDataGrid TItem="HeapSegment" AllowFiltering="true" AllowColumnResize="true" AllowSorting="true"
-    PageSize="12" AllowPaging="true" 
-    Data="@Segments">
+                PageSize="12" AllowPaging="true"
+                Data="@Segments">
     <Columns>
-        <RadzenDataGridColumn TItem="HeapSegment" Property="IsEphemeralSegment" Title="Ephemeral" />
-        <RadzenDataGridColumn TItem="HeapSegment" Property="IsLargeObjectSegment" Title="Large Object" />
-        <RadzenDataGridColumn TItem="HeapSegment" Property="IsPinnedObjectSegment" Title="Pinned Object" />
-        <RadzenDataGridColumn TItem="HeapSegment" Title="Size">
-            <Template Context="segment">
-                @(new Size(segment.End.Value - segment.Start.Value))
-            </Template>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsEphemeralSegment" Title="Ephemeral">
             <FooterTemplate>
-                @Size.Sum(@Segments.Select(s => new Size(s.End.Value - s.Start.Value)))
+                @Segments.Count(s => s.IsEphemeralSegment)
+            </FooterTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsLargeObjectSegment" Title="Large Object">
+            <FooterTemplate>
+                @Segments.Count(s => s.IsLargeObjectSegment)
+            </FooterTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="IsPinnedObjectSegment" Title="Pinned Object">
+            <FooterTemplate>
+                @Segments.Count(s => s.IsPinnedObjectSegment)
+            </FooterTemplate>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="HeapSegment" Property="Size" Title="Size">
+            <FooterTemplate>
+                @Size.Sum(@Segments.Select(s => s.Size))
             </FooterTemplate>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="HeapSegment" Property="Start" Title="Start" />

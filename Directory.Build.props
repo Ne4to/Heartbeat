@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <!--<EnableNETAnalyzers>true</EnableNETAnalyzers>-->    
     <!--<AnalysisLevel>6.0-all</AnalysisLevel>
     <AnalysisMode>all</AnalysisMode>-->
     <NoWarn>CA1848,CA2254</NoWarn>

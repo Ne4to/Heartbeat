@@ -2,8 +2,25 @@
 
 namespace Heartbeat.Runtime.Extensions;
 
-internal static class ClrHeapExtensions
+public static class ClrHeapExtensions
 {
+    public static ClrType? FindTypeByMethodTable(this ClrHeap heap, MethodTable methodTable)
+    {
+        foreach (var module in heap.Runtime.EnumerateModules())
+        {
+            foreach (var (mt, token) in module.EnumerateTypeDefToMethodTableMap())
+            {
+                if (mt == methodTable)
+                {
+                    var clrType = module.ResolveToken(token);
+                    return clrType;
+                }
+            }
+        }
+
+        return null;
+    }
+
     public static ClrType? FindTypeByName(this ClrHeap heap, string name)
     {
         foreach (var clrModule in heap.Runtime.EnumerateModules())
