@@ -2,7 +2,6 @@
 @using Heartbeat.Runtime.Extensions
 @inject RuntimeContext Context
 
-
 <PageTitle>Object Instances</PageTitle>
 
 <p>
@@ -15,9 +14,9 @@
                 Data="@Instances">
     <Columns>
         <RadzenDataGridColumn TItem="ObjectInstance" Property="Address" Title="Address" Width="100px">
-            @*          <Template Context="s">
-            <a href="/object-instances?mt=@s.MethodTable.Value.ToString("x")">@s.InstanceCount</a>
-            </Template>*@
+            <Template Context="s">
+                <a href="/object-instance?address=@s.Address.Value.ToString("x")">@s.Address</a>
+            </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="ObjectInstance" Property="Size" Title="Size" TextAlign="TextAlign.Right" Width="140px">
         </RadzenDataGridColumn>
@@ -38,7 +37,7 @@
     {
         base.OnInitialized();
 
-        var mt = new MethodTable(ulong.Parse(MethodTableParameter, System.Globalization.NumberStyles.HexNumber));
+        var mt = new MethodTable(MethodTableParameter.ParseHex());
         MethodTable = mt;
         ClrType = Context.Heap.FindTypeByMethodTable(mt);
 

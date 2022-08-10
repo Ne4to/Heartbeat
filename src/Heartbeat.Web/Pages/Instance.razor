@@ -1,0 +1,106 @@
+﻿@page "/object-instance"
+@inject RuntimeContext Context
+
+<PageTitle>Instance</PageTitle>
+
+<p>
+    @Address @ClrObject?.Type?.Name @ClrObject?.Size
+</p>
+
+<p>
+    Resf to: @RefsToCount
+</p>
+
+<p>
+    Resf from: @RefsFromCount
+</p>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "address")]
+    public string AddressParameter { get; set; }
+
+    public Address? Address { get; private set; }
+    public ClrObject? ClrObject { get; private set; }
+    public int? RefsToCount { get; private set; }
+    public int? RefsFromCount { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        Address = new Address(AddressParameter.ParseHex());
+        ClrObject = Context.Heap.GetObject(Address.Value);
+
+        RefsToCount = Context.GetAllReferencesTo(Address.Value).Count();
+        RefsFromCount = ClrObject.Value.EnumerateReferences().Count();
+    }
+}
+
+//> do 2910237ce10
+//Name:        System.Threading.TimerQueue
+//MethodTable: 00007fff20cb3068
+//EEClass:     00007fff20ca6ec8
+//Tracked Type: false
+//Size:        80(0x50) bytes
+//File:        C:\Program Files\dotnet\shared\Microsoft.NETCore.App\6.0.0-rc.2.21480.5\System.Private.CoreLib.dll
+//Fields:
+//              MT    Field   Offset                 Type VT     Attr            Value Name
+//00007fff20c49480  4000b79       38         System.Int32  1 instance                1 _id
+//00007fff20cb4888  4000b7a        8 ...inTimerSafeHandle  0 instance 0000000000000000 m_appDomainTimer
+//00007fff20babf08  4000b7d       40       System.Boolean  1 instance                0 _isTimerScheduled
+//00007fff20c4b820  4000b7e       20         System.Int64  1 instance                0 _currentTimerStartTicks
+//00007fff20c4a640  4000b7f       3c        System.UInt32  1 instance                0 _currentTimerDuration
+//00007fff20c9e2a0  4000b80       10 ...g.TimerQueueTimer  0 instance 0000000000000000 _shortTimers
+//00007fff20c9e2a0  4000b81       18 ...g.TimerQueueTimer  0 instance 0000000000000000 _longTimers
+//00007fff20c4b820  4000b82       28         System.Int64  1 instance        242454005 _currentAbsoluteThreshold
+//00007fff20c4b820  4000b83       30         System.Int64  1 instance                0 >ActiveCount>k__BackingField
+//00007fff20cb2e98  4000b7b      7f0 ...Private.CoreLib]]  1   static 000002911a371810 s_tickCountToTimeMap
+//00007fff20cb4210  4000b7c      7f8 ...ding.TimerQueue[]  0   static 000002910237cca8 >Instances>k__BackingField
+
+//> gcroot 2910237ce10
+//HandleTable:
+//    00000291006713E8 (strong handle)
+//    -> 000002911A371018 System.Object[]
+//    -> 000002910237CCA8 System.Threading.TimerQueue[]
+//    -> 000002910237CE10 System.Threading.TimerQueue
+
+//> dumparray 000002910237CCA8
+//Name:        System.Threading.TimerQueue[]
+//MethodTable: 00007fff20cb4210
+//EEClass:     00007fff20bab4c0
+//Size:        280(0x118) bytes
+//Array:       Rank 1, Number of elements 32, Type CLASS
+//Element Methodtable: 00007fff20cb3068
+//[0] 000002910237cdc0
+//[1] 000002910237ce10
+//[2] 000002910237ce60
+//[3] 000002910237ceb0
+//[4] 000002910237cf00
+//[5] 000002910237cf50
+//[6] 000002910237cfa0
+//[7] 000002910237cff0
+//[8] 000002910237d040
+//[9] 000002910237d090
+//[10] 000002910237d0e0
+//[11] 000002910237d130
+//[12] 000002910237d180
+//[13] 000002910237d1d0
+//[14] 000002910237d220
+//[15] 000002910237d270
+//[16] 000002910237d2c0
+//[17] 000002910237d310
+//[18] 000002910237d360
+//[19] 000002910237d3b0
+//[20] 000002910237d400
+//[21] 000002910237d450
+//[22] 000002910237d4a0
+//[23] 000002910237d4f0
+//[24] 000002910237d540
+//[25] 000002910237d590
+//[26] 000002910237d5e0
+//[27] 000002910237d630
+//[28] 000002910237d680
+//[29] 000002910237d6d0
+//[30] 000002910237d720
+//[31] 000002910237d770
