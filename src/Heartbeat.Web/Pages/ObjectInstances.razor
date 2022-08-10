@@ -9,6 +9,21 @@
     @MethodTable @ClrType?.Name
 </p>
 
+<RadzenDataGrid TItem="ObjectInstance"
+                AllowFiltering="true" AllowColumnResize="true" AllowSorting="true"
+                PageSize="12" AllowPaging="true"
+                Data="@Instances">
+    <Columns>
+        <RadzenDataGridColumn TItem="ObjectInstance" Property="Address" Title="Address" Width="100px">
+            @*          <Template Context="s">
+            <a href="/object-instances?mt=@s.MethodTable.Value.ToString("x")">@s.InstanceCount</a>
+            </Template>*@
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="ObjectInstance" Property="Size" Title="Size" TextAlign="TextAlign.Right" Width="140px">
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
 @code {
     [Parameter]
     [SupplyParameterFromQuery(Name = "mt")]
@@ -17,6 +32,8 @@
     public MethodTable? MethodTable { get; private set; }
     public ClrType? ClrType { get; private set; }
 
+    public IReadOnlyCollection<ObjectInstance> Instances { get; private set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -24,5 +41,19 @@
         var mt = new MethodTable(ulong.Parse(MethodTableParameter, System.Globalization.NumberStyles.HexNumber));
         MethodTable = mt;
         ClrType = Context.Heap.FindTypeByMethodTable(mt);
+
+        Instances = (
+            from obj in Context.EnumerateObjects(TraversingHeapModes.All)
+            where obj.Type != null
+            && obj.Type.MethodTable == mt
+            orderby obj.Size descending
+            select new ObjectInstance
+             (
+                new Address(obj.Address),
+                new Size(obj.Size)
+                )
+        ).ToArray();
     }
+
+    public record ObjectInstance(Address Address, Size Size);
 }

@@ -6,6 +6,9 @@ public static class ClrHeapExtensions
 {
     public static ClrType? FindTypeByMethodTable(this ClrHeap heap, MethodTable methodTable)
     {
+        var t = heap.Runtime.GetTypeByMethodTable(methodTable);
+        if (t != null) return t;
+
         foreach (var module in heap.Runtime.EnumerateModules())
         {
             foreach (var (mt, token) in module.EnumerateTypeDefToMethodTableMap())
