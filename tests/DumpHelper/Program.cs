@@ -33,6 +33,7 @@ namespace DumpHelper
         {
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = "dotnet";
+            //startInfo.ArgumentList.Add("--info");
             startInfo.ArgumentList.Add("build");
             startInfo.ArgumentList.Add("-c");
             startInfo.ArgumentList.Add("Release");
@@ -44,7 +45,7 @@ namespace DumpHelper
 
         private Process RunProject(FileInfo projectFile)
         {
-            var dir = Path.Combine(projectFile.DirectoryName, @"bin\Release\net6.0");
+            var dir = Path.Combine(projectFile.DirectoryName, @"bin\Release\net7.0");
             var exeFile = Path.ChangeExtension(projectFile.Name, "exe");
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
@@ -57,7 +58,7 @@ namespace DumpHelper
         private void MakeDump(Process testProcess, DirectoryInfo dumpsDir)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = @"C:\Users\Ne4to\apps\SysinternalsSuite\procdump64.exe";
+            startInfo.FileName = @"procdump.exe";
             startInfo.ArgumentList.Add("-ma");
             startInfo.ArgumentList.Add(testProcess.Id.ToString());
             startInfo.ArgumentList.Add(Path.Combine(dumpsDir.FullName, "AsyncStask.dmp"));
