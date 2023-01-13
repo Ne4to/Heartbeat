@@ -10,7 +10,7 @@ const AppRoutes = [
   },
   {
     path: '/counter',
-    element: <Counter />
+    element: <Counter initialCount={42} />
   },
   {
     path: '/fetch-data',

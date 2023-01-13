@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Heartbeat.WebUI.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/dump")]
 public class DumpController : ControllerBase
 {
     private readonly RuntimeContext _context;
