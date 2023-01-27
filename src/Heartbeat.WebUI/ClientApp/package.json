@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/material": "^5.11.6",
+    "@mui/x-data-grid": "^5.17.20",
     "@types/jest": "^29.2.5",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",

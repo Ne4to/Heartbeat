@@ -1,4 +1,5 @@
 using Heartbeat.Runtime;
+
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // TODO use options
-var runtimeContext = new RuntimeContext("C:\\Users\\Ne4to\\projects\\github.com\\Ne4to\\Heartbeat\\tests\\dumps\\AsyncStask.dmp", null, false);
+//var runtimeContext = new RuntimeContext("C:\\Users\\Ne4to\\projects\\github.com\\Ne4to\\Heartbeat\\tests\\dumps\\AsyncStask.dmp", null, false);
+//var runtimeContext = new RuntimeContext("C:\\Users\\Ne4to\\projects\\dbg\\Rider.Backend.DMP", null, false);
+var runtimeContext = new RuntimeContext("C:\\Users\\Ne4to\\projects\\dbg\\GitExtensions.DMP", null, false);
 builder.Services.AddSingleton(runtimeContext);
 
 var app = builder.Build();
