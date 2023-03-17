@@ -27,19 +27,19 @@ public sealed class TaskProxy : ProxyBase
 
     public static readonly IReadOnlyDictionary<int, string> TaskStates = new Dictionary<int, string>
     {
-        {TaskStateStarted, nameof(TaskStateStarted).Substring(TaskStatePrefixLength)},
-        {TaskStateDelegateInvoked, nameof(TaskStateDelegateInvoked).Substring(TaskStatePrefixLength)},
-        {TaskStateDisposed, nameof(TaskStateDisposed).Substring(TaskStatePrefixLength)},
-        {TaskStateExceptionObservedByParent, nameof(TaskStateExceptionObservedByParent).Substring(TaskStatePrefixLength)},
-        {TaskStateCancellationAcknowledged, nameof(TaskStateCancellationAcknowledged).Substring(TaskStatePrefixLength)},
-        {TaskStateFaulted, nameof(TaskStateFaulted).Substring(TaskStatePrefixLength)},
-        {TaskStateCanceled, nameof(TaskStateCanceled).Substring(TaskStatePrefixLength)},
-        {TaskStateWaitingOnChildren, nameof(TaskStateWaitingOnChildren).Substring(TaskStatePrefixLength)},
-        {TaskStateRanToCompletion, nameof(TaskStateRanToCompletion).Substring(TaskStatePrefixLength)},
-        {TaskStateWaitingForActivation, nameof(TaskStateWaitingForActivation).Substring(TaskStatePrefixLength)},
-        {TaskStateCompletionReserved, nameof(TaskStateCompletionReserved).Substring(TaskStatePrefixLength)},
-        {TaskStateThreadWasAborted, nameof(TaskStateThreadWasAborted).Substring(TaskStatePrefixLength)},
-        {TaskStateWaitCompletionNotification, nameof(TaskStateWaitCompletionNotification).Substring(TaskStatePrefixLength)}
+        {TaskStateStarted, nameof(TaskStateStarted)[TaskStatePrefixLength..]},
+        {TaskStateDelegateInvoked, nameof(TaskStateDelegateInvoked)[TaskStatePrefixLength..]},
+        {TaskStateDisposed, nameof(TaskStateDisposed)[TaskStatePrefixLength..]},
+        {TaskStateExceptionObservedByParent, nameof(TaskStateExceptionObservedByParent)[TaskStatePrefixLength..]},
+        {TaskStateCancellationAcknowledged, nameof(TaskStateCancellationAcknowledged)[TaskStatePrefixLength..]},
+        {TaskStateFaulted, nameof(TaskStateFaulted)[TaskStatePrefixLength..]},
+        {TaskStateCanceled, nameof(TaskStateCanceled)[TaskStatePrefixLength..]},
+        {TaskStateWaitingOnChildren, nameof(TaskStateWaitingOnChildren)[TaskStatePrefixLength..]},
+        {TaskStateRanToCompletion, nameof(TaskStateRanToCompletion)[TaskStatePrefixLength..]},
+        {TaskStateWaitingForActivation, nameof(TaskStateWaitingForActivation)[TaskStatePrefixLength..]},
+        {TaskStateCompletionReserved, nameof(TaskStateCompletionReserved)[TaskStatePrefixLength..]},
+        {TaskStateThreadWasAborted, nameof(TaskStateThreadWasAborted)[TaskStatePrefixLength..]},
+        {TaskStateWaitCompletionNotification, nameof(TaskStateWaitCompletionNotification)[TaskStatePrefixLength..]}
     };
 
     public TaskStatus Status => GetStatus(TargetObject);

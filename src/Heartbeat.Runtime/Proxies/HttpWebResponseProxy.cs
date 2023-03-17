@@ -8,7 +8,7 @@ public sealed class HttpWebResponseProxy : ProxyBase
     public string? StatusDescription => TargetObject.ReadStringField("m_StatusDescription");
     public long ContentLength => TargetObject.ReadField<long>("m_ContentLength");
 
-    public WebHeaderCollectionProxy Headers => new WebHeaderCollectionProxy(Context, TargetObject.ReadObjectField("m_HttpResponseHeaders"));
+    public WebHeaderCollectionProxy Headers => new(Context, TargetObject.ReadObjectField("m_HttpResponseHeaders"));
 
     public HttpWebResponseProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
     {

@@ -36,7 +36,7 @@ namespace Heartbeat.WinUI.Pages
                 }
             }
 
-            GridSortOptions sortOptions = new GridSortOptions(e.Column.Tag, e.Column.SortDirection);
+            GridSortOptions sortOptions = new(e.Column.Tag, e.Column.SortDirection);
             ViewModel.SortCommand.Execute(sortOptions);
         }
 

@@ -57,8 +57,10 @@ internal class AnalyzeCommandHandler
 
         void PrintHttpClients()
         {
-            var analyzer = new HttpClientAnalyzer(runtimeContext);
-            analyzer.TraversingHeapMode = traversingMode;
+            var analyzer = new HttpClientAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = traversingMode
+            };
 
             var httpClients = analyzer.GetClientsInfo();
             foreach (var httpclient in httpClients)
@@ -69,8 +71,10 @@ internal class AnalyzeCommandHandler
 
         void PrintStringDuplicates()
         {
-            var analyzer = new StringDuplicateAnalyzer(runtimeContext);
-            analyzer.TraversingHeapMode = traversingMode;
+            var analyzer = new StringDuplicateAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = traversingMode
+            };
 
             var duplicates = analyzer.GetStringDuplicates(10, 100);
 
@@ -82,8 +86,10 @@ internal class AnalyzeCommandHandler
 
         void PrintObjectTypeStatistics()
         {
-            var analyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext);
-            analyzer.TraversingHeapMode = traversingMode;
+            var analyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = traversingMode
+            };
 
             var statistics = analyzer.GetObjectTypeStatistics();
 
@@ -95,8 +101,10 @@ internal class AnalyzeCommandHandler
 
         void PrintTimerQueueTimers()
         {
-            var analyzer = new TimerQueueTimerAnalyzer(runtimeContext);
-            analyzer.TraversingHeapMode = traversingMode;
+            var analyzer = new TimerQueueTimerAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = traversingMode
+            };
 
             var timers = analyzer.GetTimers(traversingMode);
 
@@ -115,8 +123,10 @@ internal class AnalyzeCommandHandler
 
         void PrintLongStrings()
         {
-            var analyzer = new LongStringAnalyzer(runtimeContext);
-            analyzer.TraversingHeapMode = traversingMode;
+            var analyzer = new LongStringAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = traversingMode
+            };
 
             var strings = analyzer.GetStrings(20, null);
             foreach (var s in strings)
@@ -207,15 +217,19 @@ internal class AnalyzeCommandHandler
 
         if (_options.LongString)
         {
-            LongStringAnalyzer longStringAnalyzer = new LongStringAnalyzer(runtimeContext);
-            longStringAnalyzer.TraversingHeapMode = _options.TraversingHeapMode;
+            LongStringAnalyzer longStringAnalyzer = new(runtimeContext)
+            {
+                TraversingHeapMode = _options.TraversingHeapMode
+            };
             longStringAnalyzer.Dump(logger);
         }
 
         if (_options.AsyncStateMachine)
         {
-            var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext);
-            asyncStateMachineAnalyzer.TraversingHeapMode = _options.TraversingHeapMode;
+            var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext)
+            {
+                TraversingHeapMode = _options.TraversingHeapMode
+            };
             asyncStateMachineAnalyzer.Dump(logger);
         }
 
@@ -415,7 +429,7 @@ internal class AnalyzeCommandHandler
         }
     }
 
-    private void WriteTotals(Dictionary<string, long> totalByDiscoveryKey,
+    private static void WriteTotals(Dictionary<string, long> totalByDiscoveryKey,
         Dictionary<string, int> countByDiscoveryKey)
     {
         var q = from kvp in totalByDiscoveryKey
@@ -434,17 +448,12 @@ internal class AnalyzeCommandHandler
 
         static string GetServiceName(string discoveryKey)
         {
-            switch (discoveryKey)
+            return discoveryKey switch
             {
-                case "c558fd4d8151489bbaf58896725d7540":
-                    return "TRG_BillingCalculator";
-
-                case "0510b735125446d9a0fdc9b7e35b1dac":
-                    return "ProductCatalog";
-
-                default:
-                    return "unknown";
-            }
+                "c558fd4d8151489bbaf58896725d7540" => "TRG_BillingCalculator",
+                "0510b735125446d9a0fdc9b7e35b1dac" => "ProductCatalog",
+                _ => "unknown",
+            };
         }
     }
 
@@ -471,7 +480,7 @@ internal class AnalyzeCommandHandler
             return (null, null);
         }
 
-        if (contentObject.Type.Name.Contains("JsonContent"))
+        if (contentObject.Type?.Name?.Contains("JsonContent") ?? false)
         {
             var bufferedContentObj = contentObject.ReadObjectField("bufferedContent");
             if (bufferedContentObj.IsNull)
@@ -507,7 +516,7 @@ internal class AnalyzeCommandHandler
             return (null, null);
         }
 
-        if (streamObject.Type.Name == "Google.Apis.Http.StreamInterceptionHandler+InterceptingStream")
+        if (streamObject.Type?.Name == "Google.Apis.Http.StreamInterceptionHandler+InterceptingStream")
         {
             return (null, null);
         }
@@ -516,7 +525,7 @@ internal class AnalyzeCommandHandler
         return (length, null);
     }
 
-    private static void ProcessByteArrays(ClrRuntime? runtime)
+    private static void ProcessByteArrays(ClrRuntime runtime)
     {
         ulong totalSize = 0;
         int totalCount = 0;

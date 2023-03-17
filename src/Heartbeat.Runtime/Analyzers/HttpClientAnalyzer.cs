@@ -33,7 +33,7 @@ public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
             var timeoutValue = ticksField.Read<long>(timeoutAddress, true);
             var timeoutInSeconds = timeoutValue / TimeSpan.TicksPerSecond;
 
-            HttpClientInfo httpClientInfo = new HttpClientInfo(new (address), TimeSpan.FromSeconds(timeoutInSeconds));
+            HttpClientInfo httpClientInfo = new(new (address), TimeSpan.FromSeconds(timeoutInSeconds));
             result.Add(httpClientInfo);
         }
 

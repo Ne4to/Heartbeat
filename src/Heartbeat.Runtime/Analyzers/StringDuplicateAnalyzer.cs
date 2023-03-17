@@ -44,7 +44,7 @@ public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
 
         var query =
             from clrObject in Context.EnumerateObjectsByTypeName("System.String", TraversingHeapMode)
-            select (string)clrObject;
+            select clrObject.AsString();
 
         foreach (var stringInstance in query)
         {

@@ -720,10 +720,10 @@ public static class LogExtensions
             }
 
             logger.LogInformation(
-                $"Referenced by: {refFromClrObject.Type.GetClrTypeName()} {refFromClrObject.Address:x} {Size.ToString(clrObject.Size)}");
-            if (refFromClrObject.Type.IsString)
+                $"Referenced by: {refFromClrObject.Type?.GetClrTypeName()} {refFromClrObject.Address:x} {Size.ToString(clrObject.Size)}");
+            if (refFromClrObject.Type?.IsString ?? false)
             {
-                logger.LogInformation($"Value = '{((string)refFromClrObject).Substring(0, 100)}'");
+                logger.LogInformation($"Value = '{refFromClrObject.AsString(100)}'");
             }
 
             LogObjectFields(
@@ -771,7 +771,7 @@ public static class LogExtensions
 
             if (clrObject.Type.IsString)
             {
-                logger.LogInformation($"Value = '{((string)clrObject).Substring(0, 100)}'");
+                logger.LogInformation($"Value = '{clrObject.AsString(100)}'");
             }
 
             var visitedAddresses = ImmutableHashSet<ulong>.Empty.Add(clrObject.Address);

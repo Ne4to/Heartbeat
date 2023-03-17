@@ -6,9 +6,9 @@ public sealed class HttpWebRequestProxy : ProxyBase
 {
     public string Method => GetMethod();
 
-    public UriProxy Address => new UriProxy(Context, TargetObject.ReadObjectField("_Uri"));
+    public UriProxy Address => new(Context, TargetObject.ReadObjectField("_Uri"));
 
-    public WebHeaderCollectionProxy Headers => new WebHeaderCollectionProxy(Context, TargetObject.ReadObjectField("_HttpRequestHeaders"));
+    public WebHeaderCollectionProxy Headers => new(Context, TargetObject.ReadObjectField("_HttpRequestHeaders"));
 
     public long StartTimestamp => TargetObject.ReadField<long>("m_StartTimestamp");
 
@@ -44,7 +44,7 @@ public sealed class HttpWebRequestProxy : ProxyBase
             verb = TargetObject.ReadObjectField("_OriginVerb");
         }
 
-        return verb.ReadStringField("Name");
+        return verb.ReadStringField("Name")!;
         //
     }
 

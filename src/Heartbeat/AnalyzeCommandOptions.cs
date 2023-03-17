@@ -93,21 +93,21 @@ namespace Heartbeat.Hosting.Console
 
         public class AnalyzeCommandOptionsBinder : BinderBase<AnalyzeCommandOptions>
         {
-            private Option<int?> _pidOption;
-            private Option<FileInfo> _dumpOption;
-            private Option<FileInfo> _dacPathOption;
-            private Option<bool?> _ignoreDacMismatchOption;
-            private Option<TraversingHeapModes> _traversingHeapModeOption;
-            private Option<bool?> _heapOption;
-            private Option<bool?> _servicePointManagerOption;
-            private Option<bool?> _asyncStateMachineOption;
-            private Option<bool?> _longStringOption;
-            private Option<bool?> _stringDuplicateOption;
-            private Option<bool?> _taskOption;
-            private Option<bool?> _timerQueueTimerOption;
-            private Option<bool?> _taskCompletionSourceOption;
-            private Option<bool?> _objectTypeStatisticsOption;
-            private Option<bool?> _httpClientOption;
+            private readonly Option<int?> _pidOption;
+            private readonly Option<FileInfo> _dumpOption;
+            private readonly Option<FileInfo> _dacPathOption;
+            private readonly Option<bool?> _ignoreDacMismatchOption;
+            private readonly Option<TraversingHeapModes> _traversingHeapModeOption;
+            private readonly Option<bool?> _heapOption;
+            private readonly Option<bool?> _servicePointManagerOption;
+            private readonly Option<bool?> _asyncStateMachineOption;
+            private readonly Option<bool?> _longStringOption;
+            private readonly Option<bool?> _stringDuplicateOption;
+            private readonly Option<bool?> _taskOption;
+            private readonly Option<bool?> _timerQueueTimerOption;
+            private readonly Option<bool?> _taskCompletionSourceOption;
+            private readonly Option<bool?> _objectTypeStatisticsOption;
+            private readonly Option<bool?> _httpClientOption;
 
             public AnalyzeCommandOptionsBinder(
                 Option<int?> pidOption,
@@ -206,7 +206,7 @@ namespace Heartbeat.Hosting.Console
         private static TraversingHeapModes DefaultTraversingHeapMode => TraversingHeapModes.Live;
 
         private static Option<TraversingHeapModes> TraversingHeapModeOption() =>
-            new Option<TraversingHeapModes>(
+            new(
                 "--traversing-heap-mode",
                 description: $"Traversing heap mode. Default is {DefaultTraversingHeapMode}.",
                 getDefaultValue: () => DefaultTraversingHeapMode);

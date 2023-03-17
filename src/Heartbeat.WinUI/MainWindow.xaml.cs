@@ -13,7 +13,7 @@ namespace Heartbeat.WinUI
     public sealed partial class MainWindow : Window
     {
         // List of ValueTuple holding the Navigation Tag and the relative Navigation Page
-        private readonly List<(string Tag, string Title, Type Page)> _pages = new List<(string Tag, string Title, Type Page)>
+        private readonly List<(string Tag, string Title, Type Page)> _pages = new()
         {
             (HomePage.PageTag, "Home", typeof(HomePage)),
             (InstanceTypeStatisticsPage.PageTag, "Instance type statistics", typeof(InstanceTypeStatisticsPage)),

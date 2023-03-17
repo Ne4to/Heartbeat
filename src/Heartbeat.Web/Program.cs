@@ -13,8 +13,10 @@ namespace Heartbeat.Web
 
         public static (RootCommand Command, WebCommandOptionsBinder Binder) RootCommand()
         {
-            var rootCommand = new RootCommand("web");
-            rootCommand.IsHidden = true;
+            var rootCommand = new RootCommand("web")
+            {
+                IsHidden = true
+            };
 
             var dumpPathOption = new Option<FileInfo>("--dump", "Path to a dump file")
             {
@@ -38,9 +40,9 @@ namespace Heartbeat.Web
 
         public class WebCommandOptionsBinder : BinderBase<WebCommandOptions>
         {
-            private Option<FileInfo> _dumpPathOption;
-            private Option<FileInfo?> _dacPathOption;
-            private Option<bool?> _ignoreDacMismatchOption;
+            private readonly Option<FileInfo> _dumpPathOption;
+            private readonly Option<FileInfo?> _dacPathOption;
+            private readonly Option<bool?> _ignoreDacMismatchOption;
 
             public WebCommandOptionsBinder(Option<FileInfo> dumpPathOption, Option<FileInfo?> dacPathOption, Option<bool?> ignoreDacMismatchOption)
             {

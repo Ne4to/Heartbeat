@@ -11,7 +11,7 @@ public sealed class ConnectionProxy : ProxyBase
     public bool Idle => TargetObject.ReadField<bool>("m_Idle");
     public DateTime IdleSinceUtc => TargetObject.GetDateTimeFieldValue("m_IdleSinceUtc");
     public bool ConnectionIsDoomed => TargetObject.ReadField<bool>("m_ConnectionIsDoomed");
-    public IPAddressProxy ServerAddress => new IPAddressProxy(Context, TargetObject.ReadObjectField("m_ServerAddress"));
+    public IPAddressProxy ServerAddress => new(Context, TargetObject.ReadObjectField("m_ServerAddress"));
     public int BusyCount => GetBusyCount();
     public HttpWebRequestProxy? CurrentRequest
     {
@@ -37,7 +37,7 @@ public sealed class ConnectionProxy : ProxyBase
         }
     }
 
-    private ArrayListProxy WriteList => new ArrayListProxy(Context, TargetObject.ReadObjectField("m_WriteList"));
+    private ArrayListProxy WriteList => new(Context, TargetObject.ReadObjectField("m_WriteList"));
 
     public ConnectionProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
     {

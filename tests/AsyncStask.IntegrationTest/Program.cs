@@ -2,7 +2,7 @@
 {
     class Program
     {
-        private static readonly Random _random = new Random();
+        private static readonly Random _random = new();
 
         static async Task Main(string[] args)
         {

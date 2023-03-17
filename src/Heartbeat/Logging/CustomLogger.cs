@@ -4,11 +4,11 @@ namespace Heartbeat.Hosting.Console.Logging
 {
     public sealed class CustomLogger : ILogger
     {
-        private State _currentState = new State(0);
-        private readonly Stack<State> _stateStack = new Stack<State>();
+        private State _currentState = new(0);
+        private readonly Stack<State> _stateStack = new();
         private readonly TextWriter _textWriter = System.Console.Out;
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             ConsoleColor? savedForegroundColor = null;
 
@@ -59,7 +59,7 @@ namespace Heartbeat.Hosting.Console.Logging
             {
                 if (indentionLevel < 0)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(indentionLevel));
+                    throw new(nameof(indentionLevel));
                 }
 
                 IndentionLevel = indentionLevel;

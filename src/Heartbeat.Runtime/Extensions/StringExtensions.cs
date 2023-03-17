@@ -7,6 +7,6 @@ internal static class StringExtensions
         ArgumentNullException.ThrowIfNull(str);
 
         if (str.Length < maxLength) return str;
-        return str.Substring(0, maxLength - 3) + "...";
+        return $"{str[..(maxLength - 3)]}...";
     }
 }

@@ -10,5 +10,5 @@ public record TimerQueueTimerInfo(Address Address, uint DueTime, uint Period, bo
 public record LongStringInfo(Address Address, Size Size, int Length, string Value);
 public record HeapSegment(Address Start, Address End, bool IsEphemeralSegment, bool IsLargeObjectSegment, bool IsPinnedObjectSegment)
 {
-    public Size Size => new Size(End.Value - Start.Value);
+    public Size Size => new(End.Value - Start.Value);
 }

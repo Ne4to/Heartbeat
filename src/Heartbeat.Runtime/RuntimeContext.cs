@@ -182,7 +182,7 @@ public sealed class RuntimeContext
         var weakRefHandleField = weakRefObject.Type.GetFieldByName("m_handle");
         ClrType intPtrType = Heap.GetTypeByName("System.IntPtr");
         var valueField = IsCoreRuntime ? "_value" : "m_value";
-        ClrInstanceField intPtrValueField = intPtrType.GetFieldByName(valueField);
+        var intPtrValueField = intPtrType.GetFieldByName(valueField);
 
         var handleAddr = weakRefHandleField.Read<long>(weakRefObject.Address, true);
         var value = intPtrValueField.Read<ulong>((ulong) handleAddr, true);

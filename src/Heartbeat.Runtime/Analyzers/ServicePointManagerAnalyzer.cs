@@ -55,7 +55,7 @@ public sealed class ServicePointManagerAnalyzer : AnalyzerBase, ILoggerDump
                     
                 var weakRefValue = Context.GetWeakRefValue(keyValuePair.Value);
                 var weakRefTarget = heap.GetObject(weakRefValue);
-                logger.LogInformation($"{(string) keyValuePair.Key}: {weakRefTarget}");
+                logger.LogInformation($"{keyValuePair.Key.AsString()}: {weakRefTarget}");
 
                 if (!weakRefTarget.IsNull)
                 {

@@ -9,12 +9,12 @@ public sealed class HeapIndex
 {
     private readonly ObjectSet _roots;
     private readonly ObjectSet _walkableFromRoot;
-    private readonly Dictionary<ulong, List<ulong>> _referencesToObject = new Dictionary<ulong, List<ulong>>(100000);
+    private readonly Dictionary<ulong, List<ulong>> _referencesToObject = new(100000);
 
     public HeapIndex(ClrHeap heap)
     {
         // Evaluation stack
-        Stack<ulong> eval = new Stack<ulong>();
+        Stack<ulong> eval = new();
 
         _roots = new ObjectSet(heap);
         _walkableFromRoot = new ObjectSet(heap);
