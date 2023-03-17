@@ -57,26 +57,28 @@ public sealed class HeapIndex
 
         void EnumerateArrayElements(ulong address)
         {
+            //heap.Runtime.DacLibrary.OwningLibrary.
 
             var obj = heap.GetObject(address);
             var array = obj.AsArray();
-            var componentType = ((ClrmdArrayType)array.Type).ComponentType;
+            throw new NotImplementedException();
+            //var componentType = ((ClrmdArrayType)array.typ).ComponentType;
 
-            if (componentType.IsObjectReference)
-            {
-                foreach (var arrayElement in ArrayProxy.EnumerateObjectItems(array))
-                {
-                    if (!arrayElement.IsNull)
-                    {
-                        AddReference(address, arrayElement.Address);
-                        eval.Push(arrayElement.Address);
-                    }
-                }
-            }
-            else
-            {
-                // throw new NotSupportedException($"Enumerating array of {componentType} type is not supported");
-            }
+            //if (componentType.IsObjectReference)
+            //{
+            //    foreach (var arrayElement in ArrayProxy.EnumerateObjectItems(array))
+            //    {
+            //        if (!arrayElement.IsNull)
+            //        {
+            //            AddReference(address, arrayElement.Address);
+            //            eval.Push(arrayElement.Address);
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    // throw new NotSupportedException($"Enumerating array of {componentType} type is not supported");
+            //}
         }
 
         void EnumerateFields(ClrType? type, ulong address)
