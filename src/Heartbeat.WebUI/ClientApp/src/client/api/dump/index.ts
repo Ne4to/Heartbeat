@@ -4,6 +4,7 @@
 import { ModulesRequestBuilder } from './modules/';
 import { ObjectRequestBuilder } from './object/';
 import { ObjectInstancesRequestBuilder } from './objectInstances/';
+import { SegmentsRequestBuilder } from './segments/';
 import { TypeStatisticsRequestBuilder } from './typeStatistics/';
 import { BaseRequestBuilder, type RequestAdapter } from '@microsoft/kiota-abstractions';
 
@@ -28,6 +29,12 @@ export class DumpRequestBuilder extends BaseRequestBuilder<DumpRequestBuilder> {
      */
     public get objectInstances(): ObjectInstancesRequestBuilder {
         return new ObjectInstancesRequestBuilder(this.pathParameters, this.requestAdapter);
+    }
+    /**
+     * The segments property
+     */
+    public get segments(): SegmentsRequestBuilder {
+        return new SegmentsRequestBuilder(this.pathParameters, this.requestAdapter);
     }
     /**
      * The typeStatistics property

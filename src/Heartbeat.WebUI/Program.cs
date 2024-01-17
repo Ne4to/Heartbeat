@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services
     .AddControllers()
     .AddJsonOptions(
@@ -15,8 +14,6 @@ builder.Services
             options.JsonSerializerOptions.Converters.Add(enumConverter);
         });
 builder.Services.AddProblemDetails();
-
-// builder.Services.AddControllersWithViews();
 builder.Services.AddSwagger();
 
 // TODO support auth

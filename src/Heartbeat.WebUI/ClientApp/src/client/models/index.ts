@@ -42,6 +42,9 @@ export function createGetClrObjectResultFromDiscriminatorValue(parseNode: ParseN
 export function createGetObjectInstancesResultFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoGetObjectInstancesResult;
 }
+export function createHeapSegmentFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoHeapSegment;
+}
 export function createModuleFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoModule;
 }
@@ -81,6 +84,14 @@ export function deserializeIntoGetObjectInstancesResult(getObjectInstancesResult
         "typeName": n => { getObjectInstancesResult.typeName = n.getStringValue(); },
     }
 }
+export function deserializeIntoHeapSegment(heapSegment: HeapSegment | undefined = {} as HeapSegment) : Record<string, (node: ParseNode) => void> {
+    return {
+        "end": n => { heapSegment.end = n.getNumberValue(); },
+        "kind": n => { heapSegment.kind = n.getEnumValue<GCSegmentKind>(GCSegmentKindObject); },
+        "size": n => { heapSegment.size = n.getNumberValue(); },
+        "start": n => { heapSegment.start = n.getNumberValue(); },
+    }
+}
 export function deserializeIntoModule(module: Module | undefined = {} as Module) : Record<string, (node: ParseNode) => void> {
     return {
         "address": n => { module.address = n.getNumberValue(); },
@@ -111,6 +122,7 @@ export function deserializeIntoProblemDetails(problemDetails: ProblemDetails | u
         "type": n => { problemDetails.type = n.getStringValue(); },
     }
 }
+export type GCSegmentKind = (typeof GCSegmentKindObject)[keyof typeof GCSegmentKindObject];
 export interface GetClrObjectResult extends Parsable {
     /**
      * The fields property
@@ -146,6 +158,24 @@ export interface GetObjectInstancesResult extends Parsable {
      * The typeName property
      */
     typeName?: string;
+}
+export interface HeapSegment extends Parsable {
+    /**
+     * The end property
+     */
+    end?: number;
+    /**
+     * The kind property
+     */
+    kind?: GCSegmentKind;
+    /**
+     * The size property
+     */
+    size?: number;
+    /**
+     * The start property
+     */
+    start?: number;
 }
 export interface Module extends Parsable {
     /**
@@ -236,6 +266,11 @@ export function serializeGetObjectInstancesResult(writer: SerializationWriter, g
     writer.writeNumberValue("methodTable", getObjectInstancesResult.methodTable);
     writer.writeStringValue("typeName", getObjectInstancesResult.typeName);
 }
+export function serializeHeapSegment(writer: SerializationWriter, heapSegment: HeapSegment | undefined = {} as HeapSegment) : void {
+    writer.writeNumberValue("end", heapSegment.end);
+    writer.writeEnumValue<GCSegmentKind>("kind", heapSegment.kind);
+    writer.writeNumberValue("start", heapSegment.start);
+}
 export function serializeModule(writer: SerializationWriter, module: Module | undefined = {} as Module) : void {
     writer.writeNumberValue("address", module.address);
     writer.writeStringValue("name", module.name);
@@ -260,6 +295,15 @@ export function serializeProblemDetails(writer: SerializationWriter, problemDeta
     writer.writeAdditionalData(problemDetails.additionalData);
 }
 export type TraversingHeapModes = (typeof TraversingHeapModesObject)[keyof typeof TraversingHeapModesObject];
+export const GCSegmentKindObject = {
+    Generation0: "Generation0",
+    Generation1: "Generation1",
+    Generation2: "Generation2",
+    Large: "Large",
+    Pinned: "Pinned",
+    Frozen: "Frozen",
+    Ephemeral: "Ephemeral",
+}  as const;
 export const TraversingHeapModesObject = {
     Live: "Live",
     Dead: "Dead",

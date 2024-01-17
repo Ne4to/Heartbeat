@@ -24,6 +24,22 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Module'
+  /api/dump/segments:
+    get:
+      tags:
+        - Dump
+      summary: Get segments
+      description: Get heap segments
+      operationId: GetSegments
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HeapSegment'
   /api/dump/type-statistics:
     get:
       tags:
@@ -132,6 +148,16 @@ components:
         name:
           type: string
       additionalProperties: false
+    GCSegmentKind:
+      enum:
+        - Generation0
+        - Generation1
+        - Generation2
+        - Large
+        - Pinned
+        - Frozen
+        - Ephemeral
+      type: string
     GetClrObjectResult:
       required:
         - fields
@@ -172,6 +198,27 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ObjectInstance'
+      additionalProperties: false
+    HeapSegment:
+      required:
+        - end
+        - kind
+        - size
+        - start
+      type: object
+      properties:
+        start:
+          type: integer
+          format: int64
+        end:
+          type: integer
+          format: int64
+        kind:
+          $ref: '#/components/schemas/GCSegmentKind'
+        size:
+          type: integer
+          format: int64
+          readOnly: true
       additionalProperties: false
     Module:
       required:

@@ -35,8 +35,23 @@ public class DumpController : ControllerBase
             .EnumerateModules()
             .Select(m => new Module(m.Address, m.Size, m.Name))
             .ToArray();
-        
+
         return modules;
+    }
+
+    [HttpGet]
+    [Route("segments")]
+    [SwaggerOperation(summary: "Get segments", description: "Get heap segments")]
+    public IEnumerable<HeapSegment> GetSegments()
+    {
+        var segments =
+            from s in _context.Heap.Segments
+            select new HeapSegment(
+                s.Start,
+                s.End,
+                s.Kind);
+
+        return segments;
     }
 
     [HttpGet]
@@ -112,7 +127,7 @@ public class DumpController : ControllerBase
         ).ToArray();
 
         var result = new GetClrObjectResult(
-            clrObject.Type.Module?.Name,
+            clrObject.Type.Module.Name,
             clrObject.Type.Name,
             new MethodTable(clrObject.Type.MethodTable),
             clrObject.Size,
@@ -172,30 +187,3 @@ public class DumpController : ControllerBase
         }
     }
 }
-
-public record ObjectTypeStatistics(ulong MethodTable, string TypeName, ulong TotalSize, int InstanceCount);
-
-public record GetObjectInstancesResult(
-    ulong MethodTable,
-    string? TypeName,
-    IReadOnlyList<ObjectInstance> Instances);
-
-public record ObjectInstance(ulong Address, ulong Size);
-
-public record GetClrObjectResult(
-    string? ModuleName,
-    string? TypeName,
-    ulong MethodTable,
-    ulong Size,
-    IReadOnlyList<ClrObjectField> Fields);
-
-public record ClrObjectField(
-    ulong MethodTable,
-    string? TypeName,
-    int Offset,
-    bool IsValueType,
-    ulong? ObjectAddress,
-    string Value,
-    string Name);
-
-public record Module(ulong Address, ulong Size, string? Name);

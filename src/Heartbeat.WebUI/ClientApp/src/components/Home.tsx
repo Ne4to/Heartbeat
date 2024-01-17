@@ -1,3 +1,5 @@
+import { SegmentsGrid } from "./SegmentsGrid";
+
 export const Home = () => {
   return (
     <div>
@@ -5,6 +7,8 @@ export const Home = () => {
         <li><a href='/modules'>Modules</a></li>
         <li><a href='/instance-type-statistics'>Heap dump</a></li>
       </ul>
+
+      <SegmentsGrid />
     </div>
   );
 }
