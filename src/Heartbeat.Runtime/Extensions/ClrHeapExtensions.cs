@@ -15,8 +15,8 @@ public static class ClrHeapExtensions
             {
                 if (mt == methodTable)
                 {
-                    var clrType = module.ResolveToken(token);
-                    return clrType;
+                    // TODO var clrType = module.ResolveToken(token);
+                    // return clrType;
                 }
             }
         }

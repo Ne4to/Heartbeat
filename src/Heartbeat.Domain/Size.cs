@@ -6,6 +6,8 @@ public readonly record struct Size(ulong Bytes) : IComparable<Size>, IComparable
     private const ulong _mb = _k * _k;
     private const ulong _gb = _mb * _k;
 
+    public static implicit operator ulong(Size bytes) => bytes.Bytes;
+    
     public override string ToString()
     {
         if (Bytes >= _gb)

@@ -24,6 +24,7 @@ export class NavMenu extends Component {
   render() {
     return (
       <header>
+        {/* TODO try https://mui.com/material-ui/react-app-bar/ */}
         <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
           <NavbarBrand tag={Link} to="/">Heartbeat</NavbarBrand>
           <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
@@ -32,9 +33,12 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
               </NavItem>
+              {/* <NavItem>
+                <NavLink tag={Link} className="text-dark" to="/modules">Modules</NavLink>
+              </NavItem>
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/instance-type-statistics">Instance type statistics</NavLink>
-              </NavItem>
+              </NavItem> */}
             </ul>
           </Collapse>
         </Navbar>

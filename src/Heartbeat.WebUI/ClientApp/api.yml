@@ -1,0 +1,250 @@
+openapi: 3.0.1
+info:
+  title: Heartbeat
+  description: Heartbeat contract
+  contact:
+    name: Heartbeat
+  version: 0.1.0
+servers:
+  - url: /
+paths:
+  /api/dump/modules:
+    get:
+      tags:
+        - Dump
+      summary: Get modules
+      description: Get modules
+      operationId: GetModules
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Module'
+  /api/dump/type-statistics:
+    get:
+      tags:
+        - Dump
+      summary: Get type statistics
+      description: Get type statistics
+      operationId: Get
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ObjectTypeStatistics'
+  '/api/dump/object-instances/{mt}':
+    get:
+      tags:
+        - Dump
+      summary: Get object instances
+      description: Get object instances
+      operationId: GetObjectInstances
+      parameters:
+        - name: mt
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetObjectInstancesResult'
+  '/api/dump/object/{address}':
+    get:
+      tags:
+        - Dump
+      summary: Get object
+      description: Get object
+      operationId: GetClrObject
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetClrObjectResult'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  schemas:
+    ClrObjectField:
+      required:
+        - isValueType
+        - methodTable
+        - name
+        - offset
+        - value
+      type: object
+      properties:
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        offset:
+          type: integer
+          format: int32
+        isValueType:
+          type: boolean
+        objectAddress:
+          type: integer
+          format: int64
+          nullable: true
+        value:
+          type: string
+        name:
+          type: string
+      additionalProperties: false
+    GetClrObjectResult:
+      required:
+        - fields
+        - methodTable
+        - size
+      type: object
+      properties:
+        moduleName:
+          type: string
+          nullable: true
+        typeName:
+          type: string
+          nullable: true
+        methodTable:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int64
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClrObjectField'
+      additionalProperties: false
+    GetObjectInstancesResult:
+      required:
+        - instances
+        - methodTable
+      type: object
+      properties:
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjectInstance'
+      additionalProperties: false
+    Module:
+      required:
+        - address
+        - size
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int64
+        name:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ObjectInstance:
+      required:
+        - address
+        - size
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        size:
+          type: integer
+          format: int64
+      additionalProperties: false
+    ObjectTypeStatistics:
+      required:
+        - instanceCount
+        - methodTable
+        - totalSize
+        - typeName
+      type: object
+      properties:
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+        totalSize:
+          type: integer
+          format: int64
+        instanceCount:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: { }
+    TraversingHeapModes:
+      enum:
+        - Live
+        - Dead
+        - All
+      type: string

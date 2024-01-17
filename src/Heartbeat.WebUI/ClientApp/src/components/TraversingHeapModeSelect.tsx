@@ -3,6 +3,8 @@ import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import { TraversingHeapModes, TraversingHeapModesObject } from '../client/models';
+import { FormControl } from '@mui/material';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -15,29 +17,36 @@ const MenuProps = {
   },
 };
 
-export class TraversingHeapModeSelect extends Component<{}, {}> {
-    constructor(props: {}) {
-        super(props);
-    }
+export type TraversingHeapModeSelectProps = {
+  mode: TraversingHeapModes,
+  onChange?: (mode: TraversingHeapModes) => void
+}
 
-    render() {
-        return (
-            <Box sx={{ width: 200 }}>
-                <InputLabel id="mode-select-label">Traversing heap mode</InputLabel>
-                <Select
-                    labelId="mode-select-label"
-                    id="mode-select"
-                    // value={age}
-                    label="Age"
-                    // onChange={handleChange}
-                    fullWidth={true}
-                    // MenuProps={MenuProps}
-                    >
-                    <MenuItem value={10}>Live</MenuItem>
-                    <MenuItem value={20}>Dead</MenuItem>
-                    <MenuItem value={30}>All</MenuItem>
-                </Select>
-            </Box>
-        );
-    }
+export const TraversingHeapModeSelect = (props: TraversingHeapModeSelectProps) => {
+  const [mode, setMode] = React.useState<TraversingHeapModes>(props.mode)
+
+  const handleChange = (event: SelectChangeEvent) => {
+    const mode = event.target.value as TraversingHeapModes
+    setMode(mode)
+    props.onChange?.(mode)
+  };
+
+  return (
+    <FormControl sx={{ width: 200 }} size="small">
+      <InputLabel id="mode-select-label">Traversing heap mode</InputLabel>
+      <Select
+        labelId="mode-select-label"
+        id="mode-select"
+        value={mode}
+        label="Traversing heap mode"
+        onChange={handleChange}
+        fullWidth={true}
+        MenuProps={MenuProps}
+      >
+        <MenuItem value={TraversingHeapModesObject.Live}>Live</MenuItem>
+        <MenuItem value={TraversingHeapModesObject.Dead}>Dead</MenuItem>
+        <MenuItem value={TraversingHeapModesObject.All}>All</MenuItem>
+      </Select>
+    </FormControl>
+  );
 }

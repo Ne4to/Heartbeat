@@ -1,5 +1,8 @@
 import { Home } from "./components/Home";
 import { InstanceTypeStatistics } from "./components/InstanceTypeStatistics"
+import { ObjectInstances } from "./components/ObjectInstances"
+import { ClrObject } from "./components/ClrObject"
+import { Modules } from "./components/Modules"
 
 const AppRoutes = [
   {
@@ -9,6 +12,18 @@ const AppRoutes = [
   {
     path: '/instance-type-statistics',
     element: <InstanceTypeStatistics />
+  },
+  {
+    path: '/object-instances',
+    element: <ObjectInstances />
+  },
+  {
+    path: '/clr-object',
+    element: <ClrObject />
+  },
+  {
+    path: '/modules',
+    element: <Modules />
   }
 ];
 

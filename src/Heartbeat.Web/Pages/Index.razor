@@ -57,9 +57,9 @@
         Segments = Context.Heap.Segments.Select(s => new HeapSegment(
                 new Address(s.Start),
                 new Address(s.End),
-                s.IsEphemeralSegment,
-                s.IsLargeObjectSegment,
-                s.IsPinnedObjectSegment)).ToArray();
+                s.Kind == GCSegmentKind.Ephemeral,
+                s.Kind == GCSegmentKind.Large,
+                s.Kind == GCSegmentKind.Pinned)).ToArray();
     }
 
 }

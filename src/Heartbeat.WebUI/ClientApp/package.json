@@ -6,6 +6,12 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
+    "@microsoft/kiota-abstractions": "^1.0.0-preview.36",
+    "@microsoft/kiota-http-fetchlibrary": "^1.0.0-preview.35",
+    "@microsoft/kiota-serialization-form": "^1.0.0-preview.25",
+    "@microsoft/kiota-serialization-json": "^1.0.0-preview.36",
+    "@microsoft/kiota-serialization-multipart": "^1.0.0-preview.15",
+    "@microsoft/kiota-serialization-text": "^1.0.0-preview.33",
     "@mui/material": "^5.11.6",
     "@mui/x-data-grid": "^5.17.20",
     "@types/jest": "^29.2.5",
@@ -17,6 +23,7 @@
     "jquery": "^3.6.0",
     "merge": "^2.1.1",
     "oidc-client": "^1.11.5",
+    "pretty-bytes": "^6.1.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-bootstrap": "^0.26.2",
@@ -48,7 +55,8 @@
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-react": "^7.30.1",
     "nan": "^2.16.0",
-    "typescript": "^4.9.4"
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5"
   },
   "overrides": {
     "autoprefixer": "10.4.5"
