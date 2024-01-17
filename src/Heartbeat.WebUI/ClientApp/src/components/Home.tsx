@@ -5,7 +5,7 @@ export const Home = () => {
     <div>
       <ul>
         <li><a href='/modules'>Modules</a></li>
-        <li><a href='/instance-type-statistics'>Heap dump</a></li>
+        <li><a href='/heap-dump-stat'>Heap dump stat</a></li>
       </ul>
 
       <SegmentsGrid />

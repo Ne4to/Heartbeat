@@ -1,5 +1,5 @@
 import { Home } from "./components/Home";
-import { InstanceTypeStatistics } from "./components/InstanceTypeStatistics"
+import { HeapDumpStat } from "./components/HeapDumpStat"
 import { ObjectInstances } from "./components/ObjectInstances"
 import { ClrObject } from "./components/ClrObject"
 import { Modules } from "./components/Modules"
@@ -10,8 +10,8 @@ const AppRoutes = [
     element: <Home />
   },
   {
-    path: '/instance-type-statistics',
-    element: <InstanceTypeStatistics />
+    path: '/heap-dump-stat',
+    element: <HeapDumpStat />
   },
   {
     path: '/object-instances',

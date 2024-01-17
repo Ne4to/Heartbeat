@@ -13,7 +13,7 @@
     "@microsoft/kiota-serialization-multipart": "^1.0.0-preview.15",
     "@microsoft/kiota-serialization-text": "^1.0.0-preview.33",
     "@mui/material": "^5.11.6",
-    "@mui/x-data-grid": "^5.17.20",
+    "@mui/x-data-grid": "^6.18.7",
     "@types/jest": "^29.2.5",
     "@types/node": "^18.11.18",
     "@types/react": "^18.0.26",

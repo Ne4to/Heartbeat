@@ -1,13 +1,13 @@
-import React, { Component, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import { TraversingHeapModeSelect } from './TraversingHeapModeSelect'
 
 import getClient from '../lib/getClient'
+import { formatSize } from '../lib/gridFormatter';
 import { ObjectTypeStatistics, TraversingHeapModes, TraversingHeapModesObject } from '../client/models';
-import prettyBytes from 'pretty-bytes';
 
 const columns: GridColDef[] = [
     { field: 'instanceCount', headerName: 'Count', type: 'number', width: 130 },
@@ -17,12 +17,7 @@ const columns: GridColDef[] = [
         type: 'number',
         width: 130,
         valueGetter: (params: GridValueGetterParams) => params.row.totalSize,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return prettyBytes(params.value);
-        }
+        valueFormatter: formatSize
     },
     {
         field: 'typeName',
@@ -39,7 +34,9 @@ const columns: GridColDef[] = [
     }
 ];
 
-export const InstanceTypeStatistics = () => {
+// TODO save state - https://mui.com/x/react-data-grid/state/#save-and-restore-the-state-from-external-storage
+
+export const HeapDumpStat = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
     const [statistics, setStatistics] = React.useState<ObjectTypeStatistics[]>([])
@@ -63,19 +60,32 @@ export const InstanceTypeStatistics = () => {
 
     const renderStatisticsTable = (statistics: ObjectTypeStatistics[]) => {
         return (
-            <div style={{ flexGrow: 1, height: 700, width: '100%' }}>
+            <div style={{ flexGrow: 1, width: '100%' }}>
 
                 <DataGrid
                     rows={statistics}
                     getRowId={(row) => row.typeName}
                     columns={columns}
                     rowHeight={25}
-                    rowsPerPageOptions={[20, 50, 100]}
+                    density='compact'
+                    pageSizeOptions={[20, 50, 100]}
                     pagination
-                    pageSize={20}
                     initialState={{
+                        filter: {
+                            filterModel: {
+                                items: [],
+                                quickFilterValues: [],
+                            },
+                        },
                         sorting: {
                             sortModel: [{ field: 'totalSize', sort: 'desc' }],
+                        },
+                        pagination: { paginationModel: { pageSize: 20 } },
+                    }}
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                            showQuickFilter: true,
                         },
                     }}
                 />

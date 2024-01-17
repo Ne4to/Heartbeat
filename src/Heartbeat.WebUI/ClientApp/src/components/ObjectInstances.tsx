@@ -1,14 +1,14 @@
-import React, { Component, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import { TraversingHeapModeSelect } from './TraversingHeapModeSelect'
 
 import getClient from '../lib/getClient'
+import { formatAddress, formatSize } from '../lib/gridFormatter';
 import toHexAddress from '../lib/toHexAddress'
-import prettyBytes from 'pretty-bytes';
 import { GetObjectInstancesResult, ObjectInstance, TraversingHeapModes, TraversingHeapModesObject } from '../client/models';
 
 const columns: GridColDef[] = [
@@ -18,12 +18,7 @@ const columns: GridColDef[] = [
         type: 'number',
         width: 200,
         valueGetter: (params: GridValueGetterParams) => params.row.address,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return toHexAddress(params.value);
-        },
+        valueFormatter: formatAddress,
         renderCell: (params: GridRenderCellParams<any, any>) => {
             const address = toHexAddress(params.value)
             return (
@@ -37,12 +32,7 @@ const columns: GridColDef[] = [
         type: 'number',
         width: 130,
         valueGetter: (params: GridValueGetterParams) => params.row.size,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return prettyBytes(params.value);
-        }
+        valueFormatter: formatSize
     }
 ];
 
@@ -69,16 +59,19 @@ export const ObjectInstances = () => {
 
     const renderTable = (instances: ObjectInstance[]) => {
         return (
-            <div style={{ flexGrow: 1, height: 700, width: '100%' }}>
+            <div style={{ flexGrow: 1, width: '100%' }}>
 
                 <DataGrid
                     rows={instances}
                     getRowId={(row) => row.address}
                     columns={columns}
                     rowHeight={25}
-                    rowsPerPageOptions={[10, 20, 50, 100]}
+                    density='compact'
+                    pageSizeOptions={[20, 50, 100]}
                     pagination
-                    pageSize={10}
+                    initialState={{
+                        pagination: { paginationModel: { pageSize: 20 } },
+                    }}
                 />
 
             </div>
@@ -94,9 +87,6 @@ export const ObjectInstances = () => {
     return (
         <div style={{ display: 'flex', flexFlow: 'column' }}>
             <h4 id="tableLabel" style={{ flexGrow: 1 }}>MT {toHexAddress(objectInstancesResult?.methodTable)} - {objectInstancesResult?.typeName}</h4>
-            {/* <p>
-                @MethodTable @ClrType?.Name
-            </p> */}
             <div style={{ flexGrow: 1 }}>
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)} />
             </div>

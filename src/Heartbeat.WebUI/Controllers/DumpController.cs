@@ -59,6 +59,9 @@ public class DumpController : ControllerBase
     [SwaggerOperation(summary: "Get type statistics", description: "Get type statistics")]
     public IEnumerable<ObjectTypeStatistics> Get(
         [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All)
+        // TODO filter by just my code - how to filter Action<MyType>?
+        // TODO filter by type name
+        // TODO filter by generation
     {
         var analyzer = new ObjectTypeStatisticsAnalyzer(_context) { TraversingHeapMode = traversingMode };
         var statistics = analyzer.GetObjectTypeStatistics()

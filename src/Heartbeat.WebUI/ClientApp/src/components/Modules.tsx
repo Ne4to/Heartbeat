@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import toHexAddress from '../lib/toHexAddress'
-import toHexString from '../lib/toHexString'
+import { formatAddress, formatSize } from '../lib/gridFormatter';
 import prettyBytes from 'pretty-bytes';
-import { GetClrObjectResult, ClrObjectField, Module } from '../client/models';
+import { Module } from '../client/models';
 
 const columns: GridColDef[] = [
     {
@@ -15,22 +14,12 @@ const columns: GridColDef[] = [
         headerName: 'Address',
         type: 'number',
         width: 200,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return toHexAddress(params.value);
-        }
+        valueFormatter: formatAddress
     },
     {
         field: 'size',
         headerName: 'Size',
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return prettyBytes(params.value);
-        }
+        valueFormatter: formatSize
     },
     {
         field: 'name',
@@ -57,17 +46,20 @@ export const Modules = () => {
 
     const renderTable = (modules: Module[]) => {
         return (
-            <div style={{ flexGrow: 1, height: 700, width: '100%' }}>
+            <div style={{ flexGrow: 1, width: '100%' }}>
 
                 <DataGrid
                     rows={modules}
                     getRowId={(row) => row.address}
                     columns={columns}
                     rowHeight={25}
+                    pageSizeOptions={[20, 50, 100]}
+                    density='compact'
                     initialState={{
                         sorting: {
                             sortModel: [{ field: 'size', sort: 'desc' }],
                         },
+                        pagination: { paginationModel: { pageSize: 20 } },
                     }}
                 />
 

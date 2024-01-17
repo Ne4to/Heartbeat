@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridValueFormatterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import toHexAddress from '../lib/toHexAddress'
+import { formatAddress, formatSize } from '../lib/gridFormatter';
 import prettyBytes from 'pretty-bytes';
 import { HeapSegment } from '../client/models';
 
@@ -14,34 +14,19 @@ const columns: GridColDef[] = [
         headerName: 'Start',
         type: 'number',
         width: 200,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return toHexAddress(params.value);
-        }
+        valueFormatter: formatAddress
     },
     {
         field: 'end',
         headerName: 'End',
         type: 'number',
         width: 200,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return toHexAddress(params.value);
-        }
+        valueFormatter: formatAddress
     },
     {
         field: 'size',
         headerName: 'Size',
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return prettyBytes(params.value);
-        }
+        valueFormatter: formatSize
     },
     {
         field: 'kind',
@@ -68,20 +53,22 @@ export const SegmentsGrid = () => {
 
     const renderTable = (segments: HeapSegment[]) => {
         return (
-            <div style={{ flexGrow: 1, height: 380, width: '100%' }}>
+            <div style={{ flexGrow: 1, width: '100%' }}>
 
                 <DataGrid
                     rows={segments}
                     getRowId={(row) => row.start}
                     columns={columns}
                     rowHeight={25}
-                    rowsPerPageOptions={[10, 20, 50, 100]}
+                    density='compact'
+                    pageSizeOptions={[20, 50, 100]}
                     pagination
-                    pageSize={10}
+                    // pageSize={10}
                     initialState={{
                         sorting: {
                             sortModel: [{ field: 'start', sort: 'asc' }],
                         },
+                        pagination: { paginationModel: { pageSize: 20 } },
                     }}
                 />
 

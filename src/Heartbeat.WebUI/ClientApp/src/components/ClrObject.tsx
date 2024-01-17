@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
+import { formatAddress } from '../lib/gridFormatter';
 import toHexAddress from '../lib/toHexAddress'
 import toHexString from '../lib/toHexString'
 import prettyBytes from 'pretty-bytes';
@@ -17,12 +18,7 @@ const columns: GridColDef[] = [
         type: 'number',
         width: 200,
         valueGetter: (params: GridValueGetterParams) => params.row.methodTable,
-        valueFormatter: (params: GridValueFormatterParams<number>) => {
-            if (params.value == null) {
-                return '';
-            }
-            return toHexAddress(params.value);
-        }
+        valueFormatter: formatAddress
     },
     {
         field: 'offset',
@@ -102,6 +98,8 @@ export const ClrObject = () => {
                     getRowId={(row) => row.name}
                     columns={columns}
                     rowHeight={25}
+                    density='compact'
+                    slots={{ toolbar: GridToolbar }}
                 />
 
             </div>

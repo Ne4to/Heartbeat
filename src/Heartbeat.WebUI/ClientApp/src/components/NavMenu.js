@@ -41,7 +41,7 @@ export class NavMenu extends Component {
                 <NavLink tag={Link} className="text-dark" to="/modules">Modules</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-dark" to="/instance-type-statistics">Instance type statistics</NavLink>
+                <NavLink tag={Link} className="text-dark" to="/heap-dump-stat">Heap dump stat</NavLink>
               </NavItem> */}
             </ul>
           </Collapse>
