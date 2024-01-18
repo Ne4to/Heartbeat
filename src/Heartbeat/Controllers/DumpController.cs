@@ -10,7 +10,10 @@ using Swashbuckle.AspNetCore.Annotations;
 
 using System.Net.Mime;
 
-namespace Heartbeat.WebUI.Controllers;
+using HeapSegment = Heartbeat.Host.Controllers.HeapSegment;
+using ObjectTypeStatistics = Heartbeat.Host.Controllers.ObjectTypeStatistics;
+
+namespace Heartbeat.Host.Controllers;
 
 [ApiController]
 [Route("api/dump")]

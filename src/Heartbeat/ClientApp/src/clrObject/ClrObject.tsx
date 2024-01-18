@@ -115,6 +115,15 @@ export const ClrObject = () => {
         </Box>
         : renderTable(objectResult!.fields!);
 
+// TODO add refs        
+//         <p>
+//             Resf to: @RefsToCount
+//         </p>
+//         
+//         <p>
+//             Resf from: @RefsFromCount
+//         </p>
+
     return (
         <div style={{ display: 'flex', flexFlow: 'column' }}>
             <h4 id="tableLabel" style={{ flexGrow: 1 }}>Clr Object {toHexAddress(address)}</h4>

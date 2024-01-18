@@ -4,7 +4,7 @@ Diagnostics utility to analyze memory dumps of a .NET application
 ## Installation
 [![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
 ```
-dotnet tool install --global Heartbeat --version <version>
+dotnet tool install --global Heartbeat
 ```
 
 ## Summary
@@ -40,21 +40,13 @@ Issue Finder example:
 ## Usage
 
 ```
-Heartbeat [options]
+  Heartbeat [options]
 
 Options:
-  -pid, --process-id <pid>    Process Id
-  --dump <dump>               Path to a dump file
-  --heap                      Print heap information
-  --service-point-manager     Print System.Net.ServicePointManager information
-  --async-state-machine       Print System.Runtime.CompilerServices.IAsyncStateMachine information
-  --long-string               Print long System.String objects
-  --string-duplicate          Print System.String duplicates
-  --task                      Print System.Threading.Tasks.Task objects
-  --timer-queue-timer         Print System.Threading.TimerQueueTimer information
-  --task-completion-source    Print System.Threading.Tasks.TaskCompletionSource objects
-  --object-type-statistics    Print heap object type statistics
-  --http-client               Print System.Net.Http.HttpClient objects
-  --version                   Show version information
-  -?, -h, --help              Show help and usage information
+  --dump <dump> (REQUIRED)  Path to a dump file
+  --dac-path <dac-path>     A full path to the matching DAC dll for this
+                            process.
+  --ignore-dac-mismatch     Ignore mismatches between DAC versions
+  --version                 Show version information
+  -?, -h, --help            Show help and usage information
 ```

@@ -1,6 +1,6 @@
 using Microsoft.Diagnostics.Runtime;
 
-namespace Heartbeat.WebUI.Controllers;
+namespace Heartbeat.Host.Controllers;
 
 // ReSharper disable NotAccessedPositionalProperty.Global
 public record ObjectTypeStatistics(ulong MethodTable, string TypeName, ulong TotalSize, int InstanceCount);

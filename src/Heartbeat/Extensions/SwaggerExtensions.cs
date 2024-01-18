@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.Annotations;
@@ -7,7 +6,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 using System.Reflection;
 
-namespace Heartbeat.WebUI.Extensions;
+namespace Heartbeat.Host.Extensions;
 
 internal static class SwaggerExtensions
 {
