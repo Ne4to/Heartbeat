@@ -25,6 +25,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{677CC7ED-C15
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugHost", "src\DebugHost\DebugHost.csproj", "{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{88EB58BA-FB0F-4A15-B366-BB033820126B}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\reinstall-dev-tool.ps1 = scripts\reinstall-dev-tool.ps1
+		scripts\update-ts-client.ps1 = scripts\update-ts-client.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +177,7 @@ Global
 		{9E63F5A0-7695-474C-A946-64D75F8D9617} = {677CC7ED-C157-4885-884A-5C88B08A90C6}
 		{D4060CFE-8141-49CE-99A5-559599D0E6B4} = {677CC7ED-C157-4885-884A-5C88B08A90C6}
 		{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D} = {E52617F0-FB17-4C0C-A70A-26A3C11A8647}
+		{88EB58BA-FB0F-4A15-B366-BB033820126B} = {BE3A3B9E-B429-4D93-8E8D-9A23CCA4DA19}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BC4B059-33F1-4B7C-B5D9-DA6D2F1E5076}

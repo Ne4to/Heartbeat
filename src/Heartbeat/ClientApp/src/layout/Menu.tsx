@@ -10,7 +10,7 @@ import {
     useSidebarState,
 } from 'react-admin';
 
-import heapDump from '../heapDump';
+import heapDump from '../heapDumpStat';
 import segments from '../segments';
 import modules from '../modules';
 // import SubMenu from './SubMenu';

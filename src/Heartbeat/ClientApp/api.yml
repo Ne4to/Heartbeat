@@ -40,19 +40,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HeapSegment'
-  /api/dump/type-statistics:
+  /api/dump/heap-dump-statistics:
     get:
       tags:
         - Dump
-      summary: Get type statistics
-      description: Get type statistics
-      operationId: Get
+      summary: Get heap dump statistics
+      description: Get heap dump statistics
+      operationId: GetHeapDumpStat
       parameters:
         - name: traversingMode
           in: query
           style: form
           schema:
             $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
       responses:
         '200':
           description: Success
@@ -157,6 +162,16 @@ components:
         - Pinned
         - Frozen
         - Ephemeral
+      type: string
+    Generation:
+      enum:
+        - Generation0
+        - Generation1
+        - Generation2
+        - Large
+        - Pinned
+        - Frozen
+        - Unknown
       type: string
     GetClrObjectResult:
       required:

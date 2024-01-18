@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Heartbeat.Host;
+﻿namespace Heartbeat.Host;
 
 internal class CommandLineException : Exception
 {

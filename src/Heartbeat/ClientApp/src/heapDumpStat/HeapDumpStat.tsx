@@ -4,10 +4,17 @@ import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGette
 import Box from '@mui/material/Box';
 
 import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
+import { GenerationSelect } from '../components/GenerationSelect'
 
 import getClient from '../lib/getClient'
 import { formatSize } from '../lib/gridFormatter';
-import { ObjectTypeStatistics, TraversingHeapModes, TraversingHeapModesObject } from '../client/models';
+import {
+    GCSegmentKind,
+    Generation,
+    ObjectTypeStatistics,
+    TraversingHeapModes,
+    TraversingHeapModesObject
+} from '../client/models';
 
 const columns: GridColDef[] = [
     { field: 'instanceCount', headerName: 'Count', type: 'number', width: 130 },
@@ -39,17 +46,22 @@ const columns: GridColDef[] = [
 export const HeapDumpStat = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
+    const [generation, setGeneration] = React.useState<Generation>()
     const [statistics, setStatistics] = React.useState<ObjectTypeStatistics[]>([])
 
     useEffect(() => {
-        populateStatistics(mode);
-    }, [mode]);
+        // TODO fix async errors
+        // TODO handle errors
+        populateStatistics(mode, generation);
+    }, [mode, generation]);
 
-    const populateStatistics = async (mode: TraversingHeapModes) => {
+    const populateStatistics = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
 
         try {
-            const stats = await client.api.dump.typeStatistics.get({queryParameters: {traversingMode: mode}});
+            const stats = await client.api.dump.heapDumpStatistics.get(
+                {queryParameters: {traversingMode: mode, generation: generation}}
+            );
             setStatistics(stats!)
             setLoading(false)
         } catch (error) {
@@ -105,7 +117,7 @@ export const HeapDumpStat = () => {
         <div style={{ display: 'flex', flexFlow: 'column' }}>
             <div style={{ flexGrow: 1 }}>
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)} />
-                {/* TODO filter by generation */}
+                <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)} />
             </div>
             {contents}
         </div >

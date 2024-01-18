@@ -84,7 +84,7 @@ internal class AnalyzeCommandHandler
 
         void PrintObjectTypeStatistics()
         {
-            var analyzer = new ObjectTypeStatisticsAnalyzer(runtimeContext)
+            var analyzer = new HeapDumpStatisticsAnalyzer(runtimeContext)
             {
                 TraversingHeapMode = traversingMode
             };

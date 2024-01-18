@@ -10,9 +10,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 using System.Net.Mime;
 
-using HeapSegment = Heartbeat.Host.Controllers.HeapSegment;
-using ObjectTypeStatistics = Heartbeat.Host.Controllers.ObjectTypeStatistics;
-
 namespace Heartbeat.Host.Controllers;
 
 [ApiController]
@@ -58,15 +55,20 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
-    [Route("type-statistics")]
-    [SwaggerOperation(summary: "Get type statistics", description: "Get type statistics")]
-    public IEnumerable<ObjectTypeStatistics> Get(
-        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All)
+    [Route("heap-dump-statistics")]
+    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
+            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] Generation? generation = null)
         // TODO filter by just my code - how to filter Action<MyType>?
         // TODO filter by type name
-        // TODO filter by generation
     {
-        var analyzer = new ObjectTypeStatisticsAnalyzer(_context) { TraversingHeapMode = traversingMode };
+        var analyzer = new HeapDumpStatisticsAnalyzer(_context)
+        {
+            TraversingHeapMode = traversingMode, 
+            Generation = generation
+        };
+
         var statistics = analyzer.GetObjectTypeStatistics()
             .OrderByDescending(s => s.TotalSize)
             .Select(s => new ObjectTypeStatistics(s.MethodTable, s.TypeName, s.TotalSize, s.InstanceCount))

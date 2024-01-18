@@ -123,6 +123,7 @@ export function deserializeIntoProblemDetails(problemDetails: ProblemDetails | u
     }
 }
 export type GCSegmentKind = (typeof GCSegmentKindObject)[keyof typeof GCSegmentKindObject];
+export type Generation = (typeof GenerationObject)[keyof typeof GenerationObject];
 export interface GetClrObjectResult extends Parsable {
     /**
      * The fields property
@@ -303,6 +304,15 @@ export const GCSegmentKindObject = {
     Pinned: "Pinned",
     Frozen: "Frozen",
     Ephemeral: "Ephemeral",
+}  as const;
+export const GenerationObject = {
+    Generation0: "Generation0",
+    Generation1: "Generation1",
+    Generation2: "Generation2",
+    Large: "Large",
+    Pinned: "Pinned",
+    Frozen: "Frozen",
+    Unknown: "Unknown",
 }  as const;
 export const TraversingHeapModesObject = {
     Live: "Live",

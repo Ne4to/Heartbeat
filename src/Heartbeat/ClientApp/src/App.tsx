@@ -1,7 +1,7 @@
 import { Admin, Resource, localStorageStore, useStore, StoreContextProvider } from 'react-admin'
 import { Layout } from './layout';
 import { Home } from './home'
-import headDump from './heapDump'
+import headDump from './heapDumpStat'
 import segments from './segments'
 import objectInstances from './objectInstances'
 import clrObject from './clrObject'
