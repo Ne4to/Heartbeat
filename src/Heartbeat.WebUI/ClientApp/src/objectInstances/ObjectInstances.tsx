@@ -4,7 +4,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { DataGrid, GridColDef, GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
-import { TraversingHeapModeSelect } from './TraversingHeapModeSelect'
+import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
 
 import getClient from '../lib/getClient'
 import { formatAddress, formatSize } from '../lib/gridFormatter';
@@ -22,7 +22,7 @@ const columns: GridColDef[] = [
         renderCell: (params: GridRenderCellParams<any, any>) => {
             const address = toHexAddress(params.value)
             return (
-                <a href={'/clr-object?address=' + address}>{address}</a>
+                <a href={'#/clr-object?address=' + address}>{address}</a>
             )
         }
     },

@@ -3,7 +3,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
-import { TraversingHeapModeSelect } from './TraversingHeapModeSelect'
+import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
 
 import getClient from '../lib/getClient'
 import { formatSize } from '../lib/gridFormatter';
@@ -28,7 +28,7 @@ const columns: GridColDef[] = [
             const mt = params.row.methodTable;
             const mtHex = mt.toString(16)
             return (
-                <a href={'/object-instances?mt=' + mtHex}>{params.value}</a>
+                <a href={'#/object-instances?mt=' + mtHex}>{params.value}</a>
             )
         }
     }
@@ -101,13 +101,14 @@ export const HeapDumpStat = () => {
         : renderStatisticsTable(statistics);
 
     return (
+        // <Box display="flex">
         <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <h4 id="tableLabel" style={{ flexGrow: 1 }}>Heap dump</h4>
             <div style={{ flexGrow: 1 }}>
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)} />
                 {/* TODO filter by generation */}
             </div>
             {contents}
-        </div>
+        </div >
+        // </Box>
     );
 }

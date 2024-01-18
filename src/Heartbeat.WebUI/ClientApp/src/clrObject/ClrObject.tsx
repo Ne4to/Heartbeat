@@ -41,6 +41,12 @@ const columns: GridColDef[] = [
         headerName: 'VT',
     },
     {
+        field: 'name',
+        headerName: 'Name',
+        minWidth: 200,
+        flex: 0.5,
+    },
+    {
         field: 'value',
         headerName: 'Value',
         minWidth: 200,
@@ -54,18 +60,12 @@ const columns: GridColDef[] = [
 
             return objectAddress
                 ? (
-                    <a href={'/clr-object?address=' + toHexAddress(objectAddress)}>{params.value}</a>
+                    <a href={'#/clr-object?address=' + toHexAddress(objectAddress)}>{params.value}</a>
                 )
                 : (
                     params.value
                 )
         }
-    },
-    {
-        field: 'name',
-        headerName: 'Name',
-        minWidth: 200,
-        flex: 0.5,
     }
 ];
 
@@ -91,15 +91,19 @@ export const ClrObject = () => {
 
     const renderTable = (fields: ClrObjectField[]) => {
         return (
-            <div style={{ flexGrow: 1, height: 700, width: '100%' }}>
+            <div style={{ flexGrow: 1, width: '100%' }}>
 
                 <DataGrid
                     rows={fields}
                     getRowId={(row) => row.name}
                     columns={columns}
                     rowHeight={25}
+                    pageSizeOptions={[20, 50, 100]}
                     density='compact'
                     slots={{ toolbar: GridToolbar }}
+                    initialState={{
+                        pagination: { paginationModel: { pageSize: 20 } },
+                    }}
                 />
 
             </div>

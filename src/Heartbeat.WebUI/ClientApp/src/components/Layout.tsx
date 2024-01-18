@@ -1,6 +1,5 @@
 import React, { Component, forwardRef, useState } from 'react';
 import { Container } from 'reactstrap';
-import { NavMenu } from './NavMenu';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
@@ -22,7 +21,6 @@ export const Layout = ({children} : Props) => {
 
   return (
     <div>
-      <NavMenu />
       <Container tag="main">
         {children}
       </Container>

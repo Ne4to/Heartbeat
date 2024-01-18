@@ -77,7 +77,6 @@ export const Modules = () => {
 
     return (
         <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <h4 id="tableLabel" style={{ flexGrow: 1 }}>Modules</h4>
             <ul>
                 <li>Count: {modules.length}</li>
                 <li>Total size: {prettyBytes(totalSize)}</li>

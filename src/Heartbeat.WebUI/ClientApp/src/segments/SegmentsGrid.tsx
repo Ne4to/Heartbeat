@@ -86,7 +86,6 @@ export const SegmentsGrid = () => {
 
     return (
         <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <h4 id="tableLabel" style={{ flexGrow: 1 }}>Segments</h4>
             <ul>
                 <li>Total size: {prettyBytes(totalSize)}</li>
             </ul>
