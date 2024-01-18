@@ -17,6 +17,7 @@ namespace Heartbeat.Host.Controllers;
 [ApiExplorerSettings(GroupName = "Heartbeat")]
 [Consumes(MediaTypeNames.Application.Json)]
 [Produces(MediaTypeNames.Application.Json)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 public class DumpController : ControllerBase
 {
     private readonly RuntimeContext _context;
@@ -28,6 +29,7 @@ public class DumpController : ControllerBase
 
     [HttpGet]
     [Route("modules")]
+    [ProducesResponseType(typeof(Module[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get modules", description: "Get modules")]
     public IEnumerable<Module> GetModules()
     {
@@ -41,6 +43,7 @@ public class DumpController : ControllerBase
 
     [HttpGet]
     [Route("segments")]
+    [ProducesResponseType(typeof(HeapSegment[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get segments", description: "Get heap segments")]
     public IEnumerable<HeapSegment> GetSegments()
     {
@@ -56,6 +59,7 @@ public class DumpController : ControllerBase
 
     [HttpGet]
     [Route("heap-dump-statistics")]
+    [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
     public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
@@ -79,6 +83,7 @@ public class DumpController : ControllerBase
 
     [HttpGet]
     [Route("object-instances/{mt}")]
+    [ProducesResponseType(typeof(GetObjectInstancesResult), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get object instances", description: "Get object instances")]
     public GetObjectInstancesResult GetObjectInstances(
             ulong mt,

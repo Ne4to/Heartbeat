@@ -27,6 +27,7 @@ export class WithAddressItemRequestBuilder extends BaseRequestBuilder<WithAddres
         );
         const errorMapping = {
             "404": createProblemDetailsFromDiscriminatorValue,
+            "500": createProblemDetailsFromDiscriminatorValue,
         } as Record<string, ParsableFactory<Parsable>>;
         return this.requestAdapter.sendAsync<GetClrObjectResult>(requestInfo, createGetClrObjectResultFromDiscriminatorValue, errorMapping);
     }

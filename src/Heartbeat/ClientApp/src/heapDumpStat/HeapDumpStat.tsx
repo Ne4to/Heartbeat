@@ -1,23 +1,26 @@
-import React, { useEffect } from 'react';
+import React, {useEffect, useContext} from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
-import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
-import { GenerationSelect } from '../components/GenerationSelect'
+import {AlertContext} from '../contexts/alertContext';
+import {TraversingHeapModeSelect} from '../components/TraversingHeapModeSelect'
+import {GenerationSelect} from '../components/GenerationSelect'
 
 import getClient from '../lib/getClient'
-import { formatSize } from '../lib/gridFormatter';
+import {formatSize} from '../lib/gridFormatter';
 import {
-    GCSegmentKind,
     Generation,
     ObjectTypeStatistics,
+    ProblemDetails,
     TraversingHeapModes,
     TraversingHeapModesObject
 } from '../client/models';
+import toHexAddress from "../lib/toHexAddress";
+import prettyBytes from "pretty-bytes";
 
 const columns: GridColDef[] = [
-    { field: 'instanceCount', headerName: 'Count', type: 'number', width: 130 },
+    {field: 'instanceCount', headerName: 'Count', type: 'number', width: 130},
     {
         field: 'totalSize',
         headerName: 'Total size',
@@ -49,30 +52,33 @@ export const HeapDumpStat = () => {
     const [generation, setGeneration] = React.useState<Generation>()
     const [statistics, setStatistics] = React.useState<ObjectTypeStatistics[]>([])
 
+    const showMessage = useContext(AlertContext);
+
     useEffect(() => {
         // TODO fix async errors
         // TODO handle errors
-        populateStatistics(mode, generation);
+        populateStatistics(mode, generation).catch(console.error);
     }, [mode, generation]);
 
     const populateStatistics = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
 
         try {
+            setLoading(true)
             const stats = await client.api.dump.heapDumpStatistics.get(
                 {queryParameters: {traversingMode: mode, generation: generation}}
             );
             setStatistics(stats!)
             setLoading(false)
-        } catch (error) {
-            console.log('ERROR!!!!!!!!!!!')
-            console.log(error)
+        } catch (error: unknown) {
+            const problemDetails = error as ProblemDetails
+            showMessage(problemDetails.title || 'API call error')
         }
     }
 
     const renderStatisticsTable = (statistics: ObjectTypeStatistics[]) => {
         return (
-            <div style={{ flexGrow: 1, width: '100%' }}>
+            <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
                     rows={statistics}
@@ -90,11 +96,11 @@ export const HeapDumpStat = () => {
                             },
                         },
                         sorting: {
-                            sortModel: [{ field: 'totalSize', sort: 'desc' }],
+                            sortModel: [{field: 'totalSize', sort: 'desc'}],
                         },
-                        pagination: { paginationModel: { pageSize: 20 } },
+                        pagination: {paginationModel: {pageSize: 20}},
                     }}
-                    slots={{ toolbar: GridToolbar }}
+                    slots={{toolbar: GridToolbar}}
                     slotProps={{
                         toolbar: {
                             showQuickFilter: true,
@@ -107,20 +113,27 @@ export const HeapDumpStat = () => {
     }
 
     let contents = loading
-        ? <Box sx={{ width: '100%' }}>
-            <LinearProgress />
+        ? <Box sx={{width: '100%'}}>
+            <LinearProgress/>
         </Box>
         : renderStatisticsTable(statistics);
 
+    const totalCount = statistics.reduce((sum, current) => sum + (current.instanceCount || 0), 0)
+    const totalSize = statistics.reduce((sum, current) => sum + (current.totalSize || 0), 0)
+
     return (
         // <Box display="flex">
-        <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <div style={{ flexGrow: 1 }}>
-                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)} />
-                <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)} />
+        <div style={{display: 'flex', flexFlow: 'column'}}>
+            <div style={{flexGrow: 1}}>
+                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
+                <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </div>
+            <ul>
+                <li>Total count: {totalCount}</li>
+                <li>Total size: {prettyBytes(totalSize)}</li>
+            </ul>
             {contents}
-        </div >
+        </div>
         // </Box>
     );
 }

@@ -16,6 +16,12 @@ paths:
       description: Get modules
       operationId: GetModules
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -32,6 +38,12 @@ paths:
       description: Get heap segments
       operationId: GetSegments
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -59,6 +71,12 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -88,6 +106,12 @@ paths:
           schema:
             $ref: '#/components/schemas/TraversingHeapModes'
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -110,6 +134,12 @@ paths:
             type: integer
             format: int64
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
