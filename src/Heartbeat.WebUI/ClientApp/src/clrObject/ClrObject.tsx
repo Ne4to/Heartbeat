@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueFormatterParams, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
 import { formatAddress } from '../lib/gridFormatter';
 import toHexAddress from '../lib/toHexAddress'
-import toHexString from '../lib/toHexString'
 import prettyBytes from 'pretty-bytes';
 import { GetClrObjectResult, ClrObjectField } from '../client/models';
 
@@ -51,7 +50,7 @@ const columns: GridColDef[] = [
         headerName: 'Value',
         minWidth: 200,
         flex: 1,
-        renderCell: (params: GridRenderCellParams<any, any>) => {
+        renderCell: (params: GridRenderCellParams) => {
             if (params.value == null) {
                 return '';
             }

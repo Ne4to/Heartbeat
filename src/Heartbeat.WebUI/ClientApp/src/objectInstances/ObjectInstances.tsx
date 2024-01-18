@@ -19,7 +19,7 @@ const columns: GridColDef[] = [
         width: 200,
         valueGetter: (params: GridValueGetterParams) => params.row.address,
         valueFormatter: formatAddress,
-        renderCell: (params: GridRenderCellParams<any, any>) => {
+        renderCell: (params: GridRenderCellParams) => {
             const address = toHexAddress(params.value)
             return (
                 <a href={'#/clr-object?address=' + address}>{address}</a>

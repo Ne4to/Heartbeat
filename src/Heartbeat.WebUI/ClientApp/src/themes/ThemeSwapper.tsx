@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useStore, useTranslate, ToggleThemeButton } from 'react-admin';
 import { IconButton, Menu, MenuItem, Tooltip } from '@mui/material';
 import ColorLensIcon from '@mui/icons-material/ColorLens';

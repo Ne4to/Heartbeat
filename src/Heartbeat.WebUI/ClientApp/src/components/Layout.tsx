@@ -1,7 +1,7 @@
-import React, { Component, forwardRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Container } from 'reactstrap';
 import Snackbar from '@mui/material/Snackbar';
-import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import MuiAlert from '@mui/material/Alert';
 
 type Props = {
   children?: string | JSX.Element

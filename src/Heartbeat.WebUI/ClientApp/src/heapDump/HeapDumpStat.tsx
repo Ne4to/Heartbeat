@@ -24,7 +24,7 @@ const columns: GridColDef[] = [
         headerName: 'Type',
         minWidth: 200,
         flex: 1,
-        renderCell: (params: GridRenderCellParams<any, any>) => {
+        renderCell: (params: GridRenderCellParams) => {
             const mt = params.row.methodTable;
             const mtHex = mt.toString(16)
             return (
@@ -49,7 +49,7 @@ export const HeapDumpStat = () => {
         const client = getClient();
 
         try {
-            var stats = await client.api.dump.typeStatistics.get({ queryParameters: { traversingMode: mode } });
+            const stats = await client.api.dump.typeStatistics.get({queryParameters: {traversingMode: mode}});
             setStatistics(stats!)
             setLoading(false)
         } catch (error) {
