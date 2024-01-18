@@ -185,9 +185,9 @@ internal class AnalyzeCommandHandler
     {
         //logger.LogInformation($"Host PID: {Process.GetCurrentProcess().Id}");
 
-        //var clrInfo = dataTarget.ClrVersions[0];
-        //logger.LogInformation($"Flavor: {clrInfo.Flavor}");
-        //logger.LogInformation($"Dac: {clrInfo.DacInfo.PlatformAgnosticFileName}");
+        var clrInfo = dataTarget.ClrVersions[0];
+        logger.LogInformation($"Flavor: {clrInfo.Flavor}");
+        // logger.LogInformation($"Dac: {clrInfo.DacInfo.PlatformAgnosticFileName}");
         //logger.LogInformation($"Module: {clrInfo.ModuleInfo}");
         //logger.LogInformation($"TargetArchitecture: {clrInfo.DacInfo.TargetArchitecture}");
 

@@ -28,6 +28,27 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
+    [Route("info")]
+    [ProducesResponseType(typeof(DumpInfo), StatusCodes.Status200OK)]
+    public DumpInfo GetInfo()
+    {
+        var clrHeap = _context.Heap;
+        var clrInfo = _context.Runtime.ClrInfo;
+        var dataReader = clrInfo.DataTarget.DataReader;
+        
+        return new DumpInfo(
+            _context.DumpPath,
+            clrHeap.CanWalkHeap,
+            clrHeap.IsServer,
+            clrInfo.ModuleInfo.FileName,
+            dataReader.Architecture,
+            dataReader.ProcessId,
+            dataReader.TargetPlatform.ToString(),
+            clrInfo.Version.ToString(2)
+        );
+    }
+
+    [HttpGet]
     [Route("modules")]
     [ProducesResponseType(typeof(Module[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get modules", description: "Get modules")]
@@ -69,8 +90,7 @@ public class DumpController : ControllerBase
     {
         var analyzer = new HeapDumpStatisticsAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, 
-            Generation = generation
+            TraversingHeapMode = traversingMode, Generation = generation
         };
 
         var statistics = analyzer.GetObjectTypeStatistics()

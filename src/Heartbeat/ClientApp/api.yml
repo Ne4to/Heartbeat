@@ -8,6 +8,24 @@ info:
 servers:
   - url: /
 paths:
+  /api/dump/info:
+    get:
+      tags:
+        - Dump
+      operationId: GetInfo
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DumpInfo'
   /api/dump/modules:
     get:
       tags:
@@ -154,6 +172,18 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    Architecture:
+      enum:
+        - X86
+        - X64
+        - Arm
+        - Arm64
+        - Wasm
+        - S390x
+        - LoongArch64
+        - Armv6
+        - Ppc64le
+      type: string
     ClrObjectField:
       required:
         - isValueType
@@ -181,6 +211,36 @@ components:
         value:
           type: string
         name:
+          type: string
+      additionalProperties: false
+    DumpInfo:
+      required:
+        - architecture
+        - canWalkHeap
+        - clrModulePath
+        - dumpPath
+        - isServerHeap
+        - platform
+        - processId
+        - runtimeVersion
+      type: object
+      properties:
+        dumpPath:
+          type: string
+        canWalkHeap:
+          type: boolean
+        isServerHeap:
+          type: boolean
+        clrModulePath:
+          type: string
+        architecture:
+          $ref: '#/components/schemas/Architecture'
+        processId:
+          type: integer
+          format: int32
+        platform:
+          type: string
+        runtimeVersion:
           type: string
       additionalProperties: false
     GCSegmentKind:

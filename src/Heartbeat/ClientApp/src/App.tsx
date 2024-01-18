@@ -11,6 +11,7 @@ import {themes, ThemeName} from './themes/themes';
 import React, {useState} from "react";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import './App.css'
 
 const store = localStorageStore(undefined, 'Heartbeat');
 
