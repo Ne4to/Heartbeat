@@ -1,16 +1,13 @@
-using Microsoft.Extensions.Logging;
+namespace Heartbeat.Host.Logging;
 
-namespace Heartbeat.Hosting.Console.Logging
+public sealed class CustomLoggerProvider : ILoggerProvider
 {
-    public sealed class CustomLoggerProvider : ILoggerProvider
+    public void Dispose()
     {
-        public void Dispose()
-        {
-        }
+    }
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new CustomLogger();
-        }
+    public ILogger CreateLogger(string categoryName)
+    {
+        return new CustomLogger();
     }
 }

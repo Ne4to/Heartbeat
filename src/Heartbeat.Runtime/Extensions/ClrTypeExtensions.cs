@@ -8,8 +8,9 @@ public static class ClrTypeExtensions
     {
         return !string.IsNullOrWhiteSpace(clrType.Name)
             ? clrType.Name
-            : (clrType.IsInternal
-                ? $"Internal {clrType.Module}"
-                : $"UNKNOWN {clrType.Module}");
+            : $"UNKNOWN {clrType.Module}";
+        // TODO : (clrType.IsInternal
+        //     ? $"Internal {clrType.Module}"
+        //     : $"UNKNOWN {clrType.Module}");
     }
 }

@@ -1,18 +1,16 @@
-﻿using System.Text.RegularExpressions;
-
-using Heartbeat.Domain;
-using Heartbeat.Hosting.Console.Logging;
+﻿using Heartbeat.Domain;
+using Heartbeat.Host.Logging;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 
-namespace Heartbeat.Hosting.Console;
+using System.Text.RegularExpressions;
+
+namespace Heartbeat.Host;
 
 internal class AnalyzeCommandHandler
 {
@@ -283,7 +281,7 @@ internal class AnalyzeCommandHandler
 
         foreach (var segment in runtime.Heap.Segments)
         {
-            if (!segment.IsLargeObjectSegment) continue;
+            if (segment.Kind != GCSegmentKind.Large) continue;
 
             totalLohSegmentSize += segment.Length;
 
@@ -368,7 +366,7 @@ internal class AnalyzeCommandHandler
 
         foreach (var segment in runtime.Heap.Segments)
         {
-            if (!segment.IsLargeObjectSegment) continue;
+            if (segment.Kind != GCSegmentKind.Large) continue;
 
             var query = from obj in segment.EnumerateObjects()
                         where obj.Type?.Name == "System.Byte[]"
@@ -495,7 +493,7 @@ internal class AnalyzeCommandHandler
             }
 
             var arrayProxy = new ArrayProxy(runtimeContext, bufferObj);
-            var isLargeObjectSegment = runtimeContext.Heap.GetSegmentByAddress(bufferObj.Address)?.IsLargeObjectSegment;
+            var isLargeObjectSegment = runtimeContext.Heap.GetSegmentByAddress(bufferObj.Address)?.Kind == GCSegmentKind.Large;
             return (arrayProxy.Length, isLargeObjectSegment);
         }
 
@@ -532,7 +530,7 @@ internal class AnalyzeCommandHandler
 
         foreach (var segment in runtime.Heap.Segments)
         {
-            if (!segment.IsLargeObjectSegment) continue;
+            if (segment.Kind != GCSegmentKind.Large) continue;
 
             var query = from obj in segment.EnumerateObjects()
                         where obj.Type?.Name == "System.Byte[]"

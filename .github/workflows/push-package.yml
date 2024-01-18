@@ -2,20 +2,45 @@ name: Push NuGet package
 
 on:
   push:
-    branches: [ master-disabled ]
+    branches: [ master ]
+  pull_request:
+    # Sequence of patterns matched against refs/heads
+    branches:
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # temp fix frontend build
+      # Treating warnings as errors because process.env.CI = true.
+      # Most CI servers set it automatically.
+      CI: 'false'
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+    - uses: actions/setup-node@v4
+      with:
+          # Version Spec of the version to use in SemVer notation.
+          # It also emits such aliases as lts, latest, nightly and canary builds
+          # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+        node-version: 20
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --configuration Release --no-restore
-#     - name: Test
-#       run: dotnet test --no-restore --verbosity normal
-    - name: Pack
-      run: dotnet pack --configuration Release --no-build --version-suffix "rc.${GITHUB_RUN_NUMBER}+${GITHUB_SHA::8}"
+      run: |
+        echo "running on $GITHUB_REF_NAME"
+        dotnet build --configuration Release --no-restore
+    # - name: Test
+    #   run: dotnet test --configuration Release --no-build --verbosity normal
+    - name: Pack release
+      if: ${{ github.ref_name == 'master' }}
+      run: dotnet pack --configuration Release --no-build
+    - name: Pack RC
+      if: ${{ github.ref_name != 'master' }}
+      run: dotnet pack --configuration Release --no-build --version-suffix "rc.${GITHUB_RUN_NUMBER}"
     - name: Push
       run: dotnet nuget push ./src/Heartbeat/nupkg/*.nupkg -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate

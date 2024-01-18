@@ -176,7 +176,8 @@ public class AsyncStateMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
 
         foreach (var (_, token) in coreLibModule.EnumerateTypeDefToMethodTableMap())
         {
-            var clrType = coreLibModule.ResolveToken(token);
+            // TODO var clrType = coreLibModule.ResolveToken(token);
+            ClrType? clrType = null;
             if (clrType?.Name == null)
             {
                 continue;

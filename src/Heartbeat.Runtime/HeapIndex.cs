@@ -1,14 +1,11 @@
-using Heartbeat.Runtime.Proxies;
-
 using Microsoft.Diagnostics.Runtime;
-using Microsoft.Diagnostics.Runtime.Implementation;
 
 namespace Heartbeat.Runtime;
 
 public sealed class HeapIndex
 {
-    private readonly ObjectSet _roots;
-    private readonly ObjectSet _walkableFromRoot;
+    private readonly HashSet<ulong> _roots;
+    private readonly HashSet<ulong> _walkableFromRoot;
     private readonly Dictionary<ulong, List<ulong>> _referencesToObject = new(100000);
 
     public HeapIndex(ClrHeap heap)
@@ -16,8 +13,8 @@ public sealed class HeapIndex
         // Evaluation stack
         Stack<ulong> eval = new();
 
-        _roots = new ObjectSet(heap);
-        _walkableFromRoot = new ObjectSet(heap);
+        _roots = new HashSet<ulong>();
+        _walkableFromRoot = new HashSet<ulong>();
 
         foreach (var clrRoot in heap.EnumerateRoots())
         {

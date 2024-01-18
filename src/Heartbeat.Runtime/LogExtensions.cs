@@ -22,7 +22,7 @@ public static class LogExtensions
                 $"\t{segment} ObjectRange: {segment.ObjectRange} {Size.ToString(segment.ObjectRange.Length)} " +
                 $"CommittedMemory: {segment.CommittedMemory} {Size.ToString(segment.CommittedMemory.Length)} " +
                 $"ReservedMemory: {segment.ReservedMemory} {Size.ToString(segment.ReservedMemory.Length)} " +
-                $"IsEphemeralSegment: {segment.IsEphemeralSegment}, IsLargeObjectSegment: {segment.IsLargeObjectSegment}");
+                $"IsEphemeralSegment: {segment.Kind == GCSegmentKind.Ephemeral}, IsLargeObjectSegment: {segment.Kind == GCSegmentKind.Large}");
 
             totalSize += segment.Length;
         }
@@ -584,9 +584,9 @@ public static class LogExtensions
                 string[] propNames =
                 {
                     nameof(ClrThread.IsAlive),
-                    nameof(ClrThread.IsBackground),
+                    // nameof(ClrThread.IsBackground),
                     nameof(ClrThread.IsFinalizer),
-                    nameof(ClrThread.IsDebugSuspended),
+                    // nameof(ClrThread.IsDebugSuspended),
                 };
 
                 var logLineBuilder = new StringBuilder();
@@ -760,7 +760,7 @@ public static class LogExtensions
             where type != null
                   && !type.IsFree
                   //                            && !type.IsString
-                  && !type.IsInternal
+                  // && !type.IsInternal
             orderby clrObject.Size descending
             select clrObject;
 
