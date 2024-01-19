@@ -6,6 +6,8 @@ import segments from './segments'
 import objectInstances from './objectInstances'
 import clrObject from './clrObject'
 import modules from './modules'
+import stringsGrid from './stringsGrid'
+import stringDuplicates from './stringDuplicates'
 import {AlertContext} from './contexts/alertContext';
 import {themes, ThemeName} from './themes/themes';
 import React, {useState} from "react";
@@ -54,6 +56,8 @@ const App = () => {
                     <Resource name='object-instances' {...objectInstances} />
                     <Resource name='modules' {...modules} />
                     <Resource name='clr-object' {...clrObject} />
+                    <Resource name='strings' {...stringsGrid} />
+                    <Resource name='string-duplicates' {...stringDuplicates} />
                 </Admin>
 
                 <Snackbar open={showErrorMessage} autoHideDuration={6000}

@@ -30,6 +30,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("info")]
     [ProducesResponseType(typeof(DumpInfo), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get dump info", description: "Get dump info")]
     public DumpInfo GetInfo()
     {
         var clrHeap = _context.Heap;
@@ -90,7 +91,8 @@ public class DumpController : ControllerBase
     {
         var analyzer = new HeapDumpStatisticsAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, Generation = generation
+            TraversingHeapMode = traversingMode, 
+            Generation = generation
         };
 
         var statistics = analyzer.GetObjectTypeStatistics()
@@ -99,6 +101,40 @@ public class DumpController : ControllerBase
             .ToArray();
 
         return statistics;
+    }
+    
+    [HttpGet]
+    [Route("strings")]
+    [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    public IEnumerable<StringInfo> GetStrings(
+            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] Generation? generation = null)
+    {
+        var query = from obj in _context.EnumerateStrings(traversingMode, generation)
+            let str = obj.AsString()
+            let length = obj.ReadField<int>("_stringLength")
+            select new StringInfo(obj.Address, length, obj.Size, str);
+
+        return query;
+    }
+
+    [HttpGet]
+    [Route("string-duplicates")]
+    [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get string duplicates", description: "Get string duplicates")]
+    public IEnumerable<StringDuplicate> GetStringDuplicates(
+        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+        [FromQuery] Generation? generation = null)
+    {
+        var analyzer = new StringDuplicateAnalyzer(_context)
+        {
+            TraversingHeapMode = traversingMode,
+            Generation = generation
+        };
+
+        return analyzer.GetStringDuplicates()
+            .Select(sd => new StringDuplicate(sd.Value, sd.Count, sd.FullLength, sd.WastedMemory));
     }
 
     [HttpGet]
@@ -159,11 +195,15 @@ public class DumpController : ControllerBase
                 field.Name)
         ).ToArray();
 
+        // TODO add generation
         var result = new GetClrObjectResult(
+            clrObject.Address,
             clrObject.Type.Module.Name,
             clrObject.Type.Name,
             new MethodTable(clrObject.Type.MethodTable),
             clrObject.Size,
+            _context.Heap.GetGeneration(clrObject.Address),
+            clrObject.Type.IsString ? clrObject.AsString() : null,
             fields);
 
         return Ok(result);

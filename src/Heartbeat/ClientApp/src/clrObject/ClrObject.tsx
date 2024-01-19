@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import { formatAddress } from '../lib/gridFormatter';
+import {formatAddress} from '../lib/gridFormatter';
 import toHexAddress from '../lib/toHexAddress'
 import prettyBytes from 'pretty-bytes';
-import { GetClrObjectResult, ClrObjectField } from '../client/models';
+import {GetClrObjectResult, ClrObjectField} from '../client/models';
+import {PropertiesTable, PropertyRow} from '../components/PropertiesTable'
 
 const columns: GridColDef[] = [
     {
@@ -90,7 +91,7 @@ export const ClrObject = () => {
 
     const renderTable = (fields: ClrObjectField[]) => {
         return (
-            <div style={{ flexGrow: 1, width: '100%' }}>
+            <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
                     rows={fields}
@@ -99,9 +100,9 @@ export const ClrObject = () => {
                     rowHeight={25}
                     pageSizeOptions={[20, 50, 100]}
                     density='compact'
-                    slots={{ toolbar: GridToolbar }}
+                    slots={{toolbar: GridToolbar}}
                     initialState={{
-                        pagination: { paginationModel: { pageSize: 20 } },
+                        pagination: {paginationModel: {pageSize: 20}},
                     }}
                 />
 
@@ -110,8 +111,8 @@ export const ClrObject = () => {
     }
 
     let contents = loading
-        ? <Box sx={{ width: '100%' }}>
-            <LinearProgress />
+        ? <Box sx={{width: '100%'}}>
+            <LinearProgress/>
         </Box>
         : renderTable(objectResult!.fields!);
 
@@ -124,14 +125,25 @@ export const ClrObject = () => {
 //             Resf from: @RefsFromCount
 //         </p>
 
+    const propertyRows: PropertyRow[] = [
+        {title: 'Address', value: toHexAddress(objectResult?.address)},
+        {title: 'Size', value: prettyBytes(objectResult?.size || 0)},
+        {title: 'Generation', value: objectResult?.generation},
+        {title: 'MethodTable', value: toHexAddress(objectResult?.methodTable)},
+        {title: 'Name', value: objectResult?.typeName},
+        {title: 'Module', value: objectResult?.moduleName},
+    ]
+
+    if (objectResult?.value) {
+        propertyRows.push(
+            {title: 'Value', value: objectResult?.value},
+        )
+    }
+
     return (
-        <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <h4 id="tableLabel" style={{ flexGrow: 1 }}>Clr Object {toHexAddress(address)}</h4>
-            <ul>
-                <li>Name {objectResult?.typeName}</li>
-                <li>MethodTable {toHexAddress(objectResult?.methodTable)}</li>
-                <li>Size {prettyBytes(objectResult?.size || 0)}</li>
-            </ul>
+        <div style={{display: 'flex', flexFlow: 'column'}}>
+            <h4 id="tableLabel" style={{flexGrow: 1}}>Clr Object</h4>
+            <PropertiesTable rows={propertyRows}/>
             {contents}
         </div>
     );

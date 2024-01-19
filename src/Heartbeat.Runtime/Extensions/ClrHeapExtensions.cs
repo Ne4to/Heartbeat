@@ -76,4 +76,9 @@ public static class ClrHeapExtensions
 
         return null;
     }
+
+    public static Generation GetGeneration(this ClrHeap heap, ulong address)
+    {
+        return heap.GetSegmentByAddress(address)?.GetGeneration(address) ?? Generation.Unknown;
+    }
 }

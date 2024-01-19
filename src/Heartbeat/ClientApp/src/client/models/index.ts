@@ -61,6 +61,12 @@ export function createObjectTypeStatisticsFromDiscriminatorValue(parseNode: Pars
 export function createProblemDetailsFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoProblemDetails;
 }
+export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoStringDuplicate;
+}
+export function createStringInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoStringInfo;
+}
 export function deserializeIntoClrObjectField(clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : Record<string, (node: ParseNode) => void> {
     return {
         "isValueType": n => { clrObjectField.isValueType = n.getBooleanValue(); },
@@ -86,11 +92,14 @@ export function deserializeIntoDumpInfo(dumpInfo: DumpInfo | undefined = {} as D
 }
 export function deserializeIntoGetClrObjectResult(getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : Record<string, (node: ParseNode) => void> {
     return {
+        "address": n => { getClrObjectResult.address = n.getNumberValue(); },
         "fields": n => { getClrObjectResult.fields = n.getCollectionOfObjectValues<ClrObjectField>(createClrObjectFieldFromDiscriminatorValue); },
+        "generation": n => { getClrObjectResult.generation = n.getEnumValue<Generation>(GenerationObject); },
         "methodTable": n => { getClrObjectResult.methodTable = n.getNumberValue(); },
         "moduleName": n => { getClrObjectResult.moduleName = n.getStringValue(); },
         "size": n => { getClrObjectResult.size = n.getNumberValue(); },
         "typeName": n => { getClrObjectResult.typeName = n.getStringValue(); },
+        "value": n => { getClrObjectResult.value = n.getStringValue(); },
     }
 }
 export function deserializeIntoGetObjectInstancesResult(getObjectInstancesResult: GetObjectInstancesResult | undefined = {} as GetObjectInstancesResult) : Record<string, (node: ParseNode) => void> {
@@ -138,6 +147,22 @@ export function deserializeIntoProblemDetails(problemDetails: ProblemDetails | u
         "type": n => { problemDetails.type = n.getStringValue(); },
     }
 }
+export function deserializeIntoStringDuplicate(stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : Record<string, (node: ParseNode) => void> {
+    return {
+        "count": n => { stringDuplicate.count = n.getNumberValue(); },
+        "fullLength": n => { stringDuplicate.fullLength = n.getNumberValue(); },
+        "value": n => { stringDuplicate.value = n.getStringValue(); },
+        "wastedMemory": n => { stringDuplicate.wastedMemory = n.getNumberValue(); },
+    }
+}
+export function deserializeIntoStringInfo(stringInfo: StringInfo | undefined = {} as StringInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { stringInfo.address = n.getNumberValue(); },
+        "length": n => { stringInfo.length = n.getNumberValue(); },
+        "size": n => { stringInfo.size = n.getNumberValue(); },
+        "value": n => { stringInfo.value = n.getStringValue(); },
+    }
+}
 export interface DumpInfo extends Parsable {
     /**
      * The architecture property
@@ -176,9 +201,17 @@ export type GCSegmentKind = (typeof GCSegmentKindObject)[keyof typeof GCSegmentK
 export type Generation = (typeof GenerationObject)[keyof typeof GenerationObject];
 export interface GetClrObjectResult extends Parsable {
     /**
+     * The address property
+     */
+    address?: number;
+    /**
      * The fields property
      */
     fields?: ClrObjectField[];
+    /**
+     * The generation property
+     */
+    generation?: Generation;
     /**
      * The methodTable property
      */
@@ -195,6 +228,10 @@ export interface GetClrObjectResult extends Parsable {
      * The typeName property
      */
     typeName?: string;
+    /**
+     * The value property
+     */
+    value?: string;
 }
 export interface GetObjectInstancesResult extends Parsable {
     /**
@@ -316,11 +353,14 @@ export function serializeDumpInfo(writer: SerializationWriter, dumpInfo: DumpInf
     writer.writeStringValue("runtimeVersion", dumpInfo.runtimeVersion);
 }
 export function serializeGetClrObjectResult(writer: SerializationWriter, getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : void {
+    writer.writeNumberValue("address", getClrObjectResult.address);
     writer.writeCollectionOfObjectValues<ClrObjectField>("fields", getClrObjectResult.fields, serializeClrObjectField);
+    writer.writeEnumValue<Generation>("generation", getClrObjectResult.generation);
     writer.writeNumberValue("methodTable", getClrObjectResult.methodTable);
     writer.writeStringValue("moduleName", getClrObjectResult.moduleName);
     writer.writeNumberValue("size", getClrObjectResult.size);
     writer.writeStringValue("typeName", getClrObjectResult.typeName);
+    writer.writeStringValue("value", getClrObjectResult.value);
 }
 export function serializeGetObjectInstancesResult(writer: SerializationWriter, getObjectInstancesResult: GetObjectInstancesResult | undefined = {} as GetObjectInstancesResult) : void {
     writer.writeCollectionOfObjectValues<ObjectInstance>("instances", getObjectInstancesResult.instances, serializeObjectInstance);
@@ -354,6 +394,54 @@ export function serializeProblemDetails(writer: SerializationWriter, problemDeta
     writer.writeStringValue("title", problemDetails.title);
     writer.writeStringValue("type", problemDetails.type);
     writer.writeAdditionalData(problemDetails.additionalData);
+}
+export function serializeStringDuplicate(writer: SerializationWriter, stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : void {
+    writer.writeNumberValue("count", stringDuplicate.count);
+    writer.writeNumberValue("fullLength", stringDuplicate.fullLength);
+    writer.writeStringValue("value", stringDuplicate.value);
+    writer.writeNumberValue("wastedMemory", stringDuplicate.wastedMemory);
+}
+export function serializeStringInfo(writer: SerializationWriter, stringInfo: StringInfo | undefined = {} as StringInfo) : void {
+    writer.writeNumberValue("address", stringInfo.address);
+    writer.writeNumberValue("length", stringInfo.length);
+    writer.writeNumberValue("size", stringInfo.size);
+    writer.writeStringValue("value", stringInfo.value);
+}
+export interface StringDuplicate extends Parsable {
+    /**
+     * The count property
+     */
+    count?: number;
+    /**
+     * The fullLength property
+     */
+    fullLength?: number;
+    /**
+     * The value property
+     */
+    value?: string;
+    /**
+     * The wastedMemory property
+     */
+    wastedMemory?: number;
+}
+export interface StringInfo extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The length property
+     */
+    length?: number;
+    /**
+     * The size property
+     */
+    size?: number;
+    /**
+     * The value property
+     */
+    value?: string;
 }
 export type TraversingHeapModes = (typeof TraversingHeapModesObject)[keyof typeof TraversingHeapModesObject];
 export const ArchitectureObject = {

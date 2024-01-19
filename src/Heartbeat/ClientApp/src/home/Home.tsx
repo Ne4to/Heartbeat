@@ -4,6 +4,9 @@ import LinearProgress from '@mui/material/LinearProgress';
 import getClient from '../lib/getClient'
 import Box from "@mui/material/Box";
 import {DumpInfo} from "../client/models";
+import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
+import toHexAddress from "../lib/toHexAddress";
+import prettyBytes from "pretty-bytes";
 
 const Home = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
@@ -20,23 +23,25 @@ const Home = () => {
         setDumpInfo(result!)
     }
 
+    const propertyRows: PropertyRow[] = [
+        {title: 'Runtime', value: `${dumpInfo?.platform} ${dumpInfo?.architecture} ${dumpInfo?.runtimeVersion}`},
+        {title: 'Dump', value: dumpInfo?.dumpPath},
+        {title: 'Server heap', value: String(dumpInfo?.isServerHeap)},
+        {title: 'Can walk heap', value: String(dumpInfo?.canWalkHeap)},
+        {title: 'Process id', value: String(dumpInfo?.processId)},
+        {title: 'Clr module', value: dumpInfo?.clrModulePath},
+    ]
+
     const contents = loading
         ?
         <Box sx={{width: '100%'}}>
             <LinearProgress/>
         </Box>
         :
-        <ul>
-            <li>Runtime: {dumpInfo?.platform} {dumpInfo?.architecture} {dumpInfo?.runtimeVersion}</li>
-            <li>Dump: {dumpInfo?.dumpPath}</li>
-            <li>Server heap: {String(dumpInfo?.isServerHeap)}</li>
-            <li>Can walk heap: {String(dumpInfo?.canWalkHeap)}</li>
-            <li>Process id: {dumpInfo?.processId}</li>
-            <li>Clr module: {dumpInfo?.clrModulePath}</li>
-        </ul>;
+        <PropertiesTable rows={propertyRows}/>;
 
     return (
-        <div>
+        <div style={{display: 'flex', flexFlow: 'column'}}>
             {contents}
         </div>
     );

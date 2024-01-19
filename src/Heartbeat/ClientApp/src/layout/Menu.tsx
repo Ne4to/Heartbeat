@@ -13,6 +13,8 @@ import {
 import heapDump from '../heapDumpStat';
 import segments from '../segments';
 import modules from '../modules';
+import stringsGrid from '../stringsGrid';
+import stringDuplicates from '../stringDuplicates';
 // import SubMenu from './SubMenu';
 
 type MenuName = 'menuCatalog' | 'menuSales' | 'menuCustomers';
@@ -152,6 +154,20 @@ const Menu = ({ dense = false }: MenuProps) => {
                 state={{ _scrollToTop: true }}
                 primaryText='Modules'
                 leftIcon={<modules.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/strings"
+                state={{ _scrollToTop: true }}
+                primaryText='Strings'
+                leftIcon={<stringsGrid.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/string-duplicates"
+                state={{ _scrollToTop: true }}
+                primaryText='String duplicates'
+                leftIcon={<stringDuplicates.icon />}
                 dense={dense}
             />
         </Box>

@@ -7,6 +7,8 @@ import { ModulesRequestBuilder } from './modules/';
 import { ObjectRequestBuilder } from './object/';
 import { ObjectInstancesRequestBuilder } from './objectInstances/';
 import { SegmentsRequestBuilder } from './segments/';
+import { StringDuplicatesRequestBuilder } from './stringDuplicates/';
+import { StringsRequestBuilder } from './strings/';
 import { BaseRequestBuilder, type RequestAdapter } from '@microsoft/kiota-abstractions';
 
 /**
@@ -48,6 +50,18 @@ export class DumpRequestBuilder extends BaseRequestBuilder<DumpRequestBuilder> {
      */
     public get segments(): SegmentsRequestBuilder {
         return new SegmentsRequestBuilder(this.pathParameters, this.requestAdapter);
+    }
+    /**
+     * The stringDuplicates property
+     */
+    public get stringDuplicates(): StringDuplicatesRequestBuilder {
+        return new StringDuplicatesRequestBuilder(this.pathParameters, this.requestAdapter);
+    }
+    /**
+     * The strings property
+     */
+    public get strings(): StringsRequestBuilder {
+        return new StringsRequestBuilder(this.pathParameters, this.requestAdapter);
     }
     /**
      * Instantiates a new DumpRequestBuilder and sets the default values.

@@ -61,20 +61,28 @@ public sealed class RuntimeContext
             select clrObject.Address;
     }
 
-    public IEnumerable<ClrObject> EnumerateObjects(TraversingHeapModes traversingMode)
+    public IEnumerable<ClrObject> EnumerateObjects(TraversingHeapModes traversingMode, Generation? generation = null)
     {
         return
             from obj in Heap.EnumerateObjects()
             where obj.IsValid
                   && FilterByWalkMode(traversingMode, obj.Address)
+            where generation == null || Heap.GetGeneration(obj.Address) == generation
             select obj;
     }
 
-    public IEnumerable<ClrObject> EnumerateObjectsByTypeName(string typeName, TraversingHeapModes traversingMode)
+    public IEnumerable<ClrObject> EnumerateObjectsByTypeName(
+        string typeName, 
+        TraversingHeapModes traversingMode,
+        Generation? generation = null)
     {
-        var clrType = Heap.GetTypeByName(typeName);
+        var clrType = Heap.GetTypeByName(typeName) ?? throw new InvalidOperationException($"Type {typeName} is not found");
+        return EnumerateObjects(traversingMode, generation).Where(obj => obj.Type!.MethodTable == clrType.MethodTable);
+    }
 
-        return EnumerateObjects(traversingMode).Where(obj => obj.Type!.MethodTable == clrType.MethodTable);
+    public IEnumerable<ClrObject> EnumerateStrings(TraversingHeapModes traversingMode, Generation? generation = null)
+    {
+        return EnumerateObjectsByTypeName("System.String", traversingMode, generation);
     }
 
     public IEnumerable<ClrObject> GetAllReferencesTo(ulong address)

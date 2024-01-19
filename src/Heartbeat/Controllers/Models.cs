@@ -25,10 +25,13 @@ public record GetObjectInstancesResult(
 public record ObjectInstance(ulong Address, ulong Size);
 
 public record GetClrObjectResult(
+    ulong Address,
     string? ModuleName,
     string? TypeName,
     ulong MethodTable,
     ulong Size,
+    Generation Generation,
+    string? Value,
     IReadOnlyList<ClrObjectField> Fields);
 
 public record ClrObjectField(
@@ -46,3 +49,7 @@ public record HeapSegment(ulong Start, ulong End, GCSegmentKind Kind)
 {
     public ulong Size => End - Start;
 }
+
+public record StringInfo(ulong Address, int Length, ulong Size, string Value);
+
+public record StringDuplicate(string Value, int Count, int FullLength, ulong WastedMemory);

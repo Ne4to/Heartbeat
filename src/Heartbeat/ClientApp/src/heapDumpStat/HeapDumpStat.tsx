@@ -18,6 +18,7 @@ import {
 } from '../client/models';
 import toHexAddress from "../lib/toHexAddress";
 import prettyBytes from "pretty-bytes";
+import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 
 const columns: GridColDef[] = [
     {field: 'instanceCount', headerName: 'Count', type: 'number', width: 130},
@@ -121,6 +122,11 @@ export const HeapDumpStat = () => {
     const totalCount = statistics.reduce((sum, current) => sum + (current.instanceCount || 0), 0)
     const totalSize = statistics.reduce((sum, current) => sum + (current.totalSize || 0), 0)
 
+    const propertyRows: PropertyRow[] = [
+        {title: 'Total count', value: String(totalCount)},
+        {title: 'Total size', value: prettyBytes(totalSize)},
+    ]
+
     return (
         // <Box display="flex">
         <div style={{display: 'flex', flexFlow: 'column'}}>
@@ -128,10 +134,7 @@ export const HeapDumpStat = () => {
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </div>
-            <ul>
-                <li>Total count: {totalCount}</li>
-                <li>Total size: {prettyBytes(totalSize)}</li>
-            </ul>
+            <PropertiesTable rows={propertyRows}/>
             {contents}
         </div>
         // </Box>

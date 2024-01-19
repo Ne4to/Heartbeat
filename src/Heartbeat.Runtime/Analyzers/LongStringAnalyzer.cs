@@ -27,7 +27,7 @@ public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
     private IEnumerable<ClrObject> GetLongestStrings(int count, TraversingHeapModes traversingMode)
     {
         var query =
-            from clrObject in Context.EnumerateObjectsByTypeName("System.String", traversingMode)
+            from clrObject in Context.EnumerateStrings(traversingMode)
             orderby clrObject.Size descending
             select clrObject;
 

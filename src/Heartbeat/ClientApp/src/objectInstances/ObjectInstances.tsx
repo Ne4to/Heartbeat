@@ -8,6 +8,7 @@ import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect
 
 import getClient from '../lib/getClient'
 import { formatAddress, formatSize } from '../lib/gridFormatter';
+import { renderClrObjectAddress } from '../lib/gridRenderCell';
 import toHexAddress from '../lib/toHexAddress'
 import { GetObjectInstancesResult, ObjectInstance, TraversingHeapModes, TraversingHeapModesObject } from '../client/models';
 
@@ -19,19 +20,13 @@ const columns: GridColDef[] = [
         width: 200,
         valueGetter: (params: GridValueGetterParams) => params.row.address,
         valueFormatter: formatAddress,
-        renderCell: (params: GridRenderCellParams) => {
-            const address = toHexAddress(params.value)
-            return (
-                <a href={'#/clr-object?address=' + address}>{address}</a>
-            )
-        }
+        renderCell: renderClrObjectAddress
     },
     {
         field: 'size',
         headerName: 'Size',
         type: 'number',
         width: 130,
-        valueGetter: (params: GridValueGetterParams) => params.row.size,
         valueFormatter: formatSize
     }
 ];

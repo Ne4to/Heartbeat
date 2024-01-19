@@ -12,6 +12,8 @@ paths:
     get:
       tags:
         - Dump
+      summary: Get dump info
+      description: Get dump info
       operationId: GetInfo
       responses:
         '500':
@@ -103,6 +105,72 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ObjectTypeStatistics'
+  /api/dump/strings:
+    get:
+      tags:
+        - Dump
+      summary: Get heap dump statistics
+      description: Get heap dump statistics
+      operationId: GetStrings
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StringInfo'
+  /api/dump/string-duplicates:
+    get:
+      tags:
+        - Dump
+      summary: Get string duplicates
+      description: Get string duplicates
+      operationId: GetStringDuplicates
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StringDuplicate'
   '/api/dump/object-instances/{mt}':
     get:
       tags:
@@ -265,11 +333,16 @@ components:
       type: string
     GetClrObjectResult:
       required:
+        - address
         - fields
+        - generation
         - methodTable
         - size
       type: object
       properties:
+        address:
+          type: integer
+          format: int64
         moduleName:
           type: string
           nullable: true
@@ -282,6 +355,11 @@ components:
         size:
           type: integer
           format: int64
+        generation:
+          $ref: '#/components/schemas/Generation'
+        value:
+          type: string
+          nullable: true
         fields:
           type: array
           items:
@@ -394,6 +472,46 @@ components:
           type: string
           nullable: true
       additionalProperties: { }
+    StringDuplicate:
+      required:
+        - count
+        - fullLength
+        - value
+        - wastedMemory
+      type: object
+      properties:
+        value:
+          type: string
+        count:
+          type: integer
+          format: int32
+        fullLength:
+          type: integer
+          format: int32
+        wastedMemory:
+          type: integer
+          format: int64
+      additionalProperties: false
+    StringInfo:
+      required:
+        - address
+        - length
+        - size
+        - value
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        length:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int64
+        value:
+          type: string
+      additionalProperties: false
     TraversingHeapModes:
       enum:
         - Live

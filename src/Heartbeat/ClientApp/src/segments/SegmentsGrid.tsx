@@ -7,6 +7,7 @@ import getClient from '../lib/getClient'
 import { formatAddress, formatSize } from '../lib/gridFormatter';
 import prettyBytes from 'pretty-bytes';
 import { HeapSegment } from '../client/models';
+import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 
 const columns: GridColDef[] = [
     {
@@ -84,11 +85,13 @@ export const SegmentsGrid = () => {
 
     const totalSize = segments.map(m => m.size!).reduce((sum, current) => sum + current, 0)
 
+    const propertyRows: PropertyRow[] = [
+        {title: 'Total size', value: prettyBytes(totalSize)},
+    ]
+
     return (
         <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <ul>
-                <li>Total size: {prettyBytes(totalSize)}</li>
-            </ul>
+            <PropertiesTable rows={propertyRows}/>
             {contents}
         </div>
     );

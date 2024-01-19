@@ -6,7 +6,8 @@ Diagnostics utility to analyze memory dumps of a .NET application
 ```
 dotnet tool install --global Heartbeat
 ```
-
+<!---
+TODO: update description
 ## Summary
 
 The purpose of the Heartbeat is finding runtime issues of .NET application in the production environment such as spontaneous high memory / CPU usage, high latency and so on.
@@ -36,11 +37,11 @@ Issue Finder example:
 - Find hot stack traces;
 - Find hung System.Threading.Tasks.Task objects;
 - Find System.Threading.Tasks.Task state.
-
+-->
 ## Usage
 
 ```
-  Heartbeat [options]
+heartbeat [options]
 
 Options:
   --dump <dump> (REQUIRED)  Path to a dump file
@@ -50,3 +51,6 @@ Options:
   --version                 Show version information
   -?, -h, --help            Show help and usage information
 ```
+<!---
+TODO: add screens
+-->
