@@ -23,11 +23,13 @@ const columns: GridColDef[] = [
     },
     {
         field: 'length',
-        headerName: 'Length'
+        headerName: 'Length',
+        align: 'right'
     },
     {
         field: 'size',
         headerName: 'Size',
+        align: 'right',
         valueFormatter: formatSize
     },
     {

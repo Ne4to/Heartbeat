@@ -6,6 +6,7 @@ import { InfoRequestBuilder } from './info/';
 import { ModulesRequestBuilder } from './modules/';
 import { ObjectRequestBuilder } from './object/';
 import { ObjectInstancesRequestBuilder } from './objectInstances/';
+import { RootsRequestBuilder } from './roots/';
 import { SegmentsRequestBuilder } from './segments/';
 import { StringDuplicatesRequestBuilder } from './stringDuplicates/';
 import { StringsRequestBuilder } from './strings/';
@@ -44,6 +45,12 @@ export class DumpRequestBuilder extends BaseRequestBuilder<DumpRequestBuilder> {
      */
     public get objectInstances(): ObjectInstancesRequestBuilder {
         return new ObjectInstancesRequestBuilder(this.pathParameters, this.requestAdapter);
+    }
+    /**
+     * The roots property
+     */
+    public get roots(): RootsRequestBuilder {
+        return new RootsRequestBuilder(this.pathParameters, this.requestAdapter);
     }
     /**
      * The segments property

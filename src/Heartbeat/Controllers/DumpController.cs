@@ -36,7 +36,7 @@ public class DumpController : ControllerBase
         var clrHeap = _context.Heap;
         var clrInfo = _context.Runtime.ClrInfo;
         var dataReader = clrInfo.DataTarget.DataReader;
-        
+
         return new DumpInfo(
             _context.DumpPath,
             clrHeap.CanWalkHeap,
@@ -80,6 +80,26 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
+    [Route("roots")]
+    [ProducesResponseType(typeof(RootInfo[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get heap roots", description: "Get heap roots")]
+    public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
+    {
+        return
+            from root in _context.Heap.EnumerateRoots()
+            where kind == null || root.RootKind == kind
+            let objectType = root.Object.Type
+            select new RootInfo(
+                root.Object.Address,
+                root.RootKind,
+                root.IsPinned,
+                root.Object.Size,
+                objectType.MethodTable,
+                objectType.Name
+            );
+    }
+
+    [HttpGet]
     [Route("heap-dump-statistics")]
     [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
@@ -91,8 +111,7 @@ public class DumpController : ControllerBase
     {
         var analyzer = new HeapDumpStatisticsAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, 
-            Generation = generation
+            TraversingHeapMode = traversingMode, Generation = generation
         };
 
         var statistics = analyzer.GetObjectTypeStatistics()
@@ -102,7 +121,7 @@ public class DumpController : ControllerBase
 
         return statistics;
     }
-    
+
     [HttpGet]
     [Route("strings")]
     [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
@@ -110,6 +129,8 @@ public class DumpController : ControllerBase
     public IEnumerable<StringInfo> GetStrings(
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
             [FromQuery] Generation? generation = null)
+        // TODO filter by min length
+        // TODO filter by max length
     {
         var query = from obj in _context.EnumerateStrings(traversingMode, generation)
             let str = obj.AsString()
@@ -124,13 +145,13 @@ public class DumpController : ControllerBase
     [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get string duplicates", description: "Get string duplicates")]
     public IEnumerable<StringDuplicate> GetStringDuplicates(
-        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
-        [FromQuery] Generation? generation = null)
+            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] Generation? generation = null)
+        // TODO filter by min length 
     {
         var analyzer = new StringDuplicateAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode,
-            Generation = generation
+            TraversingHeapMode = traversingMode, Generation = generation
         };
 
         return analyzer.GetStringDuplicates()
@@ -143,7 +164,8 @@ public class DumpController : ControllerBase
     [SwaggerOperation(summary: "Get object instances", description: "Get object instances")]
     public GetObjectInstancesResult GetObjectInstances(
             ulong mt,
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All)
+            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] Generation? generation = null)
         // TODO limit maxCount
     {
         var methodTable = new MethodTable(mt);
@@ -151,7 +173,7 @@ public class DumpController : ControllerBase
         var clrType = _context.Heap.FindTypeByMethodTable(methodTable);
 
         var instances = (
-            from obj in _context.EnumerateObjects(traversingMode)
+            from obj in _context.EnumerateObjects(traversingMode, generation)
             where obj.Type != null
                   && obj.Type.MethodTable == methodTable
             orderby obj.Size descending

@@ -36,8 +36,7 @@ public sealed class HeapDumpStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IWit
     public IReadOnlyCollection<ObjectTypeStatistics> GetObjectTypeStatistics()
     {
         return (
-            from obj in Context.EnumerateObjects(TraversingHeapMode)
-            where Generation == null || Context.Heap.GetSegmentByAddress(obj.Address)?.GetGeneration(obj.Address) == Generation
+            from obj in Context.EnumerateObjects(TraversingHeapMode, Generation)
             let objSize = obj.Size
             //group new { size = objSize } by type.Name into g
             group objSize by obj.Type

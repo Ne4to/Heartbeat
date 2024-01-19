@@ -12,6 +12,7 @@ import {
 
 import heapDump from '../heapDumpStat';
 import segments from '../segments';
+import roots from '../roots';
 import modules from '../modules';
 import stringsGrid from '../stringsGrid';
 import stringDuplicates from '../stringDuplicates';
@@ -147,6 +148,13 @@ const Menu = ({ dense = false }: MenuProps) => {
                 state={{ _scrollToTop: true }}
                 primaryText='Segments'
                 leftIcon={<segments.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/roots"
+                state={{ _scrollToTop: true }}
+                primaryText='Roots'
+                leftIcon={<roots.icon />}
                 dense={dense}
             />
             <MenuItemLink

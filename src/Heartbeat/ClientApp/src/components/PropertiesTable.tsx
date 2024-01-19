@@ -1,6 +1,6 @@
 export type PropertyRow = {
     title: string,
-    value?: string
+    value?: string | React.ReactNode
 }
 
 export type PropertiesTableProps = {

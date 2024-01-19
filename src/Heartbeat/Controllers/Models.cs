@@ -53,3 +53,5 @@ public record HeapSegment(ulong Start, ulong End, GCSegmentKind Kind)
 public record StringInfo(ulong Address, int Length, ulong Size, string Value);
 
 public record StringDuplicate(string Value, int Count, int FullLength, ulong WastedMemory);
+
+public record RootInfo(ulong Address, ClrRootKind Kind, bool IsPinned, ulong Size, ulong MethodTable, string TypeName);

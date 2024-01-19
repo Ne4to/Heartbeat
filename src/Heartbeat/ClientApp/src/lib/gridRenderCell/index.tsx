@@ -5,6 +5,17 @@ import React from "react";
 export function renderClrObjectAddress(params: GridRenderCellParams): React.ReactNode {
     const address = toHexAddress(params.value)
     return (
-        <a href={'#/clr-object?address=' + address}>{address}</a>
+        <a className="monoFont" href={'#/clr-object?address=' + address}>{address}</a>
+    )
+}
+
+export function renderMethodTable(params: GridRenderCellParams): React.ReactNode {
+    return renderMethodTableLink(params.value)
+}
+
+export function renderMethodTableLink(mt?: number):React.ReactNode {
+    const address = toHexAddress(mt)
+    return (
+        <a className="monoFont" href={'#/object-instances?mt=' + address}>{address}</a>
     )
 }

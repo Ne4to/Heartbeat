@@ -10,15 +10,16 @@ import toHexAddress from '../lib/toHexAddress'
 import prettyBytes from 'pretty-bytes';
 import {GetClrObjectResult, ClrObjectField} from '../client/models';
 import {PropertiesTable, PropertyRow} from '../components/PropertiesTable'
+import {renderMethodTable, renderMethodTableLink} from "../lib/gridRenderCell";
 
 const columns: GridColDef[] = [
     {
-        field: 'mt',
+        field: 'methodTable',
         headerName: 'MT',
         type: 'number',
         width: 200,
-        valueGetter: (params: GridValueGetterParams) => params.row.methodTable,
-        valueFormatter: formatAddress
+        valueFormatter: formatAddress,
+        renderCell: renderMethodTable,
     },
     {
         field: 'offset',
@@ -129,8 +130,8 @@ export const ClrObject = () => {
         {title: 'Address', value: toHexAddress(objectResult?.address)},
         {title: 'Size', value: prettyBytes(objectResult?.size || 0)},
         {title: 'Generation', value: objectResult?.generation},
-        {title: 'MethodTable', value: toHexAddress(objectResult?.methodTable)},
-        {title: 'Name', value: objectResult?.typeName},
+        {title: 'MethodTable', value: renderMethodTableLink(objectResult?.methodTable)},
+        {title: 'Type', value: objectResult?.typeName},
         {title: 'Module', value: objectResult?.moduleName},
     ]
 

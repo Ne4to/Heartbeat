@@ -8,7 +8,7 @@ import {TraversingHeapModeSelect} from '../components/TraversingHeapModeSelect'
 import {GenerationSelect} from '../components/GenerationSelect'
 
 import getClient from '../lib/getClient'
-import {formatSize} from '../lib/gridFormatter';
+import {formatAddress, formatSize} from '../lib/gridFormatter';
 import {
     Generation,
     ObjectTypeStatistics,
@@ -19,29 +19,35 @@ import {
 import toHexAddress from "../lib/toHexAddress";
 import prettyBytes from "pretty-bytes";
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
+import {renderMethodTable} from "../lib/gridRenderCell";
 
 const columns: GridColDef[] = [
-    {field: 'instanceCount', headerName: 'Count', type: 'number', width: 130},
+    {
+        field: 'methodTable',
+        headerName: 'MT',
+        type: 'number',
+        width: 200,
+        valueFormatter: formatAddress,
+        renderCell: renderMethodTable,
+    },
+    {
+        field: 'instanceCount',
+        headerName: 'Count',
+        type: 'number',
+        width: 130
+    },
     {
         field: 'totalSize',
         headerName: 'Total size',
         type: 'number',
         width: 130,
-        valueGetter: (params: GridValueGetterParams) => params.row.totalSize,
         valueFormatter: formatSize
     },
     {
         field: 'typeName',
         headerName: 'Type',
         minWidth: 200,
-        flex: 1,
-        renderCell: (params: GridRenderCellParams) => {
-            const mt = params.row.methodTable;
-            const mtHex = mt.toString(16)
-            return (
-                <a href={'#/object-instances?mt=' + mtHex}>{params.value}</a>
-            )
-        }
+        flex: 1
     }
 ];
 

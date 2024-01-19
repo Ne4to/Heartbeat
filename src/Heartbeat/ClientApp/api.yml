@@ -72,6 +72,34 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HeapSegment'
+  /api/dump/roots:
+    get:
+      tags:
+        - Dump
+      summary: Get heap roots
+      description: Get heap roots
+      operationId: GetRoots
+      parameters:
+        - name: kind
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/ClrRootKind'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RootInfo'
   /api/dump/heap-dump-statistics:
     get:
       tags:
@@ -191,6 +219,11 @@ paths:
           style: form
           schema:
             $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
       responses:
         '500':
           description: Server Error
@@ -281,6 +314,17 @@ components:
         name:
           type: string
       additionalProperties: false
+    ClrRootKind:
+      enum:
+        - None
+        - FinalizerQueue
+        - StrongHandle
+        - PinnedHandle
+        - Stack
+        - RefCountedHandle
+        - AsyncPinnedHandle
+        - SizedRefHandle
+      type: string
     DumpInfo:
       required:
         - architecture
@@ -472,6 +516,32 @@ components:
           type: string
           nullable: true
       additionalProperties: { }
+    RootInfo:
+      required:
+        - address
+        - isPinned
+        - kind
+        - methodTable
+        - size
+        - typeName
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        kind:
+          $ref: '#/components/schemas/ClrRootKind'
+        isPinned:
+          type: boolean
+        size:
+          type: integer
+          format: int64
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+      additionalProperties: false
     StringDuplicate:
       required:
         - count

@@ -21,15 +21,18 @@ import {GenerationSelect} from "../components/GenerationSelect";
 const columns: GridColDef[] = [
     {
         field: 'count',
-        headerName: 'Count'
+        headerName: 'Count',
+        align: 'right',
     },
     {
         field: 'fullLength',
-        headerName: 'Length'
+        headerName: 'Length',
+        align: 'right',
     },
     {
         field: 'wastedMemory',
         headerName: 'Wasted',
+        align: 'right',
         valueFormatter: formatSize
     },
     {

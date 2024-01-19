@@ -34,6 +34,7 @@ export interface ClrObjectField extends Parsable {
      */
     value?: string;
 }
+export type ClrRootKind = (typeof ClrRootKindObject)[keyof typeof ClrRootKindObject];
 export function createClrObjectFieldFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoClrObjectField;
 }
@@ -60,6 +61,9 @@ export function createObjectTypeStatisticsFromDiscriminatorValue(parseNode: Pars
 }
 export function createProblemDetailsFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoProblemDetails;
+}
+export function createRootInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoRootInfo;
 }
 export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoStringDuplicate;
@@ -145,6 +149,16 @@ export function deserializeIntoProblemDetails(problemDetails: ProblemDetails | u
         "status": n => { problemDetails.status = n.getNumberValue(); },
         "title": n => { problemDetails.title = n.getStringValue(); },
         "type": n => { problemDetails.type = n.getStringValue(); },
+    }
+}
+export function deserializeIntoRootInfo(rootInfo: RootInfo | undefined = {} as RootInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { rootInfo.address = n.getNumberValue(); },
+        "isPinned": n => { rootInfo.isPinned = n.getBooleanValue(); },
+        "kind": n => { rootInfo.kind = n.getEnumValue<ClrRootKind>(ClrRootKindObject); },
+        "methodTable": n => { rootInfo.methodTable = n.getNumberValue(); },
+        "size": n => { rootInfo.size = n.getNumberValue(); },
+        "typeName": n => { rootInfo.typeName = n.getStringValue(); },
     }
 }
 export function deserializeIntoStringDuplicate(stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : Record<string, (node: ParseNode) => void> {
@@ -333,6 +347,32 @@ export interface ProblemDetails extends AdditionalDataHolder, ApiError, Parsable
      */
     type?: string;
 }
+export interface RootInfo extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The isPinned property
+     */
+    isPinned?: boolean;
+    /**
+     * The kind property
+     */
+    kind?: ClrRootKind;
+    /**
+     * The methodTable property
+     */
+    methodTable?: number;
+    /**
+     * The size property
+     */
+    size?: number;
+    /**
+     * The typeName property
+     */
+    typeName?: string;
+}
 export function serializeClrObjectField(writer: SerializationWriter, clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : void {
     writer.writeBooleanValue("isValueType", clrObjectField.isValueType);
     writer.writeNumberValue("methodTable", clrObjectField.methodTable);
@@ -395,6 +435,14 @@ export function serializeProblemDetails(writer: SerializationWriter, problemDeta
     writer.writeStringValue("type", problemDetails.type);
     writer.writeAdditionalData(problemDetails.additionalData);
 }
+export function serializeRootInfo(writer: SerializationWriter, rootInfo: RootInfo | undefined = {} as RootInfo) : void {
+    writer.writeNumberValue("address", rootInfo.address);
+    writer.writeBooleanValue("isPinned", rootInfo.isPinned);
+    writer.writeEnumValue<ClrRootKind>("kind", rootInfo.kind);
+    writer.writeNumberValue("methodTable", rootInfo.methodTable);
+    writer.writeNumberValue("size", rootInfo.size);
+    writer.writeStringValue("typeName", rootInfo.typeName);
+}
 export function serializeStringDuplicate(writer: SerializationWriter, stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : void {
     writer.writeNumberValue("count", stringDuplicate.count);
     writer.writeNumberValue("fullLength", stringDuplicate.fullLength);
@@ -454,6 +502,16 @@ export const ArchitectureObject = {
     LoongArch64: "LoongArch64",
     Armv6: "Armv6",
     Ppc64le: "Ppc64le",
+}  as const;
+export const ClrRootKindObject = {
+    None: "None",
+    FinalizerQueue: "FinalizerQueue",
+    StrongHandle: "StrongHandle",
+    PinnedHandle: "PinnedHandle",
+    Stack: "Stack",
+    RefCountedHandle: "RefCountedHandle",
+    AsyncPinnedHandle: "AsyncPinnedHandle",
+    SizedRefHandle: "SizedRefHandle",
 }  as const;
 export const GCSegmentKindObject = {
     Generation0: "Generation0",

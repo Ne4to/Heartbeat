@@ -5,6 +5,7 @@ import headDump from './heapDumpStat'
 import segments from './segments'
 import objectInstances from './objectInstances'
 import clrObject from './clrObject'
+import roots from './roots'
 import modules from './modules'
 import stringsGrid from './stringsGrid'
 import stringDuplicates from './stringDuplicates'
@@ -54,6 +55,7 @@ const App = () => {
                     <Resource name='heap-dump' {...headDump} />
                     <Resource name='segments' {...segments} />
                     <Resource name='object-instances' {...objectInstances} />
+                    <Resource name='roots' {...roots} />
                     <Resource name='modules' {...modules} />
                     <Resource name='clr-object' {...clrObject} />
                     <Resource name='strings' {...stringsGrid} />

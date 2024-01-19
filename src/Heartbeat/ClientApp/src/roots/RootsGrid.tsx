@@ -5,9 +5,13 @@ import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
 import {formatAddress, formatSize} from '../lib/gridFormatter';
-import prettyBytes from 'pretty-bytes';
-import {Module} from '../client/models';
+import {renderClrObjectAddress, renderMethodTable} from '../lib/gridRenderCell';
+import {
+    ClrRootKind,
+    RootInfo,
+} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
+import {RootKindSelect} from "../components/RootKindSelect";
 
 const columns: GridColDef[] = [
     {
@@ -15,52 +19,69 @@ const columns: GridColDef[] = [
         headerName: 'Address',
         type: 'number',
         width: 200,
-        valueFormatter: formatAddress
+        valueFormatter: formatAddress,
+        renderCell: renderClrObjectAddress
+    },
+    {
+        field: 'isPinned',
+        headerName: 'Pinned'
+    },
+    {
+        field: 'kind',
+        headerName: 'Kind',
+        width: 150
     },
     {
         field: 'size',
         headerName: 'Size',
-        align: 'right',
         valueFormatter: formatSize
     },
     {
-        field: 'name',
-        headerName: 'Name',
+        field: 'methodTable',
+        headerName: 'MethodTable',
+        type: 'number',
+        width: 200,
+        valueFormatter: formatAddress,
+        renderCell: renderMethodTable
+    },
+    {
+        field: 'typeName',
+        headerName: 'Type',
         minWidth: 200,
         flex: 1,
     }
 ];
 
-export const Modules = () => {
+export const RootsGrid = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
-    const [modules, setModules] = React.useState<Module[]>([])
+    const [rootKind, setRootKind] = React.useState<ClrRootKind>()
+    const [roots, setRoots] = React.useState<RootInfo[]>([])
 
     useEffect(() => {
-        loadData();
-    }, []);
+        loadData(rootKind).catch(console.error);
+    }, [rootKind]);
 
-    const loadData = async () => {
+    const loadData = async (rootKind?: ClrRootKind) => {
         const client = getClient();
-        const result = await client.api.dump.modules.get()
-        setModules(result!)
+        const result = await client.api.dump.roots.get(
+            {queryParameters: {kind: rootKind}}
+        )
+        setRoots(result!)
         setLoading(false)
     }
 
-    const renderTable = (modules: Module[]) => {
+    const renderTable = (roots: RootInfo[]) => {
         return (
             <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
-                    rows={modules}
+                    rows={roots}
                     getRowId={(row) => row.address}
                     columns={columns}
                     rowHeight={25}
                     pageSizeOptions={[20, 50, 100]}
                     density='compact'
                     initialState={{
-                        sorting: {
-                            sortModel: [{field: 'size', sort: 'desc'}],
-                        },
                         pagination: {paginationModel: {pageSize: 20}},
                     }}
                 />
@@ -73,17 +94,17 @@ export const Modules = () => {
         ? <Box sx={{width: '100%'}}>
             <LinearProgress/>
         </Box>
-        : renderTable(modules);
-
-    const totalSize = modules.map(m => m.size!).reduce((sum, current) => sum + current, 0)
+        : renderTable(roots);
 
     const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(modules.length)},
-        {title: 'Total size', value: prettyBytes(totalSize)},
+        {title: 'Count', value: String(roots.length)},
     ]
 
     return (
         <div style={{display: 'flex', flexFlow: 'column'}}>
+            <div style={{flexGrow: 1}}>
+                <RootKindSelect kind={rootKind} onChange={(kind) => setRootKind(kind)}/>
+            </div>
             <PropertiesTable rows={propertyRows}/>
             {contents}
         </div>
