@@ -8,6 +8,7 @@ import { formatAddress, formatSize } from '../lib/gridFormatter';
 import prettyBytes from 'pretty-bytes';
 import { HeapSegment } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
+import {renderAddress} from "../lib/gridRenderCell";
 
 const columns: GridColDef[] = [
     {
@@ -15,18 +16,19 @@ const columns: GridColDef[] = [
         headerName: 'Start',
         type: 'number',
         width: 200,
-        valueFormatter: formatAddress
+        renderCell: renderAddress
     },
     {
         field: 'end',
         headerName: 'End',
         type: 'number',
         width: 200,
-        valueFormatter: formatAddress
+        renderCell: renderAddress
     },
     {
         field: 'size',
         headerName: 'Size',
+        align: 'right',
         valueFormatter: formatSize
     },
     {
@@ -67,7 +69,7 @@ export const SegmentsGrid = () => {
                     // pageSize={10}
                     initialState={{
                         sorting: {
-                            sortModel: [{ field: 'start', sort: 'asc' }],
+                            sortModel: [{ field: 'size', sort: 'desc' }],
                         },
                         pagination: { paginationModel: { pageSize: 20 } },
                     }}

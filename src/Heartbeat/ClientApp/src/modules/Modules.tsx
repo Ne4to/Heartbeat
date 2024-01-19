@@ -8,6 +8,7 @@ import {formatAddress, formatSize} from '../lib/gridFormatter';
 import prettyBytes from 'pretty-bytes';
 import {Module} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
+import {renderAddress} from "../lib/gridRenderCell";
 
 const columns: GridColDef[] = [
     {
@@ -15,7 +16,7 @@ const columns: GridColDef[] = [
         headerName: 'Address',
         type: 'number',
         width: 200,
-        valueFormatter: formatAddress
+        renderCell: renderAddress
     },
     {
         field: 'size',

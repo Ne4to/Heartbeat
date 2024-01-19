@@ -2,6 +2,13 @@ import {GridRenderCellParams, GridValueFormatterParams} from "@mui/x-data-grid";
 import toHexAddress from "../toHexAddress";
 import React from "react";
 
+export function renderAddress(params: GridRenderCellParams): React.ReactNode {
+    const address = toHexAddress(params.value)
+    return (
+        <div className="monoFont">{address}</div>
+    )
+}
+
 export function renderClrObjectAddress(params: GridRenderCellParams): React.ReactNode {
     const address = toHexAddress(params.value)
     return (
