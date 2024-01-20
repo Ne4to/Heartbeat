@@ -1,6 +1,7 @@
 # Heartbeat
-Diagnostics utility with web UI to analyze memory dumps of a .NET application
 [![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
+
+Diagnostics utility with web UI to analyze memory dumps of a .NET application
 
 ## Getting started
 
