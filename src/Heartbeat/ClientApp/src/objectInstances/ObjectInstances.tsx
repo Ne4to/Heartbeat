@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
+import {
+    DataGrid,
+    GridColDef,
+    gridPageSizeSelector,
+    GridRenderCellParams,
+    GridValueGetterParams
+} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
@@ -20,24 +26,11 @@ import {
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import prettyBytes from "pretty-bytes";
 import {GenerationSelect} from "../components/GenerationSelect";
+import {addressColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'address',
-        headerName: 'Address',
-        type: 'number',
-        width: 200,
-        valueGetter: (params: GridValueGetterParams) => params.row.address,
-        valueFormatter: formatAddress,
-        renderCell: renderClrObjectAddress
-    },
-    {
-        field: 'size',
-        headerName: 'Size',
-        type: 'number',
-        width: 130,
-        valueFormatter: formatSize
-    }
+    objectAddressColumn,
+    sizeColumn,
 ];
 
 export const ObjectInstances = () => {

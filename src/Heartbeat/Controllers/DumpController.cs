@@ -86,7 +86,7 @@ public class DumpController : ControllerBase
     public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
     {
         return
-            from root in _context.Heap.EnumerateRoots()
+            from root in _context.Heap.EnumerateRoots().ToArray()
             where kind == null || root.RootKind == kind
             let objectType = root.Object.Type
             select new RootInfo(
@@ -111,7 +111,8 @@ public class DumpController : ControllerBase
     {
         var analyzer = new HeapDumpStatisticsAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, Generation = generation
+            TraversingHeapMode = traversingMode,
+            Generation = generation
         };
 
         var statistics = analyzer.GetObjectTypeStatistics()
@@ -216,17 +217,71 @@ public class DumpController : ControllerBase
                 value,
                 field.Name)
         ).ToArray();
-
-        // TODO add generation
+        
         var result = new GetClrObjectResult(
             clrObject.Address,
             clrObject.Type.Module.Name,
             clrObject.Type.Name,
-            new MethodTable(clrObject.Type.MethodTable),
+            clrObject.Type.MethodTable,
             clrObject.Size,
             _context.Heap.GetGeneration(clrObject.Address),
             clrObject.Type.IsString ? clrObject.AsString() : null,
             fields);
+
+        return Ok(result);
+    }
+    
+    [HttpGet]
+    [Route("object/{address}/roots")]
+    [ProducesResponseType(typeof(ClrObjectRootPath[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(summary: "Get object roots", description: "Get object roots")]
+    public IActionResult GetClrObjectRoots(ulong address, CancellationToken ct)
+    {
+        var clrObject = _context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return NotFound();
+        }
+
+        var result = new List<ClrObjectRootPath>();
+        GCRoot gcRoot = new(_context.Heap, new [] { address });
+        foreach ((ClrRoot root, GCRoot.ChainLink path) in gcRoot.EnumerateRootPaths(ct))
+        {
+            var rootType = root.Object.Type!;
+
+            var rootInfo = new RootInfo(
+                root.Object.Address,
+                root.RootKind,
+                root.IsPinned,
+                root.Object.Size,
+                rootType.MethodTable,
+                rootType.Name!
+            );
+
+            List<RootPathItem> pathItems = new();
+            
+            GCRoot.ChainLink? current = path;
+            while (current != null)
+            {
+                var obj = _context.Heap.GetObject(current.Object);
+                
+                var item = new RootPathItem(
+                    obj.Address,
+                    obj.Type!.MethodTable,
+                    obj.Type.Name,
+                    obj.Size,
+                    _context.Heap.GetGeneration(obj.Address));
+                
+                pathItems.Add(item);
+                
+                current = current.Next;
+            }
+            
+            result.Add(new ClrObjectRootPath(rootInfo, pathItems));
+            // TODO get only one root path
+            break;
+        }
 
         return Ok(result);
     }

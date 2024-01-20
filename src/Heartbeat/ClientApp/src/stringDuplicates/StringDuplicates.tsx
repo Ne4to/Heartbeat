@@ -17,6 +17,7 @@ import {
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
+import {sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
     {
@@ -30,10 +31,9 @@ const columns: GridColDef[] = [
         align: 'right',
     },
     {
+        ...sizeColumn,
         field: 'wastedMemory',
         headerName: 'Wasted',
-        align: 'right',
-        valueFormatter: formatSize
     },
     {
         field: 'value',

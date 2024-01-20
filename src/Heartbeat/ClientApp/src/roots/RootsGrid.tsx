@@ -12,16 +12,10 @@ import {
 } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {RootKindSelect} from "../components/RootKindSelect";
+import {addressColumn, methodTableColumn, objectAddressColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'address',
-        headerName: 'Address',
-        type: 'number',
-        width: 200,
-        valueFormatter: formatAddress,
-        renderCell: renderClrObjectAddress
-    },
+    objectAddressColumn,
     {
         field: 'isPinned',
         headerName: 'Pinned'
@@ -36,14 +30,7 @@ const columns: GridColDef[] = [
         headerName: 'Size',
         valueFormatter: formatSize
     },
-    {
-        field: 'methodTable',
-        headerName: 'MethodTable',
-        type: 'number',
-        width: 200,
-        valueFormatter: formatAddress,
-        renderCell: renderMethodTable
-    },
+    methodTableColumn,
     {
         field: 'typeName',
         headerName: 'Type',
@@ -90,7 +77,7 @@ export const RootsGrid = () => {
         );
     }
 
-    let contents = loading
+    const contents = loading
         ? <Box sx={{width: '100%'}}>
             <LinearProgress/>
         </Box>

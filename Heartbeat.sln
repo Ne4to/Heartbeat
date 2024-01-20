@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{88EB
 		scripts\update-ts-client.ps1 = scripts\update-ts-client.ps1
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalRepo", "tests\MinimalRepo\MinimalRepo.csproj", "{3D11554D-E09C-4710-B071-D90BB2447F46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -167,6 +169,30 @@ Global
 		{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D}.Release|x64.Build.0 = Release|Any CPU
 		{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D}.Release|x86.ActiveCfg = Release|Any CPU
 		{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D}.Release|x86.Build.0 = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|arm64.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|x64.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Debug|x86.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|Any CPU.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|arm64.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|arm64.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|x64.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|x64.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|x86.ActiveCfg = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.DebugLocal|x86.Build.0 = Debug|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|arm64.ActiveCfg = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|arm64.Build.0 = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|x64.ActiveCfg = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|x64.Build.0 = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|x86.ActiveCfg = Release|Any CPU
+		{3D11554D-E09C-4710-B071-D90BB2447F46}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -178,6 +204,7 @@ Global
 		{D4060CFE-8141-49CE-99A5-559599D0E6B4} = {677CC7ED-C157-4885-884A-5C88B08A90C6}
 		{F1FF76E5-3DEE-4C64-8A62-8A645B981D1D} = {E52617F0-FB17-4C0C-A70A-26A3C11A8647}
 		{88EB58BA-FB0F-4A15-B366-BB033820126B} = {BE3A3B9E-B429-4D93-8E8D-9A23CCA4DA19}
+		{3D11554D-E09C-4710-B071-D90BB2447F46} = {E52617F0-FB17-4C0C-A70A-26A3C11A8647}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9BC4B059-33F1-4B7C-B5D9-DA6D2F1E5076}

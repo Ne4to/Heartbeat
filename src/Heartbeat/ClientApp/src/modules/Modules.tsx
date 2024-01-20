@@ -9,21 +9,11 @@ import prettyBytes from 'pretty-bytes';
 import {Module} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {renderAddress} from "../lib/gridRenderCell";
+import {addressColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'address',
-        headerName: 'Address',
-        type: 'number',
-        width: 200,
-        renderCell: renderAddress
-    },
-    {
-        field: 'size',
-        headerName: 'Size',
-        align: 'right',
-        valueFormatter: formatSize
-    },
+    addressColumn,
+    sizeColumn,
     {
         field: 'name',
         headerName: 'Name',

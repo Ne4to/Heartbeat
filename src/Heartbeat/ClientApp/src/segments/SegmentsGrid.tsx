@@ -9,28 +9,20 @@ import prettyBytes from 'pretty-bytes';
 import { HeapSegment } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {renderAddress} from "../lib/gridRenderCell";
+import {addressColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
     {
+        ...addressColumn,
         field: 'start',
         headerName: 'Start',
-        type: 'number',
-        width: 200,
-        renderCell: renderAddress
     },
     {
+        ...addressColumn,
         field: 'end',
         headerName: 'End',
-        type: 'number',
-        width: 200,
-        renderCell: renderAddress
     },
-    {
-        field: 'size',
-        headerName: 'Size',
-        align: 'right',
-        valueFormatter: formatSize
-    },
+    sizeColumn,
     {
         field: 'kind',
         headerName: 'Kind',

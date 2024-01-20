@@ -13,8 +13,8 @@ export const PropertiesTable = (props: PropertiesTableProps) => {
 
     const rows = props.rows.map(row =>
         <tr key={row.title}>
-            <td className="px-1">{row.title}</td>
-            <td className="px-1">{row.value}</td>
+            <td className="px-1 py-0">{row.title}</td>
+            <td className="px-1 py-0">{row.value}</td>
         </tr>)
 
     return (

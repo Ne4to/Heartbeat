@@ -271,6 +271,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/roots':
+    get:
+      tags:
+        - Dump
+      summary: Get object roots
+      description: Get object roots
+      operationId: GetClrObjectRoots
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClrObjectRootPath'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
     Architecture:
@@ -313,6 +349,19 @@ components:
           type: string
         name:
           type: string
+      additionalProperties: false
+    ClrObjectRootPath:
+      required:
+        - pathItems
+        - root
+      type: object
+      properties:
+        root:
+          $ref: '#/components/schemas/RootInfo'
+        pathItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/RootPathItem'
       additionalProperties: false
     ClrRootKind:
       enum:
@@ -541,6 +590,29 @@ components:
           format: int64
         typeName:
           type: string
+      additionalProperties: false
+    RootPathItem:
+      required:
+        - address
+        - generation
+        - methodTable
+        - size
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        size:
+          type: integer
+          format: int64
+        generation:
+          $ref: '#/components/schemas/Generation'
       additionalProperties: false
     StringDuplicate:
       required:

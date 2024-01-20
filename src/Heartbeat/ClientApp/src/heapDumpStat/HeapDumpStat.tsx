@@ -20,28 +20,21 @@ import toHexAddress from "../lib/toHexAddress";
 import prettyBytes from "pretty-bytes";
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {renderMethodTable} from "../lib/gridRenderCell";
+import {methodTableColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'methodTable',
-        headerName: 'MT',
-        type: 'number',
-        width: 200,
-        valueFormatter: formatAddress,
-        renderCell: renderMethodTable,
-    },
+    methodTableColumn,
     {
         field: 'instanceCount',
         headerName: 'Count',
         type: 'number',
-        width: 130
+        width: 100
     },
     {
+        ...sizeColumn,
         field: 'totalSize',
         headerName: 'Total size',
-        type: 'number',
-        width: 130,
-        valueFormatter: formatSize
+        width: 120
     },
     {
         field: 'typeName',

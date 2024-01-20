@@ -11,27 +11,16 @@ import {Generation, StringInfo, TraversingHeapModes, TraversingHeapModesObject} 
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
+import {addressColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'address',
-        headerName: 'Address',
-        type: 'number',
-        width: 200,
-        valueFormatter: formatAddress,
-        renderCell: renderClrObjectAddress
-    },
+    objectAddressColumn,
     {
         field: 'length',
         headerName: 'Length',
         align: 'right'
     },
-    {
-        field: 'size',
-        headerName: 'Size',
-        align: 'right',
-        valueFormatter: formatSize
-    },
+    sizeColumn,
     {
         field: 'value',
         headerName: 'Value',

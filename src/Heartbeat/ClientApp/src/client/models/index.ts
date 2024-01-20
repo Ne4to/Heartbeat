@@ -34,9 +34,22 @@ export interface ClrObjectField extends Parsable {
      */
     value?: string;
 }
+export interface ClrObjectRootPath extends Parsable {
+    /**
+     * The pathItems property
+     */
+    pathItems?: RootPathItem[];
+    /**
+     * The root property
+     */
+    root?: RootInfo;
+}
 export type ClrRootKind = (typeof ClrRootKindObject)[keyof typeof ClrRootKindObject];
 export function createClrObjectFieldFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoClrObjectField;
+}
+export function createClrObjectRootPathFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoClrObjectRootPath;
 }
 export function createDumpInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoDumpInfo;
@@ -65,6 +78,9 @@ export function createProblemDetailsFromDiscriminatorValue(parseNode: ParseNode 
 export function createRootInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoRootInfo;
 }
+export function createRootPathItemFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoRootPathItem;
+}
 export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoStringDuplicate;
 }
@@ -80,6 +96,12 @@ export function deserializeIntoClrObjectField(clrObjectField: ClrObjectField | u
         "offset": n => { clrObjectField.offset = n.getNumberValue(); },
         "typeName": n => { clrObjectField.typeName = n.getStringValue(); },
         "value": n => { clrObjectField.value = n.getStringValue(); },
+    }
+}
+export function deserializeIntoClrObjectRootPath(clrObjectRootPath: ClrObjectRootPath | undefined = {} as ClrObjectRootPath) : Record<string, (node: ParseNode) => void> {
+    return {
+        "pathItems": n => { clrObjectRootPath.pathItems = n.getCollectionOfObjectValues<RootPathItem>(createRootPathItemFromDiscriminatorValue); },
+        "root": n => { clrObjectRootPath.root = n.getObjectValue<RootInfo>(createRootInfoFromDiscriminatorValue); },
     }
 }
 export function deserializeIntoDumpInfo(dumpInfo: DumpInfo | undefined = {} as DumpInfo) : Record<string, (node: ParseNode) => void> {
@@ -159,6 +181,15 @@ export function deserializeIntoRootInfo(rootInfo: RootInfo | undefined = {} as R
         "methodTable": n => { rootInfo.methodTable = n.getNumberValue(); },
         "size": n => { rootInfo.size = n.getNumberValue(); },
         "typeName": n => { rootInfo.typeName = n.getStringValue(); },
+    }
+}
+export function deserializeIntoRootPathItem(rootPathItem: RootPathItem | undefined = {} as RootPathItem) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { rootPathItem.address = n.getNumberValue(); },
+        "generation": n => { rootPathItem.generation = n.getEnumValue<Generation>(GenerationObject); },
+        "methodTable": n => { rootPathItem.methodTable = n.getNumberValue(); },
+        "size": n => { rootPathItem.size = n.getNumberValue(); },
+        "typeName": n => { rootPathItem.typeName = n.getStringValue(); },
     }
 }
 export function deserializeIntoStringDuplicate(stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : Record<string, (node: ParseNode) => void> {
@@ -373,6 +404,28 @@ export interface RootInfo extends Parsable {
      */
     typeName?: string;
 }
+export interface RootPathItem extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The generation property
+     */
+    generation?: Generation;
+    /**
+     * The methodTable property
+     */
+    methodTable?: number;
+    /**
+     * The size property
+     */
+    size?: number;
+    /**
+     * The typeName property
+     */
+    typeName?: string;
+}
 export function serializeClrObjectField(writer: SerializationWriter, clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : void {
     writer.writeBooleanValue("isValueType", clrObjectField.isValueType);
     writer.writeNumberValue("methodTable", clrObjectField.methodTable);
@@ -381,6 +434,10 @@ export function serializeClrObjectField(writer: SerializationWriter, clrObjectFi
     writer.writeNumberValue("offset", clrObjectField.offset);
     writer.writeStringValue("typeName", clrObjectField.typeName);
     writer.writeStringValue("value", clrObjectField.value);
+}
+export function serializeClrObjectRootPath(writer: SerializationWriter, clrObjectRootPath: ClrObjectRootPath | undefined = {} as ClrObjectRootPath) : void {
+    writer.writeCollectionOfObjectValues<RootPathItem>("pathItems", clrObjectRootPath.pathItems, serializeRootPathItem);
+    writer.writeObjectValue<RootInfo>("root", clrObjectRootPath.root, serializeRootInfo);
 }
 export function serializeDumpInfo(writer: SerializationWriter, dumpInfo: DumpInfo | undefined = {} as DumpInfo) : void {
     writer.writeEnumValue<Architecture>("architecture", dumpInfo.architecture);
@@ -442,6 +499,13 @@ export function serializeRootInfo(writer: SerializationWriter, rootInfo: RootInf
     writer.writeNumberValue("methodTable", rootInfo.methodTable);
     writer.writeNumberValue("size", rootInfo.size);
     writer.writeStringValue("typeName", rootInfo.typeName);
+}
+export function serializeRootPathItem(writer: SerializationWriter, rootPathItem: RootPathItem | undefined = {} as RootPathItem) : void {
+    writer.writeNumberValue("address", rootPathItem.address);
+    writer.writeEnumValue<Generation>("generation", rootPathItem.generation);
+    writer.writeNumberValue("methodTable", rootPathItem.methodTable);
+    writer.writeNumberValue("size", rootPathItem.size);
+    writer.writeStringValue("typeName", rootPathItem.typeName);
 }
 export function serializeStringDuplicate(writer: SerializationWriter, stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : void {
     writer.writeNumberValue("count", stringDuplicate.count);

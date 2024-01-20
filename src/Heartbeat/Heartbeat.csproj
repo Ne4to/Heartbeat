@@ -30,6 +30,12 @@
         <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
     </ItemGroup>
 
+<!--    <ItemGroup>-->
+<!--        <Reference Include="Microsoft.Diagnostics.Runtime">-->
+<!--            <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\net6.0\Microsoft.Diagnostics.Runtime.dll</HintPath>-->
+<!--        </Reference>-->
+<!--    </ItemGroup>-->
+
     <ItemGroup>
         <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
