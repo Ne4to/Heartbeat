@@ -8,6 +8,26 @@ info:
 servers:
   - url: /
 paths:
+  /api/dump/info:
+    get:
+      tags:
+        - Dump
+      summary: Get dump info
+      description: Get dump info
+      operationId: GetInfo
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DumpInfo'
   /api/dump/modules:
     get:
       tags:
@@ -16,6 +36,12 @@ paths:
       description: Get modules
       operationId: GetModules
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -32,6 +58,12 @@ paths:
       description: Get heap segments
       operationId: GetSegments
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -40,20 +72,59 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/HeapSegment'
-  /api/dump/type-statistics:
+  /api/dump/roots:
     get:
       tags:
         - Dump
-      summary: Get type statistics
-      description: Get type statistics
-      operationId: Get
+      summary: Get heap roots
+      description: Get heap roots
+      operationId: GetRoots
+      parameters:
+        - name: kind
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/ClrRootKind'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RootInfo'
+  /api/dump/heap-dump-statistics:
+    get:
+      tags:
+        - Dump
+      summary: Get heap dump statistics
+      description: Get heap dump statistics
+      operationId: GetHeapDumpStat
       parameters:
         - name: traversingMode
           in: query
           style: form
           schema:
             $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -62,6 +133,72 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ObjectTypeStatistics'
+  /api/dump/strings:
+    get:
+      tags:
+        - Dump
+      summary: Get heap dump statistics
+      description: Get heap dump statistics
+      operationId: GetStrings
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StringInfo'
+  /api/dump/string-duplicates:
+    get:
+      tags:
+        - Dump
+      summary: Get string duplicates
+      description: Get string duplicates
+      operationId: GetStringDuplicates
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StringDuplicate'
   '/api/dump/object-instances/{mt}':
     get:
       tags:
@@ -82,7 +219,18 @@ paths:
           style: form
           schema:
             $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -105,6 +253,12 @@ paths:
             type: integer
             format: int64
       responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
         '200':
           description: Success
           content:
@@ -117,8 +271,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/roots':
+    get:
+      tags:
+        - Dump
+      summary: Get object roots
+      description: Get object roots
+      operationId: GetClrObjectRoots
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClrObjectRootPath'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
 components:
   schemas:
+    Architecture:
+      enum:
+        - X86
+        - X64
+        - Arm
+        - Arm64
+        - Wasm
+        - S390x
+        - LoongArch64
+        - Armv6
+        - Ppc64le
+      type: string
     ClrObjectField:
       required:
         - isValueType
@@ -148,6 +350,60 @@ components:
         name:
           type: string
       additionalProperties: false
+    ClrObjectRootPath:
+      required:
+        - pathItems
+        - root
+      type: object
+      properties:
+        root:
+          $ref: '#/components/schemas/RootInfo'
+        pathItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/RootPathItem'
+      additionalProperties: false
+    ClrRootKind:
+      enum:
+        - None
+        - FinalizerQueue
+        - StrongHandle
+        - PinnedHandle
+        - Stack
+        - RefCountedHandle
+        - AsyncPinnedHandle
+        - SizedRefHandle
+      type: string
+    DumpInfo:
+      required:
+        - architecture
+        - canWalkHeap
+        - clrModulePath
+        - dumpPath
+        - isServerHeap
+        - platform
+        - processId
+        - runtimeVersion
+      type: object
+      properties:
+        dumpPath:
+          type: string
+        canWalkHeap:
+          type: boolean
+        isServerHeap:
+          type: boolean
+        clrModulePath:
+          type: string
+        architecture:
+          $ref: '#/components/schemas/Architecture'
+        processId:
+          type: integer
+          format: int32
+        platform:
+          type: string
+        runtimeVersion:
+          type: string
+      additionalProperties: false
     GCSegmentKind:
       enum:
         - Generation0
@@ -158,13 +414,28 @@ components:
         - Frozen
         - Ephemeral
       type: string
+    Generation:
+      enum:
+        - Generation0
+        - Generation1
+        - Generation2
+        - Large
+        - Pinned
+        - Frozen
+        - Unknown
+      type: string
     GetClrObjectResult:
       required:
+        - address
         - fields
+        - generation
         - methodTable
         - size
       type: object
       properties:
+        address:
+          type: integer
+          format: int64
         moduleName:
           type: string
           nullable: true
@@ -177,6 +448,11 @@ components:
         size:
           type: integer
           format: int64
+        generation:
+          $ref: '#/components/schemas/Generation'
+        value:
+          type: string
+          nullable: true
         fields:
           type: array
           items:
@@ -289,6 +565,95 @@ components:
           type: string
           nullable: true
       additionalProperties: { }
+    RootInfo:
+      required:
+        - address
+        - isPinned
+        - kind
+        - methodTable
+        - size
+        - typeName
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        kind:
+          $ref: '#/components/schemas/ClrRootKind'
+        isPinned:
+          type: boolean
+        size:
+          type: integer
+          format: int64
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+      additionalProperties: false
+    RootPathItem:
+      required:
+        - address
+        - generation
+        - methodTable
+        - size
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        size:
+          type: integer
+          format: int64
+        generation:
+          $ref: '#/components/schemas/Generation'
+      additionalProperties: false
+    StringDuplicate:
+      required:
+        - count
+        - fullLength
+        - value
+        - wastedMemory
+      type: object
+      properties:
+        value:
+          type: string
+        count:
+          type: integer
+          format: int32
+        fullLength:
+          type: integer
+          format: int32
+        wastedMemory:
+          type: integer
+          format: int64
+      additionalProperties: false
+    StringInfo:
+      required:
+        - address
+        - length
+        - size
+        - value
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        length:
+          type: integer
+          format: int32
+        size:
+          type: integer
+          format: int64
+        value:
+          type: string
+      additionalProperties: false
     TraversingHeapModes:
       enum:
         - Live

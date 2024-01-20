@@ -5,6 +5,31 @@ using Heartbeat.Runtime;
 using System.CommandLine;
 using System.Text.Json.Serialization;
 
+if (Environment.GetEnvironmentVariable("HEARTBEAT_GENERATE_CONTRACTS") == "true")
+{
+    var builder = WebApplication.CreateBuilder(args);
+
+    builder.Services
+        .AddControllers()
+        .AddJsonOptions(
+            options =>
+            {
+                var enumConverter = new JsonStringEnumConverter();
+                options.JsonSerializerOptions.Converters.Add(enumConverter);
+            });
+    
+    builder.Services.AddSwagger();
+    var app = builder.Build();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("Heartbeat/swagger.yaml", "Heartbeat");
+    });
+    app.MapControllers();
+    app.Run();
+    return;
+}
+
 var (rootCommand, binder) = WebCommandOptions.RootCommand();
 rootCommand.SetHandler((WebCommandOptions options) => MainWeb(options, args), binder);
 //rootCommand.Add(AnalyzeCommandOptions.Command("analyze"));
@@ -42,34 +67,10 @@ static void MainWeb(WebCommandOptions options, string[] args)
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
+        options.EnableTryItOutByDefault();
         options.SwaggerEndpoint("Heartbeat/swagger.yaml", "Heartbeat");
     });
     app.UseExceptionHandler();
     app.MapControllers();
     app.Run();
 }
-
-// class Program
-// {
-//     public static async Task<int> Main(string[] args)
-//     {
-//
-//         var (command, binder) = AnalyzeCommandOptions.RootCommand();
-//
-//         command.SetHandler(async (AnalyzeCommandOptions options) =>
-//         {
-//             try
-//             {
-//                 var handler = new AnalyzeCommandHandler(options);
-//                 await handler.Execute();
-//             }
-//             catch (Exception e)
-//             {
-//                 System.Console.Error.WriteLine(e.ToString());
-//                 throw;
-//             }
-//         }, binder);
-//
-//         return await command.InvokeAsync(args);
-//     }
-// }

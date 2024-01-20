@@ -1,43 +1,35 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, {useEffect} from 'react';
+import {useSearchParams} from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
-import { DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams } from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import { formatAddress } from '../lib/gridFormatter';
 import toHexAddress from '../lib/toHexAddress'
 import prettyBytes from 'pretty-bytes';
-import { GetClrObjectResult, ClrObjectField } from '../client/models';
+import {GetClrObjectResult, ClrObjectField, ClrObjectRootPath} from '../client/models';
+import {PropertiesTable, PropertyRow} from '../components/PropertiesTable'
+import {renderMethodTableLink} from "../lib/gridRenderCell";
+import {ClrObjectRoot} from "../components/ClrObjectRoot";
+import {methodTableColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
-    {
-        field: 'mt',
-        headerName: 'MT',
-        type: 'number',
-        width: 200,
-        valueGetter: (params: GridValueGetterParams) => params.row.methodTable,
-        valueFormatter: formatAddress
-    },
+    methodTableColumn,
     {
         field: 'offset',
         headerName: 'Offset',
-        // valueFormatter: (params: GridValueFormatterParams<number>) => {
-        //     if (params.value == null) {
-        //         return '';
-        //     }
-        //     return toHexString(params.value);
-        // }
+        type: 'number',
+        width: 80
+    },
+    {
+        field: 'isValueType',
+        headerName: 'VT',
     },
     {
         field: 'typeName',
         headerName: 'Type',
         minWidth: 200,
         flex: 0.5,
-    },
-    {
-        field: 'isValueType',
-        headerName: 'VT',
     },
     {
         field: 'name',
@@ -71,13 +63,13 @@ const columns: GridColDef[] = [
 export const ClrObject = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
     const [objectResult, setObjectResult] = React.useState<GetClrObjectResult>()
+    const [roots, setRoots] = React.useState<ClrObjectRootPath[]>()
     const [searchParams] = useSearchParams();
     const [address, setAddress] = React.useState(Number('0x' + searchParams.get('address')))
 
-    console.log('Address = ' + address)
-
     useEffect(() => {
-        loadData();
+        loadData().catch(console.error)
+        loadRoots().catch(console.error)
     }, []);
 
     const loadData = async () => {
@@ -88,9 +80,15 @@ export const ClrObject = () => {
         setLoading(false)
     }
 
+    const loadRoots = async() => {
+        const client = getClient();
+        const result = await client.api.dump.object.byAddress(address).roots.get()
+        setRoots(result!)
+    }
+
     const renderTable = (fields: ClrObjectField[]) => {
         return (
-            <div style={{ flexGrow: 1, width: '100%' }}>
+            <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
                     rows={fields}
@@ -99,9 +97,9 @@ export const ClrObject = () => {
                     rowHeight={25}
                     pageSizeOptions={[20, 50, 100]}
                     density='compact'
-                    slots={{ toolbar: GridToolbar }}
+                    slots={{toolbar: GridToolbar}}
                     initialState={{
-                        pagination: { paginationModel: { pageSize: 20 } },
+                        pagination: {paginationModel: {pageSize: 20}},
                     }}
                 />
 
@@ -110,29 +108,36 @@ export const ClrObject = () => {
     }
 
     let contents = loading
-        ? <Box sx={{ width: '100%' }}>
-            <LinearProgress />
+        ? <Box sx={{width: '100%'}}>
+            <LinearProgress/>
         </Box>
         : renderTable(objectResult!.fields!);
 
-// TODO add refs        
-//         <p>
-//             Resf to: @RefsToCount
-//         </p>
-//         
-//         <p>
-//             Resf from: @RefsFromCount
-//         </p>
+    const propertyRows: PropertyRow[] = [
+        {title: 'Address', value: toHexAddress(objectResult?.address)},
+        {title: 'Size', value: prettyBytes(objectResult?.size || 0)},
+        {title: 'Generation', value: objectResult?.generation},
+        {title: 'MethodTable', value: renderMethodTableLink(objectResult?.methodTable)},
+        {title: 'Type', value: objectResult?.typeName},
+        {title: 'Module', value: objectResult?.moduleName},
+    ]
+
+    if (objectResult?.value) {
+        propertyRows.push(
+            {title: 'Value', value: objectResult?.value},
+        )
+    }
+
+    const rootGrid = roots && roots.length != 0
+        ? <ClrObjectRoot rootPath={roots[0]} />
+        : <div>root path not found</div>;
 
     return (
-        <div style={{ display: 'flex', flexFlow: 'column' }}>
-            <h4 id="tableLabel" style={{ flexGrow: 1 }}>Clr Object {toHexAddress(address)}</h4>
-            <ul>
-                <li>Name {objectResult?.typeName}</li>
-                <li>MethodTable {toHexAddress(objectResult?.methodTable)}</li>
-                <li>Size {prettyBytes(objectResult?.size || 0)}</li>
-            </ul>
+        <div style={{display: 'flex', flexFlow: 'column'}}>
+            <h4 id="tableLabel" style={{flexGrow: 1}}>Clr Object</h4>
+            <PropertiesTable rows={propertyRows}/>
             {contents}
+            {rootGrid}
         </div>
     );
 }

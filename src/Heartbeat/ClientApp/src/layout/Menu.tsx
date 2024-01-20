@@ -10,9 +10,12 @@ import {
     useSidebarState,
 } from 'react-admin';
 
-import heapDump from '../heapDump';
+import heapDump from '../heapDumpStat';
 import segments from '../segments';
+import roots from '../roots';
 import modules from '../modules';
+import stringsGrid from '../stringsGrid';
+import stringDuplicates from '../stringDuplicates';
 // import SubMenu from './SubMenu';
 
 type MenuName = 'menuCatalog' | 'menuSales' | 'menuCustomers';
@@ -148,10 +151,31 @@ const Menu = ({ dense = false }: MenuProps) => {
                 dense={dense}
             />
             <MenuItemLink
+                to="/roots"
+                state={{ _scrollToTop: true }}
+                primaryText='Roots'
+                leftIcon={<roots.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
                 to="/modules"
                 state={{ _scrollToTop: true }}
                 primaryText='Modules'
                 leftIcon={<modules.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/strings"
+                state={{ _scrollToTop: true }}
+                primaryText='Strings'
+                leftIcon={<stringsGrid.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/string-duplicates"
+                state={{ _scrollToTop: true }}
+                primaryText='String duplicates'
+                leftIcon={<stringDuplicates.icon />}
                 dense={dense}
             />
         </Box>

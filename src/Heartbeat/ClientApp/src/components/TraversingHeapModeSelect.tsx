@@ -22,11 +22,8 @@ export type TraversingHeapModeSelectProps = {
 }
 
 export const TraversingHeapModeSelect = (props: TraversingHeapModeSelectProps) => {
-  const [mode, setMode] = React.useState<TraversingHeapModes>(props.mode)
-
   const handleChange = (event: SelectChangeEvent) => {
     const mode = event.target.value as TraversingHeapModes
-    setMode(mode)
     props.onChange?.(mode)
   };
 
@@ -36,7 +33,7 @@ export const TraversingHeapModeSelect = (props: TraversingHeapModeSelectProps) =
       <Select
         labelId="mode-select-label"
         id="mode-select"
-        value={mode}
+        value={props.mode}
         label="Traversing heap mode"
         onChange={handleChange}
         fullWidth={true}

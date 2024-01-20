@@ -1,12 +1,18 @@
 # Heartbeat
 Diagnostics utility to analyze memory dumps of a .NET application
-
-## Installation
 [![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
-```
-dotnet tool install --global Heartbeat
-```
 
+## Getting started
+
+```shell
+dotnet tool install --global Heartbeat
+heartbeat --dump <path-to-dump-file>
+```
+Open `http://localhost:5000/` in web browser.
+See [UI screen]([https://](https://github.com/Ne4to/Heartbeat/tree/master/assets)) for examples
+
+<!---
+TODO: update description
 ## Summary
 
 The purpose of the Heartbeat is finding runtime issues of .NET application in the production environment such as spontaneous high memory / CPU usage, high latency and so on.
@@ -36,11 +42,11 @@ Issue Finder example:
 - Find hot stack traces;
 - Find hung System.Threading.Tasks.Task objects;
 - Find System.Threading.Tasks.Task state.
-
+-->
 ## Usage
 
 ```
-  Heartbeat [options]
+heartbeat [options]
 
 Options:
   --dump <dump> (REQUIRED)  Path to a dump file
@@ -50,3 +56,6 @@ Options:
   --version                 Show version information
   -?, -h, --help            Show help and usage information
 ```
+<!---
+TODO: add screens
+-->

@@ -1,3 +1,5 @@
+using Heartbeat.Runtime.Proxies;
+
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime;
@@ -26,12 +28,10 @@ public sealed class HeapIndex
         {
             // Pop an object, ignore it if we've seen it before.
             var address = eval.Pop();
-            if (_walkableFromRoot.Contains(address))
+            if (!_walkableFromRoot.Add(address))
             {
                 continue;
             }
-
-            _walkableFromRoot.Add(address);
 
             // Grab the type. We will only get null here in the case of heap corruption.
             ClrType? type = heap.GetObjectType(address);
@@ -54,41 +54,50 @@ public sealed class HeapIndex
 
         void EnumerateArrayElements(ulong address)
         {
-            //heap.Runtime.DacLibrary.OwningLibrary.
-
             var obj = heap.GetObject(address);
             var array = obj.AsArray();
-            throw new NotImplementedException();
-            //var componentType = ((ClrmdArrayType)array.typ).ComponentType;
-
-            //if (componentType.IsObjectReference)
-            //{
-            //    foreach (var arrayElement in ArrayProxy.EnumerateObjectItems(array))
-            //    {
-            //        if (!arrayElement.IsNull)
-            //        {
-            //            AddReference(address, arrayElement.Address);
-            //            eval.Push(arrayElement.Address);
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            //    // throw new NotSupportedException($"Enumerating array of {componentType} type is not supported");
-            //}
+            if (array.Type.ComponentType?.IsObjectReference ?? false)
+            {
+                foreach (var arrayElement in ArrayProxy.EnumerateObjectItems(array))
+                {
+                    if (arrayElement is { IsNull: false, IsValid: true })
+                    {
+                        AddReference(address, arrayElement.Address);
+                        eval.Push(arrayElement.Address);
+                    }
+                }
+            }
+            else if (array.Type.ComponentType?.IsValueType ?? false)
+            {
+                // TODO test and compare with WinDbg / dotnet dump
+                foreach (var arrayElement in ArrayProxy.EnumerateValueTypes(array))
+                {
+                    if (arrayElement.IsValid && arrayElement.Type != null)
+                    {
+                        EnumerateFields(arrayElement.Type, arrayElement.Address, address);
+                    }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException($"Enumerating array of {array.Type.ComponentType} type is not supported");
+            }
         }
 
-        void EnumerateFields(ClrType? type, ulong address)
+        void EnumerateFields(ClrType type, ulong objectAddress, ulong? parentAddress = null)
         {
-
             foreach (var instanceField in type.Fields)
             {
                 if (instanceField.IsObjectReference)
                 {
-                    var fieldObject = instanceField.ReadObject(address, false);
+                    var fieldObject = instanceField.ReadObject(objectAddress, false);
                     if (!fieldObject.IsNull)
                     {
-                        AddReference(address, fieldObject.Address);
+                        AddReference(objectAddress, fieldObject.Address);
+                        if (parentAddress != null)
+                        {
+                            AddReference(parentAddress.Value, fieldObject.Address);
+                        }
                         eval.Push(fieldObject.Address);
                     }
                 }

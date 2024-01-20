@@ -1,8 +1,8 @@
-import { AnonymousAuthenticationProvider } from '@microsoft/kiota-abstractions';
-import { FetchRequestAdapter } from '@microsoft/kiota-http-fetchlibrary';
-import { HeartbeatClient } from '../../client/heartbeatClient';
+import {AnonymousAuthenticationProvider} from '@microsoft/kiota-abstractions';
+import {FetchRequestAdapter} from '@microsoft/kiota-http-fetchlibrary';
+import {HeartbeatClient} from '../../client/heartbeatClient';
 
-export default function getClient() : HeartbeatClient {
+export default function getClient(): HeartbeatClient {
     // API requires no authentication, so use the anonymous
     // authentication provider
     const authProvider = new AnonymousAuthenticationProvider();
