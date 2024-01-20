@@ -12,7 +12,8 @@ try
     Get-Date -Format ''
     $VersionSuffix = "rc.$(Get-Date -Format 'yyyy-MM-dd-HHmm')"
     dotnet pack --version-suffix $VersionSuffix
-    $PackageVersion = "0.1.0-$VersionSuffix"
+    # TODO get VersionPrefix from Directory.Build.props
+    $PackageVersion = "0.2.0-$VersionSuffix"
     dotnet tool install --global --add-source ./src/Heartbeat/nupkg Heartbeat --version $PackageVersion
 }
 catch {
