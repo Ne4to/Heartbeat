@@ -1,6 +1,6 @@
 import React, {useEffect, useContext} from 'react';
 import LinearProgress from '@mui/material/LinearProgress';
-import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar, GridValueGetterParams} from '@mui/x-data-grid';
+import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import {AlertContext} from '../contexts/alertContext';
@@ -8,7 +8,6 @@ import {TraversingHeapModeSelect} from '../components/TraversingHeapModeSelect'
 import {GenerationSelect} from '../components/GenerationSelect'
 
 import getClient from '../lib/getClient'
-import {formatAddress, formatSize} from '../lib/gridFormatter';
 import {
     Generation,
     ObjectTypeStatistics,
@@ -16,11 +15,9 @@ import {
     TraversingHeapModes,
     TraversingHeapModesObject
 } from '../client/models';
-import toHexAddress from "../lib/toHexAddress";
-import prettyBytes from "pretty-bytes";
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {renderMethodTable} from "../lib/gridRenderCell";
 import {methodTableColumn, sizeColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     methodTableColumn,
@@ -123,7 +120,7 @@ export const HeapDumpStat = () => {
 
     const propertyRows: PropertyRow[] = [
         {title: 'Total count', value: String(totalCount)},
-        {title: 'Total size', value: prettyBytes(totalSize)},
+        {title: 'Total size', value: toSizeString(totalSize)},
     ]
 
     return (

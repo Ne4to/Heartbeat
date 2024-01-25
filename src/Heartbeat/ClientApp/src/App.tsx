@@ -7,6 +7,7 @@ import objectInstances from './objectInstances'
 import clrObject from './clrObject'
 import roots from './roots'
 import modules from './modules'
+import arraysGrid from './arraysGrid'
 import stringsGrid from './stringsGrid'
 import stringDuplicates from './stringDuplicates'
 import {AlertContext} from './contexts/alertContext';
@@ -58,6 +59,7 @@ const App = () => {
                     <Resource name='roots' {...roots} />
                     <Resource name='modules' {...modules} />
                     <Resource name='clr-object' {...clrObject} />
+                    <Resource name='arrays' {...arraysGrid} />
                     <Resource name='strings' {...stringsGrid} />
                     <Resource name='string-duplicates' {...stringDuplicates} />
                 </Admin>

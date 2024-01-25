@@ -4,15 +4,13 @@ import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import {formatAddress, formatSize} from '../lib/gridFormatter';
-import {renderClrObjectAddress, renderMethodTable} from '../lib/gridRenderCell';
 import {
     ClrRootKind,
     RootInfo,
 } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {RootKindSelect} from "../components/RootKindSelect";
-import {addressColumn, methodTableColumn, objectAddressColumn} from "../lib/gridColumns";
+import {methodTableColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
@@ -25,11 +23,7 @@ const columns: GridColDef[] = [
         headerName: 'Kind',
         width: 150
     },
-    {
-        field: 'size',
-        headerName: 'Size',
-        valueFormatter: formatSize
-    },
+    sizeColumn,
     methodTableColumn,
     {
         field: 'typeName',

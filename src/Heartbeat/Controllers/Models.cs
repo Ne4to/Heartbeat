@@ -58,3 +58,5 @@ public record RootInfo(ulong Address, ClrRootKind Kind, bool IsPinned, ulong Siz
 
 public record ClrObjectRootPath(RootInfo Root, IReadOnlyList<RootPathItem> PathItems);
 public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, ulong Size, Generation Generation);
+
+public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);

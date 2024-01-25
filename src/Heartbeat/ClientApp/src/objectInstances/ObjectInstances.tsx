@@ -3,18 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
     DataGrid,
-    GridColDef,
-    gridPageSizeSelector,
-    GridRenderCellParams,
-    GridValueGetterParams
+    GridColDef
 } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import { TraversingHeapModeSelect } from '../components/TraversingHeapModeSelect'
 
 import getClient from '../lib/getClient'
-import { formatAddress, formatSize } from '../lib/gridFormatter';
-import { renderClrObjectAddress } from '../lib/gridRenderCell';
 import toHexAddress from '../lib/toHexAddress'
 import {
     Generation,
@@ -24,9 +19,9 @@ import {
     TraversingHeapModesObject
 } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import prettyBytes from "pretty-bytes";
 import {GenerationSelect} from "../components/GenerationSelect";
-import {addressColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
+import {objectAddressColumn, sizeColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
@@ -39,13 +34,9 @@ export const ObjectInstances = () => {
     const [generation, setGeneration] = React.useState<Generation>()
     const [objectInstancesResult, setObjectInstancesResult] = React.useState<GetObjectInstancesResult>()
     const [searchParams] = useSearchParams();
-    const [mt, setMt] = React.useState(Number('0x' + searchParams.get('mt')))
+    const [mt] = React.useState(Number('0x' + searchParams.get('mt')))
 
     console.log('MT = ' + mt)
-
-    useEffect(() => {
-        loadData(mode, generation);
-    }, [mode, generation]);
 
     const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
@@ -56,6 +47,10 @@ export const ObjectInstances = () => {
         setObjectInstancesResult(result!)
         setLoading(false)
     }
+
+    useEffect(() => {
+        loadData(mode, generation).catch(console.error);
+    }, [mode, generation]);
 
     const renderTable = (instances: ObjectInstance[]) => {
         return (
@@ -89,7 +84,7 @@ export const ObjectInstances = () => {
 
     const propertyRows: PropertyRow[] = [
         {title: 'Count', value: String(objectInstancesResult?.instances!.length)},
-        {title: 'Total size', value: prettyBytes(totalSize || 0)},
+        {title: 'Total size', value: toSizeString(totalSize || 0)},
     ]
 
     return (

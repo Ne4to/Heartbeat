@@ -4,12 +4,10 @@ import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import {formatAddress, formatSize} from '../lib/gridFormatter';
-import prettyBytes from 'pretty-bytes';
 import {Module} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {renderAddress} from "../lib/gridRenderCell";
 import {addressColumn, sizeColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     addressColumn,
@@ -70,7 +68,7 @@ export const Modules = () => {
 
     const propertyRows: PropertyRow[] = [
         {title: 'Count', value: String(modules.length)},
-        {title: 'Total size', value: prettyBytes(totalSize)},
+        {title: 'Total size', value: toSizeString(totalSize)},
     ]
 
     return (

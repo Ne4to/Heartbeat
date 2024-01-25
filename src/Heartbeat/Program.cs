@@ -35,6 +35,7 @@ rootCommand.SetHandler((WebCommandOptions options) => MainWeb(options, args), bi
 //rootCommand.Add(AnalyzeCommandOptions.Command("analyze"));
 rootCommand.Invoke(args);
 
+// TODO try native AOT - https://learn.microsoft.com/en-us/aspnet/core/fundamentals/native-aot?view=aspnetcore-8.0
 static void MainWeb(WebCommandOptions options, string[] args)
 {
 #if !DEBUG

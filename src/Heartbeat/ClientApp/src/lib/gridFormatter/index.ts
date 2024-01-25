@@ -1,6 +1,6 @@
 import { GridValueFormatterParams } from '@mui/x-data-grid';
 import toHexAddress from '../toHexAddress'
-import prettyBytes from 'pretty-bytes';
+import toSizeString from "../toSizeString";
 
 export function formatAddress(params: GridValueFormatterParams<number>): string {
     if (params.value == null) {
@@ -10,8 +10,12 @@ export function formatAddress(params: GridValueFormatterParams<number>): string 
 }
 
 export function formatSize(params: GridValueFormatterParams<number>): string {
+    return toSizeString(params.value);
+}
+
+export function formatPercent(params: GridValueFormatterParams<number>): string {
     if (params.value == null) {
         return '';
     }
-    return prettyBytes(params.value);
+    return `${(params.value * 100).toFixed(2)}%`
 }
