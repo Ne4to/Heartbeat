@@ -237,6 +237,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetObjectInstancesResult'
+  /api/dump/arrays:
+    get:
+      tags:
+        - Dump
+      summary: Get arrays
+      description: Get arrays
+      operationId: GetArrays
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ArrayInfo'
   '/api/dump/object/{address}':
     get:
       tags:
@@ -321,6 +354,38 @@ components:
         - Armv6
         - Ppc64le
       type: string
+    ArrayInfo:
+      required:
+        - address
+        - length
+        - methodTable
+        - unusedItemsCount
+        - unusedPercent
+        - wasted
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        length:
+          type: integer
+          format: int32
+        unusedItemsCount:
+          type: integer
+          format: int32
+        unusedPercent:
+          type: number
+          format: double
+        wasted:
+          type: integer
+          format: int64
+      additionalProperties: false
     ClrObjectField:
       required:
         - isValueType

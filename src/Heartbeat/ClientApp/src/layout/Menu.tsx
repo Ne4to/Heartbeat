@@ -14,6 +14,7 @@ import heapDump from '../heapDumpStat';
 import segments from '../segments';
 import roots from '../roots';
 import modules from '../modules';
+import arraysGrid from '../arraysGrid';
 import stringsGrid from '../stringsGrid';
 import stringDuplicates from '../stringDuplicates';
 // import SubMenu from './SubMenu';
@@ -162,6 +163,13 @@ const Menu = ({ dense = false }: MenuProps) => {
                 state={{ _scrollToTop: true }}
                 primaryText='Modules'
                 leftIcon={<modules.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/arrays"
+                state={{ _scrollToTop: true }}
+                primaryText='Arrays'
+                leftIcon={<arraysGrid.icon />}
                 dense={dense}
             />
             <MenuItemLink

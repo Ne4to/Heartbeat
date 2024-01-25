@@ -1,15 +1,18 @@
 # Heartbeat
-Diagnostics utility to analyze memory dumps of a .NET application
 [![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
+
+Diagnostics utility with web UI to analyze memory dumps of a .NET application
 
 ## Getting started
 
 ```shell
 dotnet tool install --global Heartbeat
+# optional
+export PATH=$PATH:$HOME/.dotnet/tools
 heartbeat --dump <path-to-dump-file>
 ```
 Open `http://localhost:5000/` in web browser.
-See [UI screen]([https://](https://github.com/Ne4to/Heartbeat/tree/master/assets)) for examples
+See [UI screen](https://github.com/Ne4to/Heartbeat/tree/master/assets) for examples
 
 <!---
 TODO: update description

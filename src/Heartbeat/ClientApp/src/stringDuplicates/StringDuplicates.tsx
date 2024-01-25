@@ -4,13 +4,9 @@ import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import {formatAddress, formatSize} from '../lib/gridFormatter';
-import {renderClrObjectAddress} from '../lib/gridRenderCell';
-import prettyBytes from 'pretty-bytes';
 import {
     Generation,
     StringDuplicate,
-    StringInfo,
     TraversingHeapModes,
     TraversingHeapModesObject
 } from '../client/models';
@@ -18,16 +14,19 @@ import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
 import {sizeColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     {
         field: 'count',
         headerName: 'Count',
+        type: 'number',
         align: 'right',
     },
     {
         field: 'fullLength',
         headerName: 'Length',
+        type: 'number',
         align: 'right',
     },
     {
@@ -101,7 +100,7 @@ export const StringDuplicates = () => {
 
     const propertyRows: PropertyRow[] = [
         {title: 'Count', value: String(duplicates.length)},
-        {title: 'Total wasted', value: prettyBytes(totalWasted)},
+        {title: 'Total wasted', value: toSizeString(totalWasted)},
     ]
 
     return (

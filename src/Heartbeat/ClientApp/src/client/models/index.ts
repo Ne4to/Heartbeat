@@ -4,6 +4,36 @@
 import { type AdditionalDataHolder, type ApiError, type Parsable, type ParseNode, type SerializationWriter } from '@microsoft/kiota-abstractions';
 
 export type Architecture = (typeof ArchitectureObject)[keyof typeof ArchitectureObject];
+export interface ArrayInfo extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The length property
+     */
+    length?: number;
+    /**
+     * The methodTable property
+     */
+    methodTable?: number;
+    /**
+     * The typeName property
+     */
+    typeName?: string;
+    /**
+     * The unusedItemsCount property
+     */
+    unusedItemsCount?: number;
+    /**
+     * The unusedPercent property
+     */
+    unusedPercent?: number;
+    /**
+     * The wasted property
+     */
+    wasted?: number;
+}
 export interface ClrObjectField extends Parsable {
     /**
      * The isValueType property
@@ -45,6 +75,9 @@ export interface ClrObjectRootPath extends Parsable {
     root?: RootInfo;
 }
 export type ClrRootKind = (typeof ClrRootKindObject)[keyof typeof ClrRootKindObject];
+export function createArrayInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoArrayInfo;
+}
 export function createClrObjectFieldFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoClrObjectField;
 }
@@ -86,6 +119,17 @@ export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode
 }
 export function createStringInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoStringInfo;
+}
+export function deserializeIntoArrayInfo(arrayInfo: ArrayInfo | undefined = {} as ArrayInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { arrayInfo.address = n.getNumberValue(); },
+        "length": n => { arrayInfo.length = n.getNumberValue(); },
+        "methodTable": n => { arrayInfo.methodTable = n.getNumberValue(); },
+        "typeName": n => { arrayInfo.typeName = n.getStringValue(); },
+        "unusedItemsCount": n => { arrayInfo.unusedItemsCount = n.getNumberValue(); },
+        "unusedPercent": n => { arrayInfo.unusedPercent = n.getNumberValue(); },
+        "wasted": n => { arrayInfo.wasted = n.getNumberValue(); },
+    }
 }
 export function deserializeIntoClrObjectField(clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : Record<string, (node: ParseNode) => void> {
     return {
@@ -425,6 +469,15 @@ export interface RootPathItem extends Parsable {
      * The typeName property
      */
     typeName?: string;
+}
+export function serializeArrayInfo(writer: SerializationWriter, arrayInfo: ArrayInfo | undefined = {} as ArrayInfo) : void {
+    writer.writeNumberValue("address", arrayInfo.address);
+    writer.writeNumberValue("length", arrayInfo.length);
+    writer.writeNumberValue("methodTable", arrayInfo.methodTable);
+    writer.writeStringValue("typeName", arrayInfo.typeName);
+    writer.writeNumberValue("unusedItemsCount", arrayInfo.unusedItemsCount);
+    writer.writeNumberValue("unusedPercent", arrayInfo.unusedPercent);
+    writer.writeNumberValue("wasted", arrayInfo.wasted);
 }
 export function serializeClrObjectField(writer: SerializationWriter, clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : void {
     writer.writeBooleanValue("isValueType", clrObjectField.isValueType);

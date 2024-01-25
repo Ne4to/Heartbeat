@@ -1,3 +1,5 @@
+using Heartbeat.Runtime.Extensions;
+
 using Microsoft.Diagnostics.Runtime;
 
 namespace Heartbeat.Runtime.Proxies;
@@ -5,18 +7,26 @@ namespace Heartbeat.Runtime.Proxies;
 public sealed class ArrayProxy : ProxyBase
 {
     private ClrArray _clrArray;
+    private readonly Lazy<int> _unusedItemsCount;
+
     public int Length => _clrArray.Length;
+
+    public int UnusedItemsCount => _unusedItemsCount.Value;
+    public double UnusedItemsPercent => (double)UnusedItemsCount / Length;
+    public Size Wasted => new Size((ulong)(_clrArray.Type.ComponentSize *  UnusedItemsCount));
 
     public ArrayProxy(RuntimeContext context, ClrObject targetObject)
         : base(context, targetObject)
     {
         _clrArray = TargetObject.AsArray();
+        _unusedItemsCount = new Lazy<int>(GetUnusedItemsCount);
     }
 
     public ArrayProxy(RuntimeContext context, ulong address)
         : base(context, address)
     {
         _clrArray = TargetObject.AsArray();
+        _unusedItemsCount = new Lazy<int>(GetUnusedItemsCount);
     }
 
     public string?[] GetStringArray()
@@ -105,7 +115,7 @@ public sealed class ArrayProxy : ProxyBase
             }
         }
     }
-    
+
     public static IEnumerable<ClrValueType> EnumerateValueTypes(ClrArray array)
     {
         var length = array.Length;
@@ -142,5 +152,17 @@ public sealed class ArrayProxy : ProxyBase
                 }
             }
         }
+    }
+
+    private int GetUnusedItemsCount()
+    {
+        if (_clrArray.Type.ComponentType?.IsValueType ?? false)
+        {
+            return EnumerateValueTypes(_clrArray)
+                .Count(t => t.IsDefaultValue());
+        }
+
+        return EnumerateObjectItems(_clrArray)
+            .Count(t => t.IsNull);
     }
 }

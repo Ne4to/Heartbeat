@@ -4,35 +4,46 @@ import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import {Generation, StringInfo, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
+import {formatPercent} from '../lib/gridFormatter';
+import {ArrayInfo, Generation, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
-import {objectAddressColumn, sizeColumn} from "../lib/gridColumns";
+import {methodTableColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
 import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
+    methodTableColumn,
     {
         field: 'length',
         headerName: 'Length',
         type: 'number',
         align: 'right'
     },
-    sizeColumn,
     {
-        field: 'value',
-        headerName: 'Value',
-        minWidth: 200,
-        flex: 1,
-    }
+        field: 'unusedPercent',
+        headerName: 'Unused %',
+        align: 'right',
+        valueFormatter: formatPercent
+    },
+    {
+        ...sizeColumn,
+        field: 'wasted',
+        headerName: 'Wasted'
+    },
+    {
+        field: "typeName",
+        headerName: 'Type',
+        flex: 1
+    },
 ];
 
-export const StringsGrid = () => {
+export const ArraysGrid = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
     const [generation, setGeneration] = React.useState<Generation>()
-    const [strings, setStrings] = React.useState<StringInfo[]>([])
+    const [arrays, setArrays] = React.useState<ArrayInfo[]>([])
 
     useEffect(() => {
         loadData(mode, generation).catch(console.error);
@@ -40,19 +51,19 @@ export const StringsGrid = () => {
 
     const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
-        const result = await client.api.dump.strings.get(
+        const result = await client.api.dump.arrays.get(
             {queryParameters: {traversingMode: mode, generation: generation}}
         )
-        setStrings(result!)
+        setArrays(result!)
         setLoading(false)
     }
 
-    const renderTable = (strings: StringInfo[]) => {
+    const renderTable = (arrays: ArrayInfo[]) => {
         return (
             <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
-                    rows={strings}
+                    rows={arrays}
                     getRowId={(row) => row.address}
                     columns={columns}
                     rowHeight={25}
@@ -80,13 +91,13 @@ export const StringsGrid = () => {
         ? <Box sx={{width: '100%'}}>
             <LinearProgress/>
         </Box>
-        : renderTable(strings);
+        : renderTable(arrays);
 
-    const totalSize = strings.map(m => m.size!).reduce((sum, current) => sum + current, 0)
+    const totalWasted = arrays.map(m => m.wasted!).reduce((sum, current) => sum + current, 0)
 
     const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(strings.length)},
-        {title: 'Total size', value: toSizeString(totalSize)},
+        {title: 'Count', value: String(arrays.length)},
+        {title: 'Total wasted', value: toSizeString(totalWasted)},
     ]
 
     return (

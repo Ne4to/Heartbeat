@@ -5,8 +5,6 @@ import getClient from '../lib/getClient'
 import Box from "@mui/material/Box";
 import {DumpInfo} from "../client/models";
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import toHexAddress from "../lib/toHexAddress";
-import prettyBytes from "pretty-bytes";
 
 const Home = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
@@ -24,7 +22,7 @@ const Home = () => {
     }
 
     const propertyRows: PropertyRow[] = [
-        {title: 'Runtime', value: `${dumpInfo?.platform} ${dumpInfo?.architecture} ${dumpInfo?.runtimeVersion}`},
+        {title: 'Runtime', value: `${dumpInfo?.platform} ${dumpInfo?.architecture} .NET ${dumpInfo?.runtimeVersion}`},
         {title: 'Dump', value: dumpInfo?.dumpPath},
         {title: 'Server heap', value: String(dumpInfo?.isServerHeap)},
         {title: 'Can walk heap', value: String(dumpInfo?.canWalkHeap)},

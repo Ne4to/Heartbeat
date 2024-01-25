@@ -2,6 +2,7 @@
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Extensions;
+using Heartbeat.Runtime.Proxies;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Diagnostics.Runtime;
@@ -138,6 +139,7 @@ public class DumpController : ControllerBase
             let length = obj.ReadField<int>("_stringLength")
             select new StringInfo(obj.Address, length, obj.Size, str);
 
+        // TODO limit output qty
         return query;
     }
 
@@ -189,6 +191,27 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
+    [Route("arrays")]
+    [ProducesResponseType(typeof(ArrayInfo[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get arrays", description: "Get arrays")]
+    // TODO add arrays/sparse
+    // TODO add arrays/sparse/stat
+    public IEnumerable<ArrayInfo> GetArrays(        
+        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+        [FromQuery] Generation? generation = null)
+    {
+        var query = from obj in _context.EnumerateObjects(traversingMode, generation)
+            // where obj.Address == 0x1b501c921d8
+            where obj.IsArray
+            let proxy = new ArrayProxy(_context, obj)
+            where proxy.UnusedItemsPercent >= 0.2
+            orderby proxy.Wasted descending 
+            select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount, proxy.UnusedItemsPercent, proxy.Wasted);
+        
+        return query.Take(100);
+    }
+
+    [HttpGet]
     [Route("object/{address}")]
     [ProducesResponseType(typeof(GetClrObjectResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -230,7 +253,7 @@ public class DumpController : ControllerBase
 
         return Ok(result);
     }
-    
+
     [HttpGet]
     [Route("object/{address}/roots")]
     [ProducesResponseType(typeof(ClrObjectRootPath[]), StatusCodes.Status200OK)]

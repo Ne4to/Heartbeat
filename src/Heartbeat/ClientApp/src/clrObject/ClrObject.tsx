@@ -6,12 +6,12 @@ import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
 import toHexAddress from '../lib/toHexAddress'
-import prettyBytes from 'pretty-bytes';
 import {GetClrObjectResult, ClrObjectField, ClrObjectRootPath} from '../client/models';
 import {PropertiesTable, PropertyRow} from '../components/PropertiesTable'
 import {renderMethodTableLink} from "../lib/gridRenderCell";
 import {ClrObjectRoot} from "../components/ClrObjectRoot";
 import {methodTableColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     methodTableColumn,
@@ -70,7 +70,7 @@ export const ClrObject = () => {
     useEffect(() => {
         loadData().catch(console.error)
         loadRoots().catch(console.error)
-    }, []);
+    });
 
     const loadData = async () => {
         const client = getClient();
@@ -115,7 +115,7 @@ export const ClrObject = () => {
 
     const propertyRows: PropertyRow[] = [
         {title: 'Address', value: toHexAddress(objectResult?.address)},
-        {title: 'Size', value: prettyBytes(objectResult?.size || 0)},
+        {title: 'Size', value: toSizeString(objectResult?.size || 0)},
         {title: 'Generation', value: objectResult?.generation},
         {title: 'MethodTable', value: renderMethodTableLink(objectResult?.methodTable)},
         {title: 'Type', value: objectResult?.typeName},
@@ -128,7 +128,7 @@ export const ClrObject = () => {
         )
     }
 
-    const rootGrid = roots && roots.length != 0
+    const rootGrid = roots && roots.length !== 0
         ? <ClrObjectRoot rootPath={roots[0]} />
         : <div>root path not found</div>;
 

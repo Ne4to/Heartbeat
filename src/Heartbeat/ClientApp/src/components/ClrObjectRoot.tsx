@@ -53,7 +53,7 @@ export const ClrObjectRoot = (props: ClrObjectRootProps) => {
     const root = rootPath.root;
     const propertyRows: PropertyRow[] = [
         // {title: 'Address', value: toHexAddress(root?.address)},
-        // {title: 'Size', value: prettyBytes(root?.size || 0)},
+        // {title: 'Size', value: toSizeString(root?.size || 0)},
         {title: 'Kind', value: root?.kind},
         {title: 'Pinned', value: String(root?.isPinned)},
         // {title: 'MethodTable', value: renderMethodTableLink(root?.methodTable)},

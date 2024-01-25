@@ -4,12 +4,10 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import { formatAddress, formatSize } from '../lib/gridFormatter';
-import prettyBytes from 'pretty-bytes';
 import { HeapSegment } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {renderAddress} from "../lib/gridRenderCell";
 import {addressColumn, sizeColumn} from "../lib/gridColumns";
+import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
     {
@@ -80,7 +78,7 @@ export const SegmentsGrid = () => {
     const totalSize = segments.map(m => m.size!).reduce((sum, current) => sum + current, 0)
 
     const propertyRows: PropertyRow[] = [
-        {title: 'Total size', value: prettyBytes(totalSize)},
+        {title: 'Total size', value: toSizeString(totalSize)},
     ]
 
     return (
