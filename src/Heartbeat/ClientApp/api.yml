@@ -13,7 +13,6 @@ paths:
       tags:
         - Dump
       summary: Get dump info
-      description: Get dump info
       operationId: GetInfo
       responses:
         '500':
@@ -33,7 +32,6 @@ paths:
       tags:
         - Dump
       summary: Get modules
-      description: Get modules
       operationId: GetModules
       responses:
         '500':
@@ -55,7 +53,6 @@ paths:
       tags:
         - Dump
       summary: Get segments
-      description: Get heap segments
       operationId: GetSegments
       responses:
         '500':
@@ -77,7 +74,6 @@ paths:
       tags:
         - Dump
       summary: Get heap roots
-      description: Get heap roots
       operationId: GetRoots
       parameters:
         - name: kind
@@ -105,7 +101,6 @@ paths:
       tags:
         - Dump
       summary: Get heap dump statistics
-      description: Get heap dump statistics
       operationId: GetHeapDumpStat
       parameters:
         - name: traversingMode
@@ -138,7 +133,6 @@ paths:
       tags:
         - Dump
       summary: Get heap dump statistics
-      description: Get heap dump statistics
       operationId: GetStrings
       parameters:
         - name: traversingMode
@@ -171,7 +165,6 @@ paths:
       tags:
         - Dump
       summary: Get string duplicates
-      description: Get string duplicates
       operationId: GetStringDuplicates
       parameters:
         - name: traversingMode
@@ -204,7 +197,6 @@ paths:
       tags:
         - Dump
       summary: Get object instances
-      description: Get object instances
       operationId: GetObjectInstances
       parameters:
         - name: mt
@@ -237,13 +229,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetObjectInstancesResult'
-  /api/dump/arrays:
+  /api/dump/arrays/sparse:
     get:
       tags:
         - Dump
-      summary: Get arrays
-      description: Get arrays
-      operationId: GetArrays
+      summary: Get sparse arrays
+      operationId: GetSparseArrays
       parameters:
         - name: traversingMode
           in: query
@@ -270,12 +261,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ArrayInfo'
+  /api/dump/arrays/sparse/stat:
+    get:
+      tags:
+        - Dump
+      summary: Get arrays
+      operationId: GetSparseArraysStat
+      parameters:
+        - name: traversingMode
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/TraversingHeapModes'
+        - name: generation
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/Generation'
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SparseArrayStatistics'
   '/api/dump/object/{address}':
     get:
       tags:
         - Dump
       summary: Get object
-      description: Get object
       operationId: GetClrObject
       parameters:
         - name: address
@@ -309,7 +331,6 @@ paths:
       tags:
         - Dump
       summary: Get object roots
-      description: Get object roots
       operationId: GetClrObjectRoots
       parameters:
         - name: address
@@ -678,6 +699,26 @@ components:
           format: int64
         generation:
           $ref: '#/components/schemas/Generation'
+      additionalProperties: false
+    SparseArrayStatistics:
+      required:
+        - count
+        - methodTable
+        - totalWasted
+      type: object
+      properties:
+        methodTable:
+          type: integer
+          format: int64
+        typeName:
+          type: string
+          nullable: true
+        count:
+          type: integer
+          format: int32
+        totalWasted:
+          type: integer
+          format: int64
       additionalProperties: false
     StringDuplicate:
       required:

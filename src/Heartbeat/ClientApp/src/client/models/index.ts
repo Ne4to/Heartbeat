@@ -114,6 +114,9 @@ export function createRootInfoFromDiscriminatorValue(parseNode: ParseNode | unde
 export function createRootPathItemFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoRootPathItem;
 }
+export function createSparseArrayStatisticsFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoSparseArrayStatistics;
+}
 export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoStringDuplicate;
 }
@@ -234,6 +237,14 @@ export function deserializeIntoRootPathItem(rootPathItem: RootPathItem | undefin
         "methodTable": n => { rootPathItem.methodTable = n.getNumberValue(); },
         "size": n => { rootPathItem.size = n.getNumberValue(); },
         "typeName": n => { rootPathItem.typeName = n.getStringValue(); },
+    }
+}
+export function deserializeIntoSparseArrayStatistics(sparseArrayStatistics: SparseArrayStatistics | undefined = {} as SparseArrayStatistics) : Record<string, (node: ParseNode) => void> {
+    return {
+        "count": n => { sparseArrayStatistics.count = n.getNumberValue(); },
+        "methodTable": n => { sparseArrayStatistics.methodTable = n.getNumberValue(); },
+        "totalWasted": n => { sparseArrayStatistics.totalWasted = n.getNumberValue(); },
+        "typeName": n => { sparseArrayStatistics.typeName = n.getStringValue(); },
     }
 }
 export function deserializeIntoStringDuplicate(stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : Record<string, (node: ParseNode) => void> {
@@ -560,6 +571,12 @@ export function serializeRootPathItem(writer: SerializationWriter, rootPathItem:
     writer.writeNumberValue("size", rootPathItem.size);
     writer.writeStringValue("typeName", rootPathItem.typeName);
 }
+export function serializeSparseArrayStatistics(writer: SerializationWriter, sparseArrayStatistics: SparseArrayStatistics | undefined = {} as SparseArrayStatistics) : void {
+    writer.writeNumberValue("count", sparseArrayStatistics.count);
+    writer.writeNumberValue("methodTable", sparseArrayStatistics.methodTable);
+    writer.writeNumberValue("totalWasted", sparseArrayStatistics.totalWasted);
+    writer.writeStringValue("typeName", sparseArrayStatistics.typeName);
+}
 export function serializeStringDuplicate(writer: SerializationWriter, stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : void {
     writer.writeNumberValue("count", stringDuplicate.count);
     writer.writeNumberValue("fullLength", stringDuplicate.fullLength);
@@ -571,6 +588,24 @@ export function serializeStringInfo(writer: SerializationWriter, stringInfo: Str
     writer.writeNumberValue("length", stringInfo.length);
     writer.writeNumberValue("size", stringInfo.size);
     writer.writeStringValue("value", stringInfo.value);
+}
+export interface SparseArrayStatistics extends Parsable {
+    /**
+     * The count property
+     */
+    count?: number;
+    /**
+     * The methodTable property
+     */
+    methodTable?: number;
+    /**
+     * The totalWasted property
+     */
+    totalWasted?: number;
+    /**
+     * The typeName property
+     */
+    typeName?: string;
 }
 export interface StringDuplicate extends Parsable {
     /**

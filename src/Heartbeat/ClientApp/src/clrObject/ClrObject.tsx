@@ -70,7 +70,7 @@ export const ClrObject = () => {
     useEffect(() => {
         loadData().catch(console.error)
         loadRoots().catch(console.error)
-    });
+    }, [address]);
 
     const loadData = async () => {
         const client = getClient();
@@ -117,6 +117,7 @@ export const ClrObject = () => {
         {title: 'Address', value: toHexAddress(objectResult?.address)},
         {title: 'Size', value: toSizeString(objectResult?.size || 0)},
         {title: 'Generation', value: objectResult?.generation},
+        // TODO add Live / Dead
         {title: 'MethodTable', value: renderMethodTableLink(objectResult?.methodTable)},
         {title: 'Type', value: objectResult?.typeName},
         {title: 'Module', value: objectResult?.moduleName},

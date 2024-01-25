@@ -31,7 +31,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("info")]
     [ProducesResponseType(typeof(DumpInfo), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get dump info", description: "Get dump info")]
+    [SwaggerOperation(summary: "Get dump info")]
     public DumpInfo GetInfo()
     {
         var clrHeap = _context.Heap;
@@ -53,7 +53,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("modules")]
     [ProducesResponseType(typeof(Module[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get modules", description: "Get modules")]
+    [SwaggerOperation(summary: "Get modules")]
     public IEnumerable<Module> GetModules()
     {
         var modules = _context.Runtime
@@ -67,7 +67,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("segments")]
     [ProducesResponseType(typeof(HeapSegment[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get segments", description: "Get heap segments")]
+    [SwaggerOperation(summary: "Get segments")]
     public IEnumerable<HeapSegment> GetSegments()
     {
         var segments =
@@ -83,7 +83,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("roots")]
     [ProducesResponseType(typeof(RootInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap roots", description: "Get heap roots")]
+    [SwaggerOperation(summary: "Get heap roots")]
     public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
     {
         return
@@ -103,7 +103,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("heap-dump-statistics")]
     [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
             [FromQuery] Generation? generation = null)
@@ -127,7 +127,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("strings")]
     [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<StringInfo> GetStrings(
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
             [FromQuery] Generation? generation = null)
@@ -146,7 +146,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("string-duplicates")]
     [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get string duplicates", description: "Get string duplicates")]
+    [SwaggerOperation(summary: "Get string duplicates")]
     public IEnumerable<StringDuplicate> GetStringDuplicates(
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
             [FromQuery] Generation? generation = null)
@@ -154,7 +154,8 @@ public class DumpController : ControllerBase
     {
         var analyzer = new StringDuplicateAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, Generation = generation
+            TraversingHeapMode = traversingMode, 
+            Generation = generation
         };
 
         return analyzer.GetStringDuplicates()
@@ -164,7 +165,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("object-instances/{mt}")]
     [ProducesResponseType(typeof(GetObjectInstancesResult), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get object instances", description: "Get object instances")]
+    [SwaggerOperation(summary: "Get object instances")]
     public GetObjectInstancesResult GetObjectInstances(
             ulong mt,
             [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
@@ -191,12 +192,13 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
-    [Route("arrays")]
+    [Route("arrays/sparse")]
     [ProducesResponseType(typeof(ArrayInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get arrays", description: "Get arrays")]
+    [SwaggerOperation(summary: "Get sparse arrays")]
+    // TODO add arrays
     // TODO add arrays/sparse
     // TODO add arrays/sparse/stat
-    public IEnumerable<ArrayInfo> GetArrays(        
+    public IEnumerable<ArrayInfo> GetSparseArrays(        
         [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
         [FromQuery] Generation? generation = null)
     {
@@ -210,12 +212,37 @@ public class DumpController : ControllerBase
         
         return query.Take(100);
     }
+    
+    [HttpGet]
+    [Route("arrays/sparse/stat")]
+    [ProducesResponseType(typeof(SparseArrayStatistics[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get arrays")]
+    public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(        
+        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+        [FromQuery] Generation? generation = null)
+    {
+        var query = from obj in _context.EnumerateObjects(traversingMode, generation)
+            where obj.IsArray
+            let proxy = new ArrayProxy(_context, obj)
+            where proxy.UnusedItemsCount != 0
+            group proxy by obj.Type.MethodTable
+            into grp
+            select new SparseArrayStatistics
+            (
+                grp.Key,
+                grp.First().TargetObject.Type.Name,
+                grp.Count(),
+                Size.Sum(grp.Select(t => t.Wasted))
+            );
+        
+        return query;
+    }
 
     [HttpGet]
     [Route("object/{address}")]
     [ProducesResponseType(typeof(GetClrObjectResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object", description: "Get object")]
+    [SwaggerOperation(summary: "Get object")]
     public IActionResult GetClrObject(ulong address)
     {
         var clrObject = _context.Heap.GetObject(address);
@@ -258,7 +285,7 @@ public class DumpController : ControllerBase
     [Route("object/{address}/roots")]
     [ProducesResponseType(typeof(ClrObjectRootPath[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object roots", description: "Get object roots")]
+    [SwaggerOperation(summary: "Get object roots")]
     public IActionResult GetClrObjectRoots(ulong address, CancellationToken ct)
     {
         var clrObject = _context.Heap.GetObject(address);

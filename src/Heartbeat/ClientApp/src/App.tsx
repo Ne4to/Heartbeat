@@ -8,6 +8,7 @@ import clrObject from './clrObject'
 import roots from './roots'
 import modules from './modules'
 import arraysGrid from './arraysGrid'
+import sparseArraysStat from './sparseArraysStat'
 import stringsGrid from './stringsGrid'
 import stringDuplicates from './stringDuplicates'
 import {AlertContext} from './contexts/alertContext';
@@ -59,6 +60,7 @@ const App = () => {
                     <Resource name='roots' {...roots} />
                     <Resource name='modules' {...modules} />
                     <Resource name='clr-object' {...clrObject} />
+                    <Resource name='sparse-arrays-stat' {...sparseArraysStat} />
                     <Resource name='arrays' {...arraysGrid} />
                     <Resource name='strings' {...stringsGrid} />
                     <Resource name='string-duplicates' {...stringDuplicates} />

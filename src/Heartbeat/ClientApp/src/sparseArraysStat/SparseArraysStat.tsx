@@ -5,7 +5,13 @@ import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
 import {formatPercent} from '../lib/gridFormatter';
-import {ArrayInfo, Generation, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
+import {
+    ArrayInfo,
+    Generation,
+    SparseArrayStatistics,
+    TraversingHeapModes,
+    TraversingHeapModesObject
+} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
 import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
@@ -13,24 +19,17 @@ import {methodTableColumn, objectAddressColumn, sizeColumn} from "../lib/gridCol
 import toSizeString from "../lib/toSizeString";
 
 const columns: GridColDef[] = [
-    objectAddressColumn,
     methodTableColumn,
     {
-        field: 'length',
-        headerName: 'Length',
+        field: 'count',
+        headerName: 'Count',
         type: 'number',
         align: 'right'
     },
     {
-        field: 'unusedPercent',
-        headerName: 'Unused %',
-        align: 'right',
-        valueFormatter: formatPercent
-    },
-    {
         ...sizeColumn,
-        field: 'wasted',
-        headerName: 'Wasted'
+        field: 'totalWasted',
+        headerName: 'Total wasted'
     },
     {
         field: "typeName",
@@ -39,11 +38,11 @@ const columns: GridColDef[] = [
     },
 ];
 
-export const ArraysGrid = () => {
+export const SparseArraysStat = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
     const [generation, setGeneration] = React.useState<Generation>()
-    const [arrays, setArrays] = React.useState<ArrayInfo[]>([])
+    const [arrays, setArrays] = React.useState<SparseArrayStatistics[]>([])
 
     useEffect(() => {
         loadData(mode, generation).catch(console.error);
@@ -51,27 +50,27 @@ export const ArraysGrid = () => {
 
     const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
-        const result = await client.api.dump.arrays.sparse.get(
+        const result = await client.api.dump.arrays.sparse.stat.get(
             {queryParameters: {traversingMode: mode, generation: generation}}
         )
         setArrays(result!)
         setLoading(false)
     }
 
-    const renderTable = (arrays: ArrayInfo[]) => {
+    const renderTable = (arrays: SparseArrayStatistics[]) => {
         return (
             <div style={{flexGrow: 1, width: '100%'}}>
 
                 <DataGrid
                     rows={arrays}
-                    getRowId={(row) => row.address}
+                    getRowId={(row) => row.methodTable}
                     columns={columns}
                     rowHeight={25}
                     pageSizeOptions={[20, 50, 100]}
                     density='compact'
                     initialState={{
                         sorting: {
-                            sortModel: [{field: 'length', sort: 'desc'}],
+                            sortModel: [{field: 'totalWasted', sort: 'desc'}],
                         },
                         pagination: {paginationModel: {pageSize: 20}},
                     }}
@@ -93,7 +92,7 @@ export const ArraysGrid = () => {
         </Box>
         : renderTable(arrays);
 
-    const totalWasted = arrays.map(m => m.wasted!).reduce((sum, current) => sum + current, 0)
+    const totalWasted = arrays.map(m => m.totalWasted!).reduce((sum, current) => sum + current, 0)
 
     const propertyRows: PropertyRow[] = [
         {title: 'Count', value: String(arrays.length)},

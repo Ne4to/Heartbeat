@@ -15,6 +15,7 @@ import segments from '../segments';
 import roots from '../roots';
 import modules from '../modules';
 import arraysGrid from '../arraysGrid';
+import sparseArraysStat from '../sparseArraysStat';
 import stringsGrid from '../stringsGrid';
 import stringDuplicates from '../stringDuplicates';
 // import SubMenu from './SubMenu';
@@ -163,6 +164,13 @@ const Menu = ({ dense = false }: MenuProps) => {
                 state={{ _scrollToTop: true }}
                 primaryText='Modules'
                 leftIcon={<modules.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/sparse-arrays-stat"
+                state={{ _scrollToTop: true }}
+                primaryText='Sparse arrays'
+                leftIcon={<sparseArraysStat.icon />}
                 dense={dense}
             />
             <MenuItemLink
