@@ -43,6 +43,7 @@ export const HeapDumpStat = () => {
         return (
             <div style={{flexGrow: 1, width: '100%'}}>
 
+                {/* TODO unify grid settings */}
                 <DataGrid
                     rows={statistics}
                     getRowId={(row) => row.typeName}
@@ -52,16 +53,10 @@ export const HeapDumpStat = () => {
                     pageSizeOptions={[20, 50, 100]}
                     pagination
                     initialState={{
-                        filter: {
-                            filterModel: {
-                                items: [],
-                                quickFilterValues: [],
-                            },
-                        },
                         sorting: {
                             sortModel: [{field: 'totalSize', sort: 'desc'}],
                         },
-                        pagination: {paginationModel: {pageSize: 20}},
+                        pagination: {paginationModel: {pageSize: 50}},
                     }}
                     slots={{toolbar: GridToolbar}}
                     slotProps={{
@@ -101,6 +96,7 @@ export const HeapDumpStat = () => {
     return (
         <Stack>
             <Stack direction="row">
+                {/* TODO make disabled while ProgressContainer isLoading. Add onLoading(loading: bool) to ProgressContainer */}
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>

@@ -11,7 +11,7 @@ import {
 } from 'react-admin';
 
 import heapDump from '../pages/heapDumpStat';
-import segments from '../segments';
+import segments from '../pages/segments';
 import roots from '../roots';
 import modules from '../modules';
 import arraysGrid from '../arraysGrid';

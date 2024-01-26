@@ -14,12 +14,12 @@ const Home = () => {
 
     const getChildrenContent = (data: DumpInfo) => {
         const propertyRows: PropertyRow[] = [
-            {title: 'Runtime', value: `${data?.platform} ${data?.architecture} .NET ${data?.runtimeVersion}`},
-            {title: 'Dump', value: data?.dumpPath},
-            {title: 'Server heap', value: String(data?.isServerHeap)},
-            {title: 'Can walk heap', value: String(data?.canWalkHeap)},
-            {title: 'Process id', value: String(data?.processId)},
-            {title: 'Clr module', value: data?.clrModulePath},
+            {title: 'Runtime', value: `${data.platform} ${data.architecture} .NET ${data.runtimeVersion}`},
+            {title: 'Dump', value: data.dumpPath},
+            {title: 'Server heap', value: String(data.isServerHeap)},
+            {title: 'Can walk heap', value: String(data.canWalkHeap)},
+            {title: 'Process id', value: String(data.processId)},
+            {title: 'Clr module', value: data.clrModulePath},
         ]
 
         return (<PropertiesTable rows={propertyRows}/>)

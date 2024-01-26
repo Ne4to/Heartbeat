@@ -5,7 +5,7 @@ import React from "react";
 import {Layout} from './layout';
 import {Home} from './pages/home'
 import headDump from './pages/heapDumpStat'
-import segments from './segments'
+import segments from './pages/segments'
 import objectInstances from './objectInstances'
 import clrObject from './clrObject'
 import roots from './roots'
