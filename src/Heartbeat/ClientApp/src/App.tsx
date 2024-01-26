@@ -6,7 +6,7 @@ import {Layout} from './layout';
 import {Home} from './pages/home'
 import headDump from './pages/heapDumpStat'
 import segments from './pages/segments'
-import objectInstances from './objectInstances'
+import objectInstances from './pages/objectInstances'
 import clrObject from './clrObject'
 import roots from './pages/roots'
 import modules from './pages/modules'

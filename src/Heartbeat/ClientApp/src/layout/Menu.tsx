@@ -1,9 +1,7 @@
 import * as React from 'react';
-import { useState } from 'react';
 import Box from '@mui/material/Box';
 
 import {
-    useTranslate,
     DashboardMenuItem,
     MenuItemLink,
     MenuProps,
@@ -18,22 +16,9 @@ import arraysGrid from '../pages/arraysGrid';
 import sparseArraysStat from '../sparseArraysStat';
 import stringsGrid from '../pages/stringsGrid';
 import stringDuplicates from '../stringDuplicates';
-// import SubMenu from './SubMenu';
-
-type MenuName = 'menuCatalog' | 'menuSales' | 'menuCustomers';
 
 const Menu = ({ dense = false }: MenuProps) => {
-    const [state, setState] = useState({
-        menuCatalog: true,
-        menuSales: true,
-        menuCustomers: true,
-    });
-    const translate = useTranslate();
     const [open] = useSidebarState();
-
-    const handleToggle = (menu: MenuName) => {
-        setState(state => ({ ...state, [menu]: !state[menu] }));
-    };
 
     return (
         <Box

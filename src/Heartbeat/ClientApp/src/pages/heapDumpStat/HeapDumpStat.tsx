@@ -99,6 +99,7 @@ export const HeapDumpStat = () => {
         <Stack>
             <Stack direction="row">
                 {/* TODO make disabled while ProgressContainer isLoading. Add onLoading(loading: bool) to ProgressContainer */}
+                {/* TODO add spacing between controls */}
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
