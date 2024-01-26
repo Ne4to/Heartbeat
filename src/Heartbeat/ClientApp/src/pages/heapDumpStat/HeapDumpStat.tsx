@@ -1,16 +1,16 @@
 import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 
-import {TraversingHeapModeSelect} from '../components/TraversingHeapModeSelect'
-import {GenerationSelect} from '../components/GenerationSelect'
+import {TraversingHeapModeSelect} from '../../components/TraversingHeapModeSelect'
+import {GenerationSelect} from '../../components/GenerationSelect'
 
-import getClient from '../lib/getClient'
-import {Generation, ObjectTypeStatistics, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
-import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {methodTableColumn, sizeColumn} from "../lib/gridColumns";
-import toSizeString from "../lib/toSizeString";
+import getClient from '../../lib/getClient'
+import {Generation, ObjectTypeStatistics, TraversingHeapModes, TraversingHeapModesObject} from '../../client/models';
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {methodTableColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
 import {Stack} from "@mui/material";
-import {ProgressContainer} from "../components/ProgressContainer";
+import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
     methodTableColumn,
