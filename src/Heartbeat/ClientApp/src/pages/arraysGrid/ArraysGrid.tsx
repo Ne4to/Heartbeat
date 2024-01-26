@@ -1,16 +1,21 @@
-import React, {useEffect} from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
+import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
 
-import getClient from '../lib/getClient'
-import {formatPercent} from '../lib/gridFormatter';
-import {ArrayInfo, Generation, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
-import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
-import {GenerationSelect} from "../components/GenerationSelect";
-import {methodTableColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
-import toSizeString from "../lib/toSizeString";
+import getClient from '../../lib/getClient'
+import {formatPercent} from '../../lib/gridFormatter';
+import {
+    ArrayInfo,
+    Generation,
+    TraversingHeapModes,
+    TraversingHeapModesObject
+} from '../../client/models';
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {TraversingHeapModeSelect} from "../../components/TraversingHeapModeSelect";
+import {GenerationSelect} from "../../components/GenerationSelect";
+import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
+import {Stack} from "@mui/material";
+import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
@@ -40,22 +45,15 @@ const columns: GridColDef[] = [
 ];
 
 export const ArraysGrid = () => {
-    const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
     const [generation, setGeneration] = React.useState<Generation>()
-    const [arrays, setArrays] = React.useState<ArrayInfo[]>([])
 
-    useEffect(() => {
-        loadData(mode, generation).catch(console.error);
-    }, [mode, generation]);
-
-    const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
+    const getData = async() => {
         const client = getClient();
         const result = await client.api.dump.arrays.sparse.get(
             {queryParameters: {traversingMode: mode, generation: generation}}
         )
-        setArrays(result!)
-        setLoading(false)
+        return result!
     }
 
     const renderTable = (arrays: ArrayInfo[]) => {
@@ -83,27 +81,28 @@ export const ArraysGrid = () => {
         );
     }
 
-    let contents = loading
-        ? <Box sx={{width: '100%'}}>
-            <LinearProgress/>
-        </Box>
-        : renderTable(arrays);
+    const getChildrenContent = (arrays: ArrayInfo[]) => {
+        const totalWasted = arrays.map(m => m.wasted!).reduce((sum, current) => sum + current, 0)
 
-    const totalWasted = arrays.map(m => m.wasted!).reduce((sum, current) => sum + current, 0)
+        const propertyRows: PropertyRow[] = [
+            {title: 'Count', value: String(arrays.length)},
+            {title: 'Total wasted', value: toSizeString(totalWasted)},
+        ]
 
-    const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(arrays.length)},
-        {title: 'Total wasted', value: toSizeString(totalWasted)},
-    ]
+        return <Stack>
+            <PropertiesTable rows={propertyRows}/>
+            {renderTable(arrays)}
+        </Stack>
+
+    }
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
-            <div style={{flexGrow: 1}}>
+        <Stack>
+            <Stack direction="row">
                 <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
-            </div>
-            <PropertiesTable rows={propertyRows}/>
-            {contents}
-        </div>
+            </Stack>
+            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+        </Stack>
     );
 }

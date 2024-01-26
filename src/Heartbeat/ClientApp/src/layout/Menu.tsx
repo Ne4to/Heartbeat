@@ -14,7 +14,7 @@ import heapDump from '../pages/heapDumpStat';
 import segments from '../pages/segments';
 import roots from '../pages/roots';
 import modules from '../pages/modules';
-import arraysGrid from '../arraysGrid';
+import arraysGrid from '../pages/arraysGrid';
 import sparseArraysStat from '../sparseArraysStat';
 import stringsGrid from '../stringsGrid';
 import stringDuplicates from '../stringDuplicates';

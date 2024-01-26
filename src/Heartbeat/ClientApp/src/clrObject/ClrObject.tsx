@@ -81,6 +81,9 @@ export const ClrObject = () => {
         setLoading(false)
     }
 
+    // TODO move root to a separate tab
+    // TODO add Dictionary view to a new tab
+    // TODO add Array view to a new tab
     const loadRoots = async() => {
         const client = getClient();
         const result = await client.api.dump.object.byAddress(address).roots.get()
