@@ -60,30 +60,26 @@ export const ArraysGrid = () => {
 
     const renderTable = (arrays: ArrayInfo[]) => {
         return (
-            <div style={{flexGrow: 1, width: '100%'}}>
-
-                <DataGrid
-                    rows={arrays}
-                    getRowId={(row) => row.address}
-                    columns={columns}
-                    rowHeight={25}
-                    pageSizeOptions={[20, 50, 100]}
-                    density='compact'
-                    initialState={{
-                        sorting: {
-                            sortModel: [{field: 'length', sort: 'desc'}],
-                        },
-                        pagination: {paginationModel: {pageSize: 20}},
-                    }}
-                    slots={{toolbar: GridToolbar}}
-                    slotProps={{
-                        toolbar: {
-                            showQuickFilter: true,
-                        },
-                    }}
-                />
-
-            </div>
+            <DataGrid
+                rows={arrays}
+                getRowId={(row) => row.address}
+                columns={columns}
+                rowHeight={25}
+                pageSizeOptions={[20, 50, 100]}
+                density='compact'
+                initialState={{
+                    sorting: {
+                        sortModel: [{field: 'length', sort: 'desc'}],
+                    },
+                    pagination: {paginationModel: {pageSize: 20}},
+                }}
+                slots={{toolbar: GridToolbar}}
+                slotProps={{
+                    toolbar: {
+                        showQuickFilter: true,
+                    },
+                }}
+            />
         );
     }
 

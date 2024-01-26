@@ -30,22 +30,18 @@ export const ClrObjectRoot = (props: ClrObjectRootProps) => {
 
     const renderTable = (pathItems: RootPathItem[]) => {
         return (
-            <div style={{flexGrow: 1, width: '100%'}}>
-
-                <DataGrid
-                    rows={pathItems}
-                    getRowId={(row) => row.address}
-                    columns={columns}
-                    rowHeight={25}
-                    pageSizeOptions={[20, 50, 100]}
-                    density='compact'
-                    slots={{toolbar: GridToolbar}}
-                    initialState={{
-                        pagination: {paginationModel: {pageSize: 20}},
-                    }}
-                />
-
-            </div>
+            <DataGrid
+                rows={pathItems}
+                getRowId={(row) => row.address}
+                columns={columns}
+                rowHeight={25}
+                pageSizeOptions={[20, 50, 100]}
+                density='compact'
+                slots={{toolbar: GridToolbar}}
+                initialState={{
+                    pagination: {paginationModel: {pageSize: 20}},
+                }}
+            />
         );
     }
 

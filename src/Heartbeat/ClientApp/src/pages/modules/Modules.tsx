@@ -21,7 +21,7 @@ const columns: GridColDef[] = [
 ];
 
 export const Modules = () => {
-    const getData = async() => {
+    const getData = async () => {
         const client = getClient();
         const result = await client.api.dump.modules.get()
         return result!
@@ -29,25 +29,21 @@ export const Modules = () => {
 
     const renderTable = (modules: Module[]) => {
         return (
-            <div style={{flexGrow: 1, width: '100%'}}>
-
-                <DataGrid
-                    rows={modules}
-                    getRowId={(row) => row.address}
-                    columns={columns}
-                    rowHeight={25}
-                    pageSizeOptions={[20, 50, 100]}
-                    density='compact'
-                    initialState={{
-                        sorting: {
-                            sortModel: [{field: 'size', sort: 'desc'}],
-                        },
-                        pagination: {paginationModel: {pageSize: 50}},
-                    }}
-                />
-
-            </div>
-        );
+            <DataGrid
+                rows={modules}
+                getRowId={(row) => row.address}
+                columns={columns}
+                rowHeight={25}
+                pageSizeOptions={[20, 50, 100]}
+                density='compact'
+                initialState={{
+                    sorting: {
+                        sortModel: [{field: 'size', sort: 'desc'}],
+                    },
+                    pagination: {paginationModel: {pageSize: 50}},
+                }}
+            />
+        )
     }
 
     const getChildrenContent = (modules: Module[]) => {

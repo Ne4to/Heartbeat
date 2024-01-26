@@ -12,7 +12,7 @@ import {
 
 import heapDump from '../pages/heapDumpStat';
 import segments from '../pages/segments';
-import roots from '../roots';
+import roots from '../pages/roots';
 import modules from '../pages/modules';
 import arraysGrid from '../arraysGrid';
 import sparseArraysStat from '../sparseArraysStat';

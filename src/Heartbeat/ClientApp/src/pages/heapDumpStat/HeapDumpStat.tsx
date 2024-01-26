@@ -40,34 +40,31 @@ export const HeapDumpStat = () => {
     const [generation, setGeneration] = React.useState<Generation>()
 
     const renderStatisticsTable = (statistics: ObjectTypeStatistics[]) => {
+        /* TODO unify grid settings */
         return (
-            <div style={{flexGrow: 1, width: '100%'}}>
+            <DataGrid
+                rows={statistics}
+                getRowId={(row) => row.typeName}
+                columns={columns}
+                rowHeight={25}
+                density='compact'
+                pageSizeOptions={[20, 50, 100]}
+                pagination
+                initialState={{
+                    sorting: {
+                        sortModel: [{field: 'totalSize', sort: 'desc'}],
+                    },
+                    pagination: {paginationModel: {pageSize: 50}},
+                }}
+                slots={{toolbar: GridToolbar}}
+                slotProps={{
+                    toolbar: {
+                        showQuickFilter: true,
+                    },
+                }}
+            />
 
-                {/* TODO unify grid settings */}
-                <DataGrid
-                    rows={statistics}
-                    getRowId={(row) => row.typeName}
-                    columns={columns}
-                    rowHeight={25}
-                    density='compact'
-                    pageSizeOptions={[20, 50, 100]}
-                    pagination
-                    initialState={{
-                        sorting: {
-                            sortModel: [{field: 'totalSize', sort: 'desc'}],
-                        },
-                        pagination: {paginationModel: {pageSize: 50}},
-                    }}
-                    slots={{toolbar: GridToolbar}}
-                    slotProps={{
-                        toolbar: {
-                            showQuickFilter: true,
-                        },
-                    }}
-                />
-
-            </div>
-        );
+        )
     }
 
     const getData = async () => {
