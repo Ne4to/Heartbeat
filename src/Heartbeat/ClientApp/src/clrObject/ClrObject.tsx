@@ -84,6 +84,8 @@ export const ClrObject = () => {
     // TODO move root to a separate tab
     // TODO add Dictionary view to a new tab
     // TODO add Array view to a new tab
+    // TODO add JWT decode tab (https://github.com/panva/jose)
+    // TODO find other debugger visualizers
     const loadRoots = async() => {
         const client = getClient();
         const result = await client.api.dump.object.byAddress(address).roots.get()

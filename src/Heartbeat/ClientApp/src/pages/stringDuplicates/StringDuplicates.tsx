@@ -1,19 +1,19 @@
-import React, {useEffect} from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
+import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
 
-import getClient from '../lib/getClient'
+import getClient from '../../lib/getClient'
 import {
     Generation,
     ObjectGCStatus,
     StringDuplicate,
-} from '../client/models';
-import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {ObjectGCStatusSelect} from "../components/ObjectGCStatusSelect";
-import {GenerationSelect} from "../components/GenerationSelect";
-import {sizeColumn} from "../lib/gridColumns";
-import toSizeString from "../lib/toSizeString";
+} from '../../client/models';
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
+import {GenerationSelect} from "../../components/GenerationSelect";
+import {sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
+import {Stack} from "@mui/material";
+import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
     {
@@ -42,22 +42,15 @@ const columns: GridColDef[] = [
 ];
 
 export const StringDuplicates = () => {
-    const [loading, setLoading] = React.useState<boolean>(true)
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
-    const [duplicates, setDuplicates] = React.useState<StringDuplicate[]>([])
 
-    useEffect(() => {
-        loadData(gcStatus, generation).catch(console.error);
-    }, [gcStatus, generation]);
-
-    const loadData = async (gcStatus?: ObjectGCStatus, generation?: Generation) => {
+    const getData = async () => {
         const client = getClient();
         const result = await client.api.dump.stringDuplicates.get(
             {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
-        setDuplicates(result!)
-        setLoading(false)
+        return result!
     }
 
     const renderTable = (duplicates: StringDuplicate[]) => {
@@ -89,27 +82,27 @@ export const StringDuplicates = () => {
         );
     }
 
-    let contents = loading
-        ? <Box sx={{width: '100%'}}>
-            <LinearProgress/>
-        </Box>
-        : renderTable(duplicates);
+    const getChildrenContent = (duplicates: StringDuplicate[]) => {
+        const totalWasted = duplicates.map(m => m.wastedMemory!).reduce((sum, current) => sum + current, 0)
 
-    const totalWasted = duplicates.map(m => m.wastedMemory!).reduce((sum, current) => sum + current, 0)
+        const propertyRows: PropertyRow[] = [
+            {title: 'Count', value: String(duplicates.length)},
+            {title: 'Total wasted', value: toSizeString(totalWasted)},
+        ]
 
-    const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(duplicates.length)},
-        {title: 'Total wasted', value: toSizeString(totalWasted)},
-    ]
+        return <Stack>
+            <PropertiesTable rows={propertyRows}/>
+            {renderTable(duplicates)}
+        </Stack>
+    }
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
-            <div style={{flexGrow: 1}}>
+        <Stack>
+            <Stack direction="row">
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
-            </div>
-            <PropertiesTable rows={propertyRows}/>
-            {contents}
-        </div>
+            </Stack>
+            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+        </Stack>
     );
 }
