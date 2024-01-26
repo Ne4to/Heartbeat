@@ -29,19 +29,19 @@ export const TraversingHeapModeSelect = (props: TraversingHeapModeSelectProps) =
 
   return (
     <FormControl sx={{ width: 200 }} size="small">
-      <InputLabel id="mode-select-label">Traversing heap mode</InputLabel>
+      <InputLabel id="mode-select-label">Object GC state</InputLabel>
       <Select
         labelId="mode-select-label"
         id="mode-select"
         value={props.mode}
-        label="Traversing heap mode"
+        label="Object GC state"
         onChange={handleChange}
         fullWidth={true}
         MenuProps={MenuProps}
       >
         <MenuItem value={TraversingHeapModesObject.Live}>Live</MenuItem>
         <MenuItem value={TraversingHeapModesObject.Dead}>Dead</MenuItem>
-        <MenuItem value={TraversingHeapModesObject.All}>All</MenuItem>
+        <MenuItem value={TraversingHeapModesObject.All}>Any</MenuItem>
       </Select>
     </FormControl>
   );

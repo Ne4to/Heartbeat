@@ -25,15 +25,15 @@ export const Modules = () => {
     const [modules, setModules] = React.useState<Module[]>([])
 
     useEffect(() => {
-        loadData();
-    }, []);
+        const loadData = async () => {
+            const client = getClient();
+            const result = await client.api.dump.modules.get()
+            setModules(result!)
+            setLoading(false)
+        }
 
-    const loadData = async () => {
-        const client = getClient();
-        const result = await client.api.dump.modules.get()
-        setModules(result!)
-        setLoading(false)
-    }
+        void loadData();
+    }, []);
 
     const renderTable = (modules: Module[]) => {
         return (

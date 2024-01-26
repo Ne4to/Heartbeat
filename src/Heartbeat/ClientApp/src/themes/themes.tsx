@@ -26,16 +26,26 @@ export interface Theme {
 }
 
 const lightTheme = {
-    ...softLightTheme,
+    ...defaultLightTheme,
     components: {
-        ...softLightTheme.components,
+        ...defaultLightTheme.components,
         RaButton: {
             styleOverrides: {
                 root: {
                     fontFamily: 'monospace',
                 }
             }
-        }
+        },
+        RaMenuItemLink: {
+            styleOverrides: {
+                root: {
+                    borderLeft: '3px solid #fff',
+                    '&.RaMenuItemLink-active': {
+                        borderLeft: '3px solid #4f3cc9',
+                    },
+                },
+            },
+        },
     }
 }
 
