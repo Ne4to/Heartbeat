@@ -92,7 +92,6 @@ export const ArraysGrid = () => {
             <PropertiesTable rows={propertyRows}/>
             {renderTable(arrays)}
         </Stack>
-
     }
 
     return (

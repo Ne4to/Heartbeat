@@ -1,15 +1,15 @@
-import React, {useEffect} from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
+import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
 
-import getClient from '../lib/getClient'
-import {Generation, ObjectGCStatus, StringInfo} from '../client/models';
-import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {ObjectGCStatusSelect} from "../components/ObjectGCStatusSelect";
-import {GenerationSelect} from "../components/GenerationSelect";
-import {objectAddressColumn, sizeColumn} from "../lib/gridColumns";
-import toSizeString from "../lib/toSizeString";
+import getClient from '../../lib/getClient'
+import {Generation, ObjectGCStatus, StringInfo} from '../../client/models';
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
+import {GenerationSelect} from "../../components/GenerationSelect";
+import {objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
+import {Stack} from "@mui/material";
+import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
@@ -29,22 +29,15 @@ const columns: GridColDef[] = [
 ];
 
 export const StringsGrid = () => {
-    const [loading, setLoading] = React.useState<boolean>(true)
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
-    const [strings, setStrings] = React.useState<StringInfo[]>([])
 
-    useEffect(() => {
-        loadData(gcStatus, generation).catch(console.error);
-    }, [gcStatus, generation]);
-
-    const loadData = async (gcStatus?: ObjectGCStatus, generation?: Generation) => {
+    const getData = async() => {
         const client = getClient();
         const result = await client.api.dump.strings.get(
             {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
-        setStrings(result!)
-        setLoading(false)
+        return result!
     }
 
     const renderTable = (strings: StringInfo[]) => {
@@ -76,27 +69,27 @@ export const StringsGrid = () => {
         );
     }
 
-    let contents = loading
-        ? <Box sx={{width: '100%'}}>
-            <LinearProgress/>
-        </Box>
-        : renderTable(strings);
+    const getChildrenContent = (strings: StringInfo[]) => {
+        const totalSize = strings.map(m => m.size!).reduce((sum, current) => sum + current, 0)
 
-    const totalSize = strings.map(m => m.size!).reduce((sum, current) => sum + current, 0)
+        const propertyRows: PropertyRow[] = [
+            {title: 'Count', value: String(strings.length)},
+            {title: 'Total size', value: toSizeString(totalSize)},
+        ]
 
-    const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(strings.length)},
-        {title: 'Total size', value: toSizeString(totalSize)},
-    ]
+        return <Stack>
+            <PropertiesTable rows={propertyRows}/>
+            {renderTable(strings)}
+        </Stack>
+    }
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
-            <div style={{flexGrow: 1}}>
+        <Stack>
+            <Stack direction="row">
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
-            </div>
-            <PropertiesTable rows={propertyRows}/>
-            {contents}
-        </div>
+            </Stack>
+            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+        </Stack>
     );
 }
