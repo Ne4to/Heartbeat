@@ -3,5 +3,5 @@ import { ClrObject } from './ClrObject';
 
 export default {
     icon: Icon,
-    list: ClrObject,
+    show: ClrObject,
 };

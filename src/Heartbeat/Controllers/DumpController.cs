@@ -203,7 +203,6 @@ public class DumpController : ControllerBase
         [FromQuery] Generation? generation = null)
     {
         var query = from obj in _context.EnumerateObjects(traversingMode, generation)
-            // where obj.Address == 0x1b501c921d8
             where obj.IsArray
             let proxy = new ArrayProxy(_context, obj)
             where proxy.UnusedItemsPercent >= 0.2

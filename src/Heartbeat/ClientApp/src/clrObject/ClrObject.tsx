@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {useSearchParams} from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
 import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
@@ -8,64 +8,65 @@ import getClient from '../lib/getClient'
 import toHexAddress from '../lib/toHexAddress'
 import {GetClrObjectResult, ClrObjectField, ClrObjectRootPath} from '../client/models';
 import {PropertiesTable, PropertyRow} from '../components/PropertiesTable'
-import {renderMethodTableLink} from "../lib/gridRenderCell";
+import {renderClrObjectLink, renderMethodTableLink} from "../lib/gridRenderCell";
 import {ClrObjectRoot} from "../components/ClrObjectRoot";
 import {methodTableColumn} from "../lib/gridColumns";
 import toSizeString from "../lib/toSizeString";
-
-const columns: GridColDef[] = [
-    methodTableColumn,
-    {
-        field: 'offset',
-        headerName: 'Offset',
-        type: 'number',
-        width: 80
-    },
-    {
-        field: 'isValueType',
-        headerName: 'VT',
-    },
-    {
-        field: 'typeName',
-        headerName: 'Type',
-        minWidth: 200,
-        flex: 0.5,
-    },
-    {
-        field: 'name',
-        headerName: 'Name',
-        minWidth: 200,
-        flex: 0.5,
-    },
-    {
-        field: 'value',
-        headerName: 'Value',
-        minWidth: 200,
-        flex: 1,
-        renderCell: (params: GridRenderCellParams) => {
-            if (params.value == null) {
-                return '';
-            }
-
-            const objectAddress = params.row.objectAddress;
-
-            return objectAddress
-                ? (
-                    <a href={'#/clr-object?address=' + toHexAddress(objectAddress)}>{params.value}</a>
-                )
-                : (
-                    params.value
-                )
-        }
-    }
-];
+import {Button, Link} from "react-admin";
 
 export const ClrObject = () => {
+    const { id } = useParams();
     const [loading, setLoading] = React.useState<boolean>(true)
     const [objectResult, setObjectResult] = React.useState<GetClrObjectResult>()
     const [roots, setRoots] = React.useState<ClrObjectRootPath[]>()
-    const [searchParams] = useSearchParams();
-    const [address, setAddress] = React.useState(Number('0x' + searchParams.get('address')))
+    const address = Number('0x' + id);
+
+    const columns: GridColDef[] = [
+        methodTableColumn,
+        {
+            field: 'offset',
+            headerName: 'Offset',
+            type: 'number',
+            width: 80
+        },
+        {
+            field: 'isValueType',
+            headerName: 'VT',
+        },
+        {
+            field: 'typeName',
+            headerName: 'Type',
+            minWidth: 200,
+            flex: 0.5,
+        },
+        {
+            field: 'name',
+            headerName: 'Name',
+            minWidth: 200,
+            flex: 0.5,
+        },
+        {
+            field: 'value',
+            headerName: 'Value',
+            minWidth: 200,
+            flex: 1,
+            renderCell: (params: GridRenderCellParams) => {
+                if (params.value == null) {
+                    return '';
+                }
+
+                const objectAddress = params.row.objectAddress;
+
+                return objectAddress
+                    ?
+                        renderClrObjectLink(objectAddress)
+                        // <Button component={Link} to={`/clr-object/${toHexAddress(objectAddress)}/show`}>{params.value}</Button>
+                    : (
+                        params.value
+                    )
+            }
+        }
+    ];
 
     useEffect(() => {
         loadData().catch(console.error)

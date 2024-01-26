@@ -3,5 +3,5 @@ import { ObjectInstances } from './ObjectInstances';
 
 export default {
     icon: Icon,
-    list: ObjectInstances,
+    show: ObjectInstances,
 };

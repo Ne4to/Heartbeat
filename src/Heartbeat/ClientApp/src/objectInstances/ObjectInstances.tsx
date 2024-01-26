@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
 import {
     DataGrid,
@@ -29,14 +29,12 @@ const columns: GridColDef[] = [
 ];
 
 export const ObjectInstances = () => {
+    const { id } = useParams();
     const [loading, setLoading] = React.useState<boolean>(true)
     const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
     const [generation, setGeneration] = React.useState<Generation>()
     const [objectInstancesResult, setObjectInstancesResult] = React.useState<GetObjectInstancesResult>()
-    const [searchParams] = useSearchParams();
-    const [mt] = React.useState(Number('0x' + searchParams.get('mt')))
-
-    console.log('MT = ' + mt)
+    const mt = Number('0x' + id)
 
     const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
         const client = getClient();
