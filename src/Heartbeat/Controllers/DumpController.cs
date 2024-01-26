@@ -1,6 +1,7 @@
 ﻿using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
@@ -105,14 +106,14 @@ public class DumpController : ControllerBase
     [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by just my code - how to filter Action<MyType>?
         // TODO filter by type name
     {
         var analyzer = new HeapDumpStatisticsAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode,
+            ObjectGcStatus = gcStatus,
             Generation = generation
         };
 
@@ -129,12 +130,12 @@ public class DumpController : ControllerBase
     [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<StringInfo> GetStrings(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length
         // TODO filter by max length
     {
-        var query = from obj in _context.EnumerateStrings(traversingMode, generation)
+        var query = from obj in _context.EnumerateStrings(gcStatus, generation)
             let str = obj.AsString()
             let length = obj.ReadField<int>("_stringLength")
             select new StringInfo(obj.Address, length, obj.Size, str);
@@ -148,13 +149,13 @@ public class DumpController : ControllerBase
     [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get string duplicates")]
     public IEnumerable<StringDuplicate> GetStringDuplicates(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length 
     {
         var analyzer = new StringDuplicateAnalyzer(_context)
         {
-            TraversingHeapMode = traversingMode, 
+            ObjectGcStatus = gcStatus, 
             Generation = generation
         };
 
@@ -168,7 +169,7 @@ public class DumpController : ControllerBase
     [SwaggerOperation(summary: "Get object instances")]
     public GetObjectInstancesResult GetObjectInstances(
             ulong mt,
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO limit maxCount
     {
@@ -177,7 +178,7 @@ public class DumpController : ControllerBase
         var clrType = _context.Heap.FindTypeByMethodTable(methodTable);
 
         var instances = (
-            from obj in _context.EnumerateObjects(traversingMode, generation)
+            from obj in _context.EnumerateObjects(gcStatus, generation)
             where obj.Type != null
                   && obj.Type.MethodTable == methodTable
             orderby obj.Size descending
@@ -199,10 +200,10 @@ public class DumpController : ControllerBase
     // TODO add arrays/sparse
     // TODO add arrays/sparse/stat
     public IEnumerable<ArrayInfo> GetSparseArrays(        
-        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+        [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in _context.EnumerateObjects(traversingMode, generation)
+        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
             let proxy = new ArrayProxy(_context, obj)
             where proxy.UnusedItemsPercent >= 0.2
@@ -217,10 +218,10 @@ public class DumpController : ControllerBase
     [ProducesResponseType(typeof(SparseArrayStatistics[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get arrays")]
     public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(        
-        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+        [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in _context.EnumerateObjects(traversingMode, generation)
+        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
             let proxy = new ArrayProxy(_context, obj)
             where proxy.UnusedItemsCount != 0

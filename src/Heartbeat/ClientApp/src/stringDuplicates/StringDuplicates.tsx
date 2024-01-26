@@ -6,12 +6,11 @@ import Box from '@mui/material/Box';
 import getClient from '../lib/getClient'
 import {
     Generation,
+    ObjectGCStatus,
     StringDuplicate,
-    TraversingHeapModes,
-    TraversingHeapModesObject
 } from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
+import {ObjectGCStatusSelect} from "../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
 import {sizeColumn} from "../lib/gridColumns";
 import toSizeString from "../lib/toSizeString";
@@ -44,18 +43,18 @@ const columns: GridColDef[] = [
 
 export const StringDuplicates = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
-    const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
+    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
     const [duplicates, setDuplicates] = React.useState<StringDuplicate[]>([])
 
     useEffect(() => {
-        loadData(mode, generation).catch(console.error);
-    }, [mode, generation]);
+        loadData(gcStatus, generation).catch(console.error);
+    }, [gcStatus, generation]);
 
-    const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
+    const loadData = async (gcStatus?: ObjectGCStatus, generation?: Generation) => {
         const client = getClient();
         const result = await client.api.dump.stringDuplicates.get(
-            {queryParameters: {traversingMode: mode, generation: generation}}
+            {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
         setDuplicates(result!)
         setLoading(false)
@@ -106,7 +105,7 @@ export const StringDuplicates = () => {
     return (
         <div style={{display: 'flex', flexFlow: 'column'}}>
             <div style={{flexGrow: 1}}>
-                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
+                <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </div>
             <PropertiesTable rows={propertyRows}/>

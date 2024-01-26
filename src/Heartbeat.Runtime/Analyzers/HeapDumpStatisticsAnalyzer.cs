@@ -1,5 +1,6 @@
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 
 using Microsoft.Diagnostics.Runtime;
@@ -7,9 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public sealed class HeapDumpStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public sealed class HeapDumpStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
     public Generation? Generation { get; set; }
 
     public HeapDumpStatisticsAnalyzer(RuntimeContext context) : base(context)
@@ -36,7 +37,7 @@ public sealed class HeapDumpStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IWit
     public IReadOnlyCollection<ObjectTypeStatistics> GetObjectTypeStatistics()
     {
         return (
-            from obj in Context.EnumerateObjects(TraversingHeapMode, Generation)
+            from obj in Context.EnumerateObjects(ObjectGcStatus, Generation)
             let objSize = obj.Size
             //group new { size = objSize } by type.Name into g
             group objSize by obj.Type

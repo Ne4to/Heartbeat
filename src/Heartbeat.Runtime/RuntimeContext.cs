@@ -1,4 +1,5 @@
 
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
 
@@ -44,7 +45,7 @@ public sealed class RuntimeContext
         throw new NotImplementedException();
     }
 
-    public IEnumerable<ulong> EnumerateObjectAddressesByTypeName(string typeName, TraversingHeapModes traversingMode)
+    public IEnumerable<ulong> EnumerateObjectAddressesByTypeName(string typeName, ObjectGCStatus? status)
     {
         var clrType = Heap.GetTypeByName(typeName);
 
@@ -57,33 +58,33 @@ public sealed class RuntimeContext
             from clrObject in Heap.EnumerateObjects()
             let type = clrObject.Type
             where type != null && !type.IsFree && type.MethodTable == clrType.MethodTable
-                  && FilterByWalkMode(traversingMode, clrObject)
+                  && FilterByGCStatus(status, clrObject)
             select clrObject.Address;
     }
 
-    public IEnumerable<ClrObject> EnumerateObjects(TraversingHeapModes traversingMode, Generation? generation = null)
+    public IEnumerable<ClrObject> EnumerateObjects(ObjectGCStatus? status, Generation? generation = null)
     {
         return
             from obj in Heap.EnumerateObjects()
             where obj.IsValid
                   && !obj.IsFree
-                  && FilterByWalkMode(traversingMode, obj.Address)
+                  && FilterByGCStatus(status, obj.Address)
             where generation == null || Heap.GetGeneration(obj.Address) == generation
             select obj;
     }
 
     public IEnumerable<ClrObject> EnumerateObjectsByTypeName(
         string typeName, 
-        TraversingHeapModes traversingMode,
+        ObjectGCStatus? status,
         Generation? generation = null)
     {
         var clrType = Heap.GetTypeByName(typeName) ?? throw new InvalidOperationException($"Type {typeName} is not found");
-        return EnumerateObjects(traversingMode, generation).Where(obj => obj.Type!.MethodTable == clrType.MethodTable);
+        return EnumerateObjects(status, generation).Where(obj => obj.Type!.MethodTable == clrType.MethodTable);
     }
 
-    public IEnumerable<ClrObject> EnumerateStrings(TraversingHeapModes traversingMode, Generation? generation = null)
+    public IEnumerable<ClrObject> EnumerateStrings(ObjectGCStatus? status, Generation? generation = null)
     {
-        return EnumerateObjectsByTypeName("System.String", traversingMode, generation);
+        return EnumerateObjectsByTypeName("System.String", status, generation);
     }
 
     public IEnumerable<ClrObject> GetAllReferencesTo(ulong address)
@@ -199,14 +200,14 @@ public sealed class RuntimeContext
         return value;
     }
 
-    private bool FilterByWalkMode(TraversingHeapModes traversingMode, ulong address)
+    private bool FilterByGCStatus(ObjectGCStatus? status, ulong address)
     {
-        return traversingMode switch
+        return status switch
         {
-            TraversingHeapModes.Live => HeapIndex.HasRoot(address),
-            TraversingHeapModes.Dead => !HeapIndex.HasRoot(address),
-            TraversingHeapModes.All => true,
-            _ => throw new ArgumentOutOfRangeException(nameof(traversingMode), traversingMode, null),
+            ObjectGCStatus.Live => HeapIndex.HasRoot(address),
+            ObjectGCStatus.Dead => !HeapIndex.HasRoot(address),
+            null => true,
+            _ => throw new ArgumentOutOfRangeException(nameof(status), status, null),
         };
     }
 }

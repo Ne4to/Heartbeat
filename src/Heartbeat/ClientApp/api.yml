@@ -103,11 +103,11 @@ paths:
       summary: Get heap dump statistics
       operationId: GetHeapDumpStat
       parameters:
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -135,11 +135,11 @@ paths:
       summary: Get heap dump statistics
       operationId: GetStrings
       parameters:
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -167,11 +167,11 @@ paths:
       summary: Get string duplicates
       operationId: GetStringDuplicates
       parameters:
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -206,11 +206,11 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -236,11 +236,11 @@ paths:
       summary: Get sparse arrays
       operationId: GetSparseArrays
       parameters:
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -268,11 +268,11 @@ paths:
       summary: Get arrays
       operationId: GetSparseArraysStat
       parameters:
-        - name: traversingMode
+        - name: gcStatus
           in: query
           style: form
           schema:
-            $ref: '#/components/schemas/TraversingHeapModes'
+            $ref: '#/components/schemas/ObjectGCStatus'
         - name: generation
           in: query
           style: form
@@ -598,6 +598,11 @@ components:
           type: string
           nullable: true
       additionalProperties: false
+    ObjectGCStatus:
+      enum:
+        - Live
+        - Dead
+      type: string
     ObjectInstance:
       required:
         - address
@@ -760,9 +765,3 @@ components:
         value:
           type: string
       additionalProperties: false
-    TraversingHeapModes:
-      enum:
-        - Live
-        - Dead
-        - All
-      type: string

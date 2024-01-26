@@ -1,4 +1,5 @@
 ﻿using Heartbeat.Domain;
+using Heartbeat.Runtime.Domain;
 
 using System.CommandLine;
 using System.CommandLine.Binding;
@@ -23,7 +24,7 @@ public class AnalyzeCommandOptions
     public bool TaskCompletionSource { get; set; }
     public bool ObjectTypeStatistics { get; set; }
     public bool HttpClient { get; set; }
-    public TraversingHeapModes TraversingHeapMode { get; set; }
+    public ObjectGCStatus ObjectGcStatus { get; set; }
     // ReSharper restore UnusedAutoPropertyAccessor.Global
 
     public static (RootCommand Command, AnalyzeCommandOptionsBinder OptionsBinder) RootCommand()
@@ -96,7 +97,7 @@ public class AnalyzeCommandOptions
         private readonly Option<FileInfo> _dumpOption;
         private readonly Option<FileInfo> _dacPathOption;
         private readonly Option<bool?> _ignoreDacMismatchOption;
-        private readonly Option<TraversingHeapModes> _traversingHeapModeOption;
+        private readonly Option<ObjectGCStatus> _traversingHeapModeOption;
         private readonly Option<bool?> _heapOption;
         private readonly Option<bool?> _servicePointManagerOption;
         private readonly Option<bool?> _asyncStateMachineOption;
@@ -113,7 +114,7 @@ public class AnalyzeCommandOptions
             Option<FileInfo> dumpOption,
             Option<FileInfo> dacPathOption, 
             Option<bool?> ignoreDacMismatchOption,
-            Option<TraversingHeapModes> traversingHeapModeOption, 
+            Option<ObjectGCStatus> traversingHeapModeOption, 
             Option<bool?> heapOption, 
             Option<bool?> servicePointManagerOption, 
             Option<bool?> asyncStateMachineOption,
@@ -150,7 +151,7 @@ public class AnalyzeCommandOptions
                 Dump = bindingContext.ParseResult.GetValueForOption(_dumpOption),
                 DacPath = bindingContext.ParseResult.GetValueForOption(_dacPathOption),
                 IgnoreDacMismatch = bindingContext.ParseResult.GetValueForOption(_ignoreDacMismatchOption).GetValueOrDefault(),
-                TraversingHeapMode = bindingContext.ParseResult.GetValueForOption(_traversingHeapModeOption),
+                ObjectGcStatus = bindingContext.ParseResult.GetValueForOption(_traversingHeapModeOption),
                 Heap = bindingContext.ParseResult.GetValueForOption(_heapOption).GetValueOrDefault(),
                 ServicePointManager = bindingContext.ParseResult.GetValueForOption(_servicePointManagerOption).GetValueOrDefault(),
                 AsyncStateMachine = bindingContext.ParseResult.GetValueForOption(_asyncStateMachineOption).GetValueOrDefault(),
@@ -202,11 +203,11 @@ public class AnalyzeCommandOptions
         yield return new Option("--http-client", "Print System.Net.Http.HttpClient objects");
     }
 
-    private static TraversingHeapModes DefaultTraversingHeapMode => TraversingHeapModes.Live;
+    private static ObjectGCStatus DefaultObjectGcStatus => ObjectGCStatus.Live;
 
-    private static Option<TraversingHeapModes> TraversingHeapModeOption() =>
+    private static Option<ObjectGCStatus> TraversingHeapModeOption() =>
         new(
             "--traversing-heap-mode",
-            description: $"Traversing heap mode. Default is {DefaultTraversingHeapMode}.",
-            getDefaultValue: () => DefaultTraversingHeapMode);
+            description: $"Traversing heap mode. Default is {DefaultObjectGcStatus}.",
+            getDefaultValue: () => DefaultObjectGcStatus);
 }

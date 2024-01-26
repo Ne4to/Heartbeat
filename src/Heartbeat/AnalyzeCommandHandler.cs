@@ -45,7 +45,7 @@ internal class AnalyzeCommandHandler
         string filePath = @"C:\Users\Ne4to\projects\GitHub\Ne4to\Heartbeat\tests\dumps\AsyncStask.dmp";
 
         var runtimeContext = new RuntimeContext(filePath);
-        var traversingMode = _options.TraversingHeapMode;
+        var traversingMode = _options.ObjectGcStatus;
 
         ExecuteWhenTrue(PrintHttpClients, _options.HttpClient);
         ExecuteWhenTrue(PrintStringDuplicates, _options.StringDuplicate);
@@ -57,7 +57,7 @@ internal class AnalyzeCommandHandler
         {
             var analyzer = new HttpClientAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = traversingMode
+                ObjectGcStatus = traversingMode
             };
 
             var httpClients = analyzer.GetClientsInfo();
@@ -71,7 +71,7 @@ internal class AnalyzeCommandHandler
         {
             var analyzer = new StringDuplicateAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = traversingMode
+                ObjectGcStatus = traversingMode
             };
 
             var duplicates = analyzer.GetStringDuplicates(10, 100);
@@ -86,7 +86,7 @@ internal class AnalyzeCommandHandler
         {
             var analyzer = new HeapDumpStatisticsAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = traversingMode
+                ObjectGcStatus = traversingMode
             };
 
             var statistics = analyzer.GetObjectTypeStatistics();
@@ -101,7 +101,7 @@ internal class AnalyzeCommandHandler
         {
             var analyzer = new TimerQueueTimerAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = traversingMode
+                ObjectGcStatus = traversingMode
             };
 
             var timers = analyzer.GetTimers(traversingMode);
@@ -123,10 +123,10 @@ internal class AnalyzeCommandHandler
         {
             var analyzer = new LongStringAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = traversingMode
+                ObjectGcStatus = traversingMode
             };
 
-            var strings = analyzer.GetStrings(20, null);
+            var strings = analyzer.GetStrings(null, 20, null);
             foreach (var s in strings)
             {
                 logger.LogInformation($"{s.Address} Length = {s.Length} chars, Value = {s.Value}");
@@ -217,16 +217,16 @@ internal class AnalyzeCommandHandler
         {
             LongStringAnalyzer longStringAnalyzer = new(runtimeContext)
             {
-                TraversingHeapMode = _options.TraversingHeapMode
+                ObjectGcStatus = _options.ObjectGcStatus
             };
             longStringAnalyzer.Dump(logger);
         }
 
         if (_options.AsyncStateMachine)
         {
-            var asyncStateMachineAnalyzer = new AsyncStateMachineAnalyzer(runtimeContext)
+            var asyncStateMachineAnalyzer = new AsyncStatusMachineAnalyzer(runtimeContext)
             {
-                TraversingHeapMode = _options.TraversingHeapMode
+                ObjectGcStatus = _options.ObjectGcStatus
             };
             asyncStateMachineAnalyzer.Dump(logger);
         }

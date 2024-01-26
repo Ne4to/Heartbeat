@@ -1,5 +1,6 @@
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
@@ -8,11 +9,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public class AsyncStateMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public class AsyncStatusMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
 
-    public AsyncStateMachineAnalyzer(RuntimeContext context)
+    public AsyncStatusMachineAnalyzer(RuntimeContext context)
         : base(context)
     {
     }
@@ -38,7 +39,7 @@ public class AsyncStateMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
     {
 
         var stateMachineQuery =
-            from clrObject in Context.EnumerateObjects(TraversingHeapMode)
+            from clrObject in Context.EnumerateObjects(ObjectGcStatus)
             where clrObject.Type
                 !.EnumerateInterfaces()
                 .Any(clrInterface => clrInterface.Name == "System.Runtime.CompilerServices.IAsyncStateMachine")
@@ -146,7 +147,7 @@ public class AsyncStateMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
         var (asyncStateMachineBoxType, debugFinalizableAsyncStateMachineBoxType, taskType) = FindStateMachineTypes();
 
         return
-            from clrObject in Context.EnumerateObjects(TraversingHeapMode)
+            from clrObject in Context.EnumerateObjects(ObjectGcStatus)
             where
                 // Skip objects too small to be state machines or tasks, avoiding some compiler-generated caching data structures.
                 // https://github.com/dotnet/diagnostics/blob/dc9d61a876d6153306b2d59c769d9581e3d5ab2d/src/SOS/Strike/strike.cpp#L4749

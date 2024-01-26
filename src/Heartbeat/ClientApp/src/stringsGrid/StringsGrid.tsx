@@ -4,9 +4,9 @@ import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
 
 import getClient from '../lib/getClient'
-import {Generation, StringInfo, TraversingHeapModes, TraversingHeapModesObject} from '../client/models';
+import {Generation, ObjectGCStatus, StringInfo} from '../client/models';
 import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {TraversingHeapModeSelect} from "../components/TraversingHeapModeSelect";
+import {ObjectGCStatusSelect} from "../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../components/GenerationSelect";
 import {objectAddressColumn, sizeColumn} from "../lib/gridColumns";
 import toSizeString from "../lib/toSizeString";
@@ -30,18 +30,18 @@ const columns: GridColDef[] = [
 
 export const StringsGrid = () => {
     const [loading, setLoading] = React.useState<boolean>(true)
-    const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
+    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
     const [strings, setStrings] = React.useState<StringInfo[]>([])
 
     useEffect(() => {
-        loadData(mode, generation).catch(console.error);
-    }, [mode, generation]);
+        loadData(gcStatus, generation).catch(console.error);
+    }, [gcStatus, generation]);
 
-    const loadData = async (mode: TraversingHeapModes, generation?: Generation) => {
+    const loadData = async (gcStatus?: ObjectGCStatus, generation?: Generation) => {
         const client = getClient();
         const result = await client.api.dump.strings.get(
-            {queryParameters: {traversingMode: mode, generation: generation}}
+            {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
         setStrings(result!)
         setLoading(false)
@@ -92,7 +92,7 @@ export const StringsGrid = () => {
     return (
         <div style={{display: 'flex', flexFlow: 'column'}}>
             <div style={{flexGrow: 1}}>
-                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
+                <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </div>
             <PropertiesTable rows={propertyRows}/>

@@ -6,11 +6,10 @@ import {formatPercent} from '../../lib/gridFormatter';
 import {
     ArrayInfo,
     Generation,
-    TraversingHeapModes,
-    TraversingHeapModesObject
+    ObjectGCStatus,
 } from '../../client/models';
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
-import {TraversingHeapModeSelect} from "../../components/TraversingHeapModeSelect";
+import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../../components/GenerationSelect";
 import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
 import toSizeString from "../../lib/toSizeString";
@@ -45,13 +44,13 @@ const columns: GridColDef[] = [
 ];
 
 export const ArraysGrid = () => {
-    const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
+    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
 
     const getData = async() => {
         const client = getClient();
         const result = await client.api.dump.arrays.sparse.get(
-            {queryParameters: {traversingMode: mode, generation: generation}}
+            {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
         return result!
     }
@@ -99,7 +98,7 @@ export const ArraysGrid = () => {
     return (
         <Stack>
             <Stack direction="row">
-                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
+                <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
             <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>

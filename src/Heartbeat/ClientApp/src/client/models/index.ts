@@ -379,6 +379,7 @@ export interface Module extends Parsable {
      */
     size?: number;
 }
+export type ObjectGCStatus = (typeof ObjectGCStatusObject)[keyof typeof ObjectGCStatusObject];
 export interface ObjectInstance extends Parsable {
     /**
      * The address property
@@ -643,7 +644,6 @@ export interface StringInfo extends Parsable {
      */
     value?: string;
 }
-export type TraversingHeapModes = (typeof TraversingHeapModesObject)[keyof typeof TraversingHeapModesObject];
 export const ArchitectureObject = {
     X86: "X86",
     X64: "X64",
@@ -683,10 +683,9 @@ export const GenerationObject = {
     Frozen: "Frozen",
     Unknown: "Unknown",
 }  as const;
-export const TraversingHeapModesObject = {
+export const ObjectGCStatusObject = {
     Live: "Live",
     Dead: "Dead",
-    All: "All",
 }  as const;
 /* tslint:enable */
 /* eslint-enable */

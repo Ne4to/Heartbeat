@@ -1,4 +1,5 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Exceptions;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
@@ -66,7 +67,7 @@ public sealed class ServicePointManagerAnalyzer : AnalyzerBase, ILoggerDump
             }
         }
 
-        foreach (var spObject in Context.EnumerateObjectsByTypeName("System.Net.ServicePoint", TraversingHeapModes.All))
+        foreach (var spObject in Context.EnumerateObjectsByTypeName("System.Net.ServicePoint", null))
         {
             var servicePointProxy = new ServicePointProxy(Context, spObject);
             var servicePointAnalyzer = new ServicePointAnalyzer(Context, servicePointProxy)

@@ -1,11 +1,15 @@
 import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 
-import {TraversingHeapModeSelect} from '../../components/TraversingHeapModeSelect'
+import {ObjectGCStatusSelect} from '../../components/ObjectGCStatusSelect'
 import {GenerationSelect} from '../../components/GenerationSelect'
 
 import getClient from '../../lib/getClient'
-import {Generation, ObjectTypeStatistics, TraversingHeapModes, TraversingHeapModesObject} from '../../client/models';
+import {
+    Generation,
+    ObjectGCStatus,
+    ObjectTypeStatistics,
+} from '../../client/models';
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {methodTableColumn, sizeColumn} from "../../lib/gridColumns";
 import toSizeString from "../../lib/toSizeString";
@@ -36,11 +40,12 @@ const columns: GridColDef[] = [
 
 export const HeapDumpStat = () => {
     // TODO save selects state - https://mui.com/x/react-data-grid/state/#save-and-restore-the-state-from-external-storage
-    const [mode, setMode] = React.useState<TraversingHeapModes>(TraversingHeapModesObject.All)
+    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
 
     const renderStatisticsTable = (statistics: ObjectTypeStatistics[]) => {
         /* TODO unify grid settings */
+        // TODO save quick filter value (per page)
         return (
             <DataGrid
                 rows={statistics}
@@ -70,7 +75,7 @@ export const HeapDumpStat = () => {
     const getData = async () => {
         const client = getClient();
         const stats = await client.api.dump.heapDumpStatistics.get(
-            {queryParameters: {traversingMode: mode, generation: generation}}
+            {queryParameters: {gcStatus: gcStatus, generation: generation}}
         );
         return stats || [];
     }
@@ -94,7 +99,7 @@ export const HeapDumpStat = () => {
         <Stack>
             <Stack direction="row">
                 {/* TODO make disabled while ProgressContainer isLoading. Add onLoading(loading: bool) to ProgressContainer */}
-                <TraversingHeapModeSelect mode={mode} onChange={(mode) => setMode(mode)}/>
+                <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
             <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
