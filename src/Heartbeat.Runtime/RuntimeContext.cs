@@ -66,6 +66,7 @@ public sealed class RuntimeContext
         return
             from obj in Heap.EnumerateObjects()
             where obj.IsValid
+                  && !obj.IsFree
                   && FilterByWalkMode(traversingMode, obj.Address)
             where generation == null || Heap.GetGeneration(obj.Address) == generation
             select obj;

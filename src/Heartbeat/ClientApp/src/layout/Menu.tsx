@@ -13,7 +13,7 @@ import {
 import heapDump from '../pages/heapDumpStat';
 import segments from '../pages/segments';
 import roots from '../roots';
-import modules from '../modules';
+import modules from '../pages/modules';
 import arraysGrid from '../arraysGrid';
 import sparseArraysStat from '../sparseArraysStat';
 import stringsGrid from '../stringsGrid';

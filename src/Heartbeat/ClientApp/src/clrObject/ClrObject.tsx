@@ -89,7 +89,7 @@ export const ClrObject = () => {
 
     const renderTable = (fields: ClrObjectField[]) => {
         return (
-            <div style={{flexGrow: 1, width: '100%'}}>
+
 
                 <DataGrid
                     rows={fields}
@@ -104,7 +104,7 @@ export const ClrObject = () => {
                     }}
                 />
 
-            </div>
+
         );
     }
 
@@ -135,7 +135,7 @@ export const ClrObject = () => {
         : <div>root path not found</div>;
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
+        <div >
             <h4 id="tableLabel" style={{flexGrow: 1}}>Clr Object</h4>
             <PropertiesTable rows={propertyRows}/>
             {contents}
