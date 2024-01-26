@@ -15,7 +15,7 @@ import toSizeString from "../lib/toSizeString";
 import {Button, Link} from "react-admin";
 
 export const ClrObject = () => {
-    const { id } = useParams();
+    const {id} = useParams();
     const [loading, setLoading] = React.useState<boolean>(true)
     const [objectResult, setObjectResult] = React.useState<GetClrObjectResult>()
     const [roots, setRoots] = React.useState<ClrObjectRootPath[]>()
@@ -59,8 +59,8 @@ export const ClrObject = () => {
 
                 return objectAddress
                     ?
-                        renderClrObjectLink(objectAddress)
-                        // <Button component={Link} to={`/clr-object/${toHexAddress(objectAddress)}/show`}>{params.value}</Button>
+                    renderClrObjectLink(objectAddress)
+                    // <Button component={Link} to={`/clr-object/${toHexAddress(objectAddress)}/show`}>{params.value}</Button>
                     : (
                         params.value
                     )
@@ -86,7 +86,7 @@ export const ClrObject = () => {
     // TODO add Array view to a new tab
     // TODO add JWT decode tab (https://github.com/panva/jose)
     // TODO find other debugger visualizers
-    const loadRoots = async() => {
+    const loadRoots = async () => {
         const client = getClient();
         const result = await client.api.dump.object.byAddress(address).roots.get()
         setRoots(result!)
@@ -94,22 +94,18 @@ export const ClrObject = () => {
 
     const renderTable = (fields: ClrObjectField[]) => {
         return (
-
-
-                <DataGrid
-                    rows={fields}
-                    getRowId={(row) => row.name}
-                    columns={columns}
-                    rowHeight={25}
-                    pageSizeOptions={[20, 50, 100]}
-                    density='compact'
-                    slots={{toolbar: GridToolbar}}
-                    initialState={{
-                        pagination: {paginationModel: {pageSize: 20}},
-                    }}
-                />
-
-
+            <DataGrid
+                rows={fields}
+                getRowId={(row) => row.name}
+                columns={columns}
+                rowHeight={25}
+                pageSizeOptions={[20, 50, 100]}
+                density='compact'
+                slots={{toolbar: GridToolbar}}
+                initialState={{
+                    pagination: {paginationModel: {pageSize: 20}},
+                }}
+            />
         );
     }
 
@@ -136,11 +132,11 @@ export const ClrObject = () => {
     }
 
     const rootGrid = roots && roots.length !== 0
-        ? <ClrObjectRoot rootPath={roots[0]} />
+        ? <ClrObjectRoot rootPath={roots[0]}/>
         : <div>root path not found</div>;
 
     return (
-        <div >
+        <div>
             <h4 id="tableLabel" style={{flexGrow: 1}}>Clr Object</h4>
             <PropertiesTable rows={propertyRows}/>
             {contents}

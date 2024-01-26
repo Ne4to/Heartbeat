@@ -1,19 +1,19 @@
-import React, {useEffect} from 'react';
-import LinearProgress from '@mui/material/LinearProgress';
+import React from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
-import Box from '@mui/material/Box';
 
-import getClient from '../lib/getClient'
+import getClient from '../../lib/getClient'
 import {
     Generation,
     ObjectGCStatus,
     SparseArrayStatistics,
-} from '../client/models';
-import {PropertiesTable, PropertyRow} from "../components/PropertiesTable";
-import {ObjectGCStatusSelect} from "../components/ObjectGCStatusSelect";
-import {GenerationSelect} from "../components/GenerationSelect";
-import {methodTableColumn, sizeColumn} from "../lib/gridColumns";
-import toSizeString from "../lib/toSizeString";
+} from '../../client/models';
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
+import {GenerationSelect} from "../../components/GenerationSelect";
+import {methodTableColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
+import {Stack} from "@mui/material";
+import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
     methodTableColumn,
@@ -36,22 +36,15 @@ const columns: GridColDef[] = [
 ];
 
 export const SparseArraysStat = () => {
-    const [loading, setLoading] = React.useState<boolean>(true)
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
-    const [arrays, setArrays] = React.useState<SparseArrayStatistics[]>([])
 
-    useEffect(() => {
-        loadData(gcStatus, generation).catch(console.error);
-    }, [gcStatus, generation]);
-
-    const loadData = async (gcStatus?: ObjectGCStatus, generation?: Generation) => {
+    const getData = async () => {
         const client = getClient();
         const result = await client.api.dump.arrays.sparse.stat.get(
             {queryParameters: {gcStatus: gcStatus, generation: generation}}
         )
-        setArrays(result!)
-        setLoading(false)
+        return result!
     }
 
     const renderTable = (arrays: SparseArrayStatistics[]) => {
@@ -83,27 +76,27 @@ export const SparseArraysStat = () => {
         );
     }
 
-    let contents = loading
-        ? <Box sx={{width: '100%'}}>
-            <LinearProgress/>
-        </Box>
-        : renderTable(arrays);
+    const getChildrenContent = (arrays: SparseArrayStatistics[]) => {
+        const totalWasted = arrays.map(m => m.totalWasted!).reduce((sum, current) => sum + current, 0)
 
-    const totalWasted = arrays.map(m => m.totalWasted!).reduce((sum, current) => sum + current, 0)
+        const propertyRows: PropertyRow[] = [
+            {title: 'Count', value: String(arrays.length)},
+            {title: 'Total wasted', value: toSizeString(totalWasted)},
+        ]
 
-    const propertyRows: PropertyRow[] = [
-        {title: 'Count', value: String(arrays.length)},
-        {title: 'Total wasted', value: toSizeString(totalWasted)},
-    ]
+        return <Stack>
+            <PropertiesTable rows={propertyRows}/>
+            {renderTable(arrays)}
+        </Stack>
+    }
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
-            <div style={{flexGrow: 1}}>
+        <Stack>
+            <Stack direction="row">
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
-            </div>
-            <PropertiesTable rows={propertyRows}/>
-            {contents}
-        </div>
+            </Stack>
+            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+        </Stack>
     );
 }

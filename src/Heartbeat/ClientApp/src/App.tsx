@@ -11,7 +11,7 @@ import clrObject from './clrObject'
 import roots from './pages/roots'
 import modules from './pages/modules'
 import arraysGrid from './pages/arraysGrid'
-import sparseArraysStat from './sparseArraysStat'
+import sparseArraysStat from './pages/sparseArraysStat'
 import stringsGrid from './pages/stringsGrid'
 import stringDuplicates from './pages/stringDuplicates'
 import {dataProvider} from "./lib/dataProvider";
