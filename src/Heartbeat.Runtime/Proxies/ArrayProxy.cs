@@ -91,7 +91,7 @@ public sealed class ArrayProxy : ProxyBase
 
         var lowerBound0 = array.GetLowerBound(0);
         var upperBound0 = array.GetUpperBound(0);
-        for (int index0 = lowerBound0; index0 < upperBound0; index0++)
+        for (int index0 = lowerBound0; index0 <= upperBound0; index0++)
         {
             if (array.Rank == 1)
             {
@@ -101,7 +101,7 @@ public sealed class ArrayProxy : ProxyBase
             {
                 var lowerBound1 = array.GetLowerBound(1);
                 var upperBound1 = array.GetUpperBound(1);
-                for (int index1 = lowerBound1; index1 < upperBound1; index1++)
+                for (int index1 = lowerBound1; index1 <= upperBound1; index1++)
                 {
                     if (array.Rank == 2)
                     {
@@ -129,7 +129,7 @@ public sealed class ArrayProxy : ProxyBase
 
         var lowerBound0 = array.GetLowerBound(0);
         var upperBound0 = array.GetUpperBound(0);
-        for (int index0 = lowerBound0; index0 < upperBound0; index0++)
+        for (int index0 = lowerBound0; index0 <= upperBound0; index0++)
         {
             if (array.Rank == 1)
             {
@@ -139,7 +139,7 @@ public sealed class ArrayProxy : ProxyBase
             {
                 var lowerBound1 = array.GetLowerBound(1);
                 var upperBound1 = array.GetUpperBound(1);
-                for (int index1 = lowerBound1; index1 < upperBound1; index1++)
+                for (int index1 = lowerBound1; index1 <= upperBound1; index1++)
                 {
                     if (array.Rank == 2)
                     {

@@ -1,19 +1,23 @@
 ﻿using Heartbeat.Domain;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Diagnostics.Runtime;
 
 using Swashbuckle.AspNetCore.Annotations;
 
+using System.Globalization;
 using System.Net.Mime;
 
 namespace Heartbeat.Host.Controllers;
 
 [ApiController]
+[OutputCache]
 [Route("api/dump")]
 [ApiExplorerSettings(GroupName = "Heartbeat")]
 [Consumes(MediaTypeNames.Application.Json)]
@@ -31,7 +35,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("info")]
     [ProducesResponseType(typeof(DumpInfo), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get dump info", description: "Get dump info")]
+    [SwaggerOperation(summary: "Get dump info")]
     public DumpInfo GetInfo()
     {
         var clrHeap = _context.Heap;
@@ -53,7 +57,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("modules")]
     [ProducesResponseType(typeof(Module[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get modules", description: "Get modules")]
+    [SwaggerOperation(summary: "Get modules")]
     public IEnumerable<Module> GetModules()
     {
         var modules = _context.Runtime
@@ -67,7 +71,7 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("segments")]
     [ProducesResponseType(typeof(HeapSegment[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get segments", description: "Get heap segments")]
+    [SwaggerOperation(summary: "Get segments")]
     public IEnumerable<HeapSegment> GetSegments()
     {
         var segments =
@@ -83,11 +87,11 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("roots")]
     [ProducesResponseType(typeof(RootInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap roots", description: "Get heap roots")]
+    [SwaggerOperation(summary: "Get heap roots")]
     public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
     {
         return
-            from root in _context.Heap.EnumerateRoots().ToArray()
+            from root in _context.Heap.EnumerateRoots()
             where kind == null || root.RootKind == kind
             let objectType = root.Object.Type
             select new RootInfo(
@@ -103,18 +107,14 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("heap-dump-statistics")]
     [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by just my code - how to filter Action<MyType>?
         // TODO filter by type name
     {
-        var analyzer = new HeapDumpStatisticsAnalyzer(_context)
-        {
-            TraversingHeapMode = traversingMode,
-            Generation = generation
-        };
+        var analyzer = new HeapDumpStatisticsAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         var statistics = analyzer.GetObjectTypeStatistics()
             .OrderByDescending(s => s.TotalSize)
@@ -127,14 +127,14 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("strings")]
     [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics", description: "Get heap dump statistics")]
+    [SwaggerOperation(summary: "Get heap dump statistics")]
     public IEnumerable<StringInfo> GetStrings(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length
         // TODO filter by max length
     {
-        var query = from obj in _context.EnumerateStrings(traversingMode, generation)
+        var query = from obj in _context.EnumerateStrings(gcStatus, generation)
             let str = obj.AsString()
             let length = obj.ReadField<int>("_stringLength")
             select new StringInfo(obj.Address, length, obj.Size, str);
@@ -146,16 +146,13 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("string-duplicates")]
     [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get string duplicates", description: "Get string duplicates")]
+    [SwaggerOperation(summary: "Get string duplicates")]
     public IEnumerable<StringDuplicate> GetStringDuplicates(
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length 
     {
-        var analyzer = new StringDuplicateAnalyzer(_context)
-        {
-            TraversingHeapMode = traversingMode, Generation = generation
-        };
+        var analyzer = new StringDuplicateAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         return analyzer.GetStringDuplicates()
             .Select(sd => new StringDuplicate(sd.Value, sd.Count, sd.FullLength, sd.WastedMemory));
@@ -164,10 +161,10 @@ public class DumpController : ControllerBase
     [HttpGet]
     [Route("object-instances/{mt}")]
     [ProducesResponseType(typeof(GetObjectInstancesResult), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get object instances", description: "Get object instances")]
+    [SwaggerOperation(summary: "Get object instances")]
     public GetObjectInstancesResult GetObjectInstances(
             ulong mt,
-            [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+            [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO limit maxCount
     {
@@ -176,7 +173,7 @@ public class DumpController : ControllerBase
         var clrType = _context.Heap.FindTypeByMethodTable(methodTable);
 
         var instances = (
-            from obj in _context.EnumerateObjects(traversingMode, generation)
+            from obj in _context.EnumerateObjects(gcStatus, generation)
             where obj.Type != null
                   && obj.Type.MethodTable == methodTable
             orderby obj.Size descending
@@ -191,32 +188,83 @@ public class DumpController : ControllerBase
     }
 
     [HttpGet]
-    [Route("arrays")]
+    [Route("arrays/sparse")]
     [ProducesResponseType(typeof(ArrayInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get arrays", description: "Get arrays")]
+    [SwaggerOperation(summary: "Get sparse arrays")]
+    // TODO add arrays
     // TODO add arrays/sparse
     // TODO add arrays/sparse/stat
-    public IEnumerable<ArrayInfo> GetArrays(        
-        [FromQuery] TraversingHeapModes traversingMode = TraversingHeapModes.All,
+    public IEnumerable<ArrayInfo> GetSparseArrays(
+        [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in _context.EnumerateObjects(traversingMode, generation)
-            // where obj.Address == 0x1b501c921d8
+        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
             let proxy = new ArrayProxy(_context, obj)
             where proxy.UnusedItemsPercent >= 0.2
-            orderby proxy.Wasted descending 
-            select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount, proxy.UnusedItemsPercent, proxy.Wasted);
-        
+            orderby proxy.Wasted descending
+            select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount,
+                proxy.UnusedItemsPercent, proxy.Wasted);
+
         return query.Take(100);
+    }
+
+    [HttpGet]
+    [Route("arrays/sparse/stat")]
+    [ProducesResponseType(typeof(SparseArrayStatistics[]), StatusCodes.Status200OK)]
+    [SwaggerOperation(summary: "Get arrays")]
+    public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(
+        [FromQuery] ObjectGCStatus? gcStatus = null,
+        [FromQuery] Generation? generation = null)
+    {
+        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
+            where obj.IsArray
+            let proxy = new ArrayProxy(_context, obj)
+            where proxy.UnusedItemsCount != 0
+            group proxy by obj.Type.MethodTable
+            into grp
+            select new SparseArrayStatistics
+            (
+                grp.Key,
+                grp.First().TargetObject.Type.Name,
+                grp.Count(),
+                Size.Sum(grp.Select(t => t.Wasted))
+            );
+
+        return query;
     }
 
     [HttpGet]
     [Route("object/{address}")]
     [ProducesResponseType(typeof(GetClrObjectResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object", description: "Get object")]
+    [SwaggerOperation(summary: "Get object")]
     public IActionResult GetClrObject(ulong address)
+    {
+        var clrObject = _context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return NotFound();
+        }
+
+        var result = new GetClrObjectResult(
+            clrObject.Address,
+            clrObject.Type.Module.Name,
+            clrObject.Type.Name,
+            clrObject.Type.MethodTable,
+            clrObject.Size,
+            _context.Heap.GetGeneration(clrObject.Address),
+            clrObject.Type.IsString ? clrObject.AsString() : null);
+
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("object/{address}/fields")]
+    [ProducesResponseType(typeof(ClrObjectField[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(summary: "Get object fields")]
+    public IActionResult GetClrObjectFields(ulong address)
     {
         var clrObject = _context.Heap.GetObject(address);
         if (clrObject.Type == null)
@@ -226,9 +274,7 @@ public class DumpController : ControllerBase
 
         var fields = (
             from field in clrObject.Type.Fields
-            let mt = field.Type?.MethodTable != null
-                ? new MethodTable(field.Type.MethodTable)
-                : new MethodTable(0)
+            let mt = field.Type?.MethodTable ?? 0UL
             let objectAddress = GetFieldObjectAddress(field, clrObject.Address)
             let value = GetFieldValue(field, clrObject.Address)
             select new ClrObjectField(
@@ -240,25 +286,15 @@ public class DumpController : ControllerBase
                 value,
                 field.Name)
         ).ToArray();
-        
-        var result = new GetClrObjectResult(
-            clrObject.Address,
-            clrObject.Type.Module.Name,
-            clrObject.Type.Name,
-            clrObject.Type.MethodTable,
-            clrObject.Size,
-            _context.Heap.GetGeneration(clrObject.Address),
-            clrObject.Type.IsString ? clrObject.AsString() : null,
-            fields);
 
-        return Ok(result);
+        return Ok(fields);
     }
 
     [HttpGet]
     [Route("object/{address}/roots")]
     [ProducesResponseType(typeof(ClrObjectRootPath[]), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object roots", description: "Get object roots")]
+    [SwaggerOperation(summary: "Get object roots")]
     public IActionResult GetClrObjectRoots(ulong address, CancellationToken ct)
     {
         var clrObject = _context.Heap.GetObject(address);
@@ -268,7 +304,7 @@ public class DumpController : ControllerBase
         }
 
         var result = new List<ClrObjectRootPath>();
-        GCRoot gcRoot = new(_context.Heap, new [] { address });
+        GCRoot gcRoot = new(_context.Heap, new[] { address });
         foreach ((ClrRoot root, GCRoot.ChainLink path) in gcRoot.EnumerateRootPaths(ct))
         {
             var rootType = root.Object.Type!;
@@ -283,24 +319,24 @@ public class DumpController : ControllerBase
             );
 
             List<RootPathItem> pathItems = new();
-            
+
             GCRoot.ChainLink? current = path;
             while (current != null)
             {
                 var obj = _context.Heap.GetObject(current.Object);
-                
+
                 var item = new RootPathItem(
                     obj.Address,
                     obj.Type!.MethodTable,
                     obj.Type.Name,
                     obj.Size,
                     _context.Heap.GetGeneration(obj.Address));
-                
+
                 pathItems.Add(item);
-                
+
                 current = current.Next;
             }
-            
+
             result.Add(new ClrObjectRootPath(rootInfo, pathItems));
             // TODO get only one root path
             break;
@@ -321,13 +357,29 @@ public class DumpController : ControllerBase
 
     private static string GetFieldValue(ClrInstanceField field, ulong address)
     {
-        return field.Type?.Name switch
+        if (field.IsPrimitive)
         {
-            "System.Boolean" => field.Read<bool>(address, false).ToString(),
-            "System.String" => field.ReadString(address, false) ?? "<null>",
-            "System.Int32" => field.Read<int>(address, false).ToString(),
-            _ => GetAddress()
-        };
+            return field.ElementType switch
+            {
+                ClrElementType.Boolean => field.Read<bool>(address, false).ToString(),
+                ClrElementType.Char => field.Read<char>(address, false).ToString(),
+                ClrElementType.Int8 => field.Read<sbyte>(address, false).ToString(),
+                ClrElementType.UInt8 => field.Read<byte>(address, false).ToString(),
+                ClrElementType.Int16 => field.Read<short>(address, false).ToString(),
+                ClrElementType.UInt16 => field.Read<ushort>(address, false).ToString(),
+                ClrElementType.Int32 => field.Read<int>(address, false).ToString(),
+                ClrElementType.UInt32 => field.Read<int>(address, false).ToString(),
+                ClrElementType.Int64 => field.Read<long>(address, false).ToString(),
+                ClrElementType.UInt64 => field.Read<ulong>(address, false).ToString(),
+                ClrElementType.Float => field.Read<float>(address, false).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Double => field.Read<double>(address, false).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.NativeInt => field.Read<nint>(address, false).ToString(),
+                ClrElementType.NativeUInt => field.Read<nuint>(address, false).ToString(),
+                _ => throw new ArgumentOutOfRangeException($"Unable to get primitive value for {field.ElementType} field")
+            };
+        }
+
+        return GetAddress();
 
         string GetAddress()
         {
@@ -350,10 +402,28 @@ public class DumpController : ControllerBase
 
             if (field.Type?.IsObjectReference ?? false)
             {
-                ulong fieldAddress = field.ReadObject(address, false).Address;
-                return fieldAddress != 0
-                    ? fieldAddress.ToString("x16")
-                    : "<null>";
+                ClrObject clrObject = field.ReadObject(address, false);
+                if (clrObject.IsNull)
+                {
+                    return "<null>";
+                }
+
+                if (clrObject.Type?.IsString ?? false)
+                {
+                    return clrObject.AsString(100);
+                }
+
+                if (clrObject is { IsNull: false, Type.Name: "System.Version" })
+                {
+                    var major = clrObject.ReadField<int>("_Major");
+                    var minor = clrObject.ReadField<int>("_Minor");
+                    var build = clrObject.ReadField<int>("_Build");
+                    var revision = clrObject.ReadField<int>("_Revision");
+                    var version = new Version(major, minor, build, revision);
+                    return version.ToString();
+                }
+
+                return clrObject.Address.ToString("x16");
             }
 
             return string.Empty;

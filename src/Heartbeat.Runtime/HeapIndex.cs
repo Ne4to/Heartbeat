@@ -1,7 +1,6 @@
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
-
 namespace Heartbeat.Runtime;
 
 public sealed class HeapIndex
@@ -40,16 +39,23 @@ public sealed class HeapIndex
                 continue;
             }
 
-            // Now enumerate all objects that this object points to, add them to the
-            // evaluation stack if we haven't seen them before.
-            if (type.IsArray)
+            var obj = heap.GetObject(address);
+            foreach (var reference in obj.EnumerateReferenceAddresses())
             {
-                EnumerateArrayElements(address);
+                eval.Push(reference);
+                AddReference(address, reference);
             }
-            else
-            {
-                EnumerateFields(type, address);
-            }
+
+            // // Now enumerate all objects that this object points to, add them to the
+            // // evaluation stack if we haven't seen them before.
+            // if (type.IsArray)
+            // {
+            //     EnumerateArrayElements(address);
+            // }
+            // else
+            // {
+            //     EnumerateFields(type, address);
+            // }
         }
 
         void EnumerateArrayElements(ulong address)
@@ -80,7 +86,8 @@ public sealed class HeapIndex
             }
             else
             {
-                throw new NotSupportedException($"Enumerating array of {array.Type.ComponentType} type is not supported");
+                throw new NotSupportedException(
+                    $"Enumerating array of {array.Type.ComponentType} type is not supported");
             }
         }
 
@@ -90,7 +97,7 @@ public sealed class HeapIndex
             {
                 if (instanceField.IsObjectReference)
                 {
-                    var fieldObject = instanceField.ReadObject(objectAddress, false);
+                    var fieldObject = instanceField.ReadObject(objectAddress, !type.IsObjectReference);
                     if (!fieldObject.IsNull)
                     {
                         AddReference(objectAddress, fieldObject.Address);
@@ -98,6 +105,7 @@ public sealed class HeapIndex
                         {
                             AddReference(parentAddress.Value, fieldObject.Address);
                         }
+
                         eval.Push(fieldObject.Address);
                     }
                 }

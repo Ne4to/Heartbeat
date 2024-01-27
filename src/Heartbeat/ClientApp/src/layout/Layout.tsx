@@ -4,5 +4,6 @@ import AppBar from './AppBar';
 import Menu from './Menu';
 
 export default (props: LayoutProps) => (
-    <Layout {...props} appBar={AppBar} menu={Menu} />
+    <Layout {...props} appBar={AppBar} menu={Menu}
+            sx={{ '& .RaLayout-content': { padding: '8px' } }}/>
 );

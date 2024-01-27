@@ -2,7 +2,10 @@ using Heartbeat.Host.CommandLine;
 using Heartbeat.Host.Extensions;
 using Heartbeat.Runtime;
 
+using Microsoft.AspNetCore.Diagnostics;
+
 using System.CommandLine;
+using System.Net.Mime;
 using System.Text.Json.Serialization;
 
 if (Environment.GetEnvironmentVariable("HEARTBEAT_GENERATE_CONTRACTS") == "true")
@@ -45,7 +48,7 @@ static void MainWeb(WebCommandOptions options, string[] args)
 #endif
 
     var builder = WebApplication.CreateBuilder(args);
-
+    
     builder.Services
         .AddControllers()
         .AddJsonOptions(
@@ -56,6 +59,7 @@ static void MainWeb(WebCommandOptions options, string[] args)
             });
     builder.Services.AddProblemDetails();
     builder.Services.AddSwagger();
+    builder.Services.AddOutputCache();
 
 // TODO support auth
 // TODO setup listening port
@@ -71,7 +75,32 @@ static void MainWeb(WebCommandOptions options, string[] args)
         options.EnableTryItOutByDefault();
         options.SwaggerEndpoint("Heartbeat/swagger.yaml", "Heartbeat");
     });
-    app.UseExceptionHandler();
+    app.UseExceptionHandler(exceptionHandlerApp =>
+    {
+        exceptionHandlerApp.Run(async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+
+            if (context.RequestServices.GetService<IProblemDetailsService>() is { } problemDetailsService)
+            {
+                var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+                var exceptionType = exceptionHandlerFeature?.Error;
+                await problemDetailsService.WriteAsync(new ProblemDetailsContext
+                {
+                    HttpContext = context,
+                    ProblemDetails =
+                    {
+                        Title = "An error occurred while processing your request.",
+                        Detail = exceptionType?.Message,
+                        Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                        Status = 500
+                    }
+                });
+            }
+        });
+    });
+    app.UseOutputCache();
     app.MapControllers();
     app.Run();
 }

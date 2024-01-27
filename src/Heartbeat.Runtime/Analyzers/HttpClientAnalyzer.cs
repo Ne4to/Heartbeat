@@ -1,12 +1,13 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
 
     public HttpClientAnalyzer(RuntimeContext context)
         : base(context)
@@ -17,7 +18,7 @@ public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
     {
         var result = new List<HttpClientInfo>();
 
-        foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", TraversingHeapMode))
+        foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", ObjectGcStatus))
         {
             var httpClientObjectType = Context.Heap.GetObjectType(address);
             var timeoutField = httpClientObjectType.GetFieldByName("_timeout");

@@ -114,6 +114,9 @@ export function createRootInfoFromDiscriminatorValue(parseNode: ParseNode | unde
 export function createRootPathItemFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoRootPathItem;
 }
+export function createSparseArrayStatisticsFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoSparseArrayStatistics;
+}
 export function createStringDuplicateFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoStringDuplicate;
 }
@@ -163,7 +166,6 @@ export function deserializeIntoDumpInfo(dumpInfo: DumpInfo | undefined = {} as D
 export function deserializeIntoGetClrObjectResult(getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : Record<string, (node: ParseNode) => void> {
     return {
         "address": n => { getClrObjectResult.address = n.getNumberValue(); },
-        "fields": n => { getClrObjectResult.fields = n.getCollectionOfObjectValues<ClrObjectField>(createClrObjectFieldFromDiscriminatorValue); },
         "generation": n => { getClrObjectResult.generation = n.getEnumValue<Generation>(GenerationObject); },
         "methodTable": n => { getClrObjectResult.methodTable = n.getNumberValue(); },
         "moduleName": n => { getClrObjectResult.moduleName = n.getStringValue(); },
@@ -236,6 +238,14 @@ export function deserializeIntoRootPathItem(rootPathItem: RootPathItem | undefin
         "typeName": n => { rootPathItem.typeName = n.getStringValue(); },
     }
 }
+export function deserializeIntoSparseArrayStatistics(sparseArrayStatistics: SparseArrayStatistics | undefined = {} as SparseArrayStatistics) : Record<string, (node: ParseNode) => void> {
+    return {
+        "count": n => { sparseArrayStatistics.count = n.getNumberValue(); },
+        "methodTable": n => { sparseArrayStatistics.methodTable = n.getNumberValue(); },
+        "totalWasted": n => { sparseArrayStatistics.totalWasted = n.getNumberValue(); },
+        "typeName": n => { sparseArrayStatistics.typeName = n.getStringValue(); },
+    }
+}
 export function deserializeIntoStringDuplicate(stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : Record<string, (node: ParseNode) => void> {
     return {
         "count": n => { stringDuplicate.count = n.getNumberValue(); },
@@ -293,10 +303,6 @@ export interface GetClrObjectResult extends Parsable {
      * The address property
      */
     address?: number;
-    /**
-     * The fields property
-     */
-    fields?: ClrObjectField[];
     /**
      * The generation property
      */
@@ -368,6 +374,7 @@ export interface Module extends Parsable {
      */
     size?: number;
 }
+export type ObjectGCStatus = (typeof ObjectGCStatusObject)[keyof typeof ObjectGCStatusObject];
 export interface ObjectInstance extends Parsable {
     /**
      * The address property
@@ -504,7 +511,6 @@ export function serializeDumpInfo(writer: SerializationWriter, dumpInfo: DumpInf
 }
 export function serializeGetClrObjectResult(writer: SerializationWriter, getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : void {
     writer.writeNumberValue("address", getClrObjectResult.address);
-    writer.writeCollectionOfObjectValues<ClrObjectField>("fields", getClrObjectResult.fields, serializeClrObjectField);
     writer.writeEnumValue<Generation>("generation", getClrObjectResult.generation);
     writer.writeNumberValue("methodTable", getClrObjectResult.methodTable);
     writer.writeStringValue("moduleName", getClrObjectResult.moduleName);
@@ -560,6 +566,12 @@ export function serializeRootPathItem(writer: SerializationWriter, rootPathItem:
     writer.writeNumberValue("size", rootPathItem.size);
     writer.writeStringValue("typeName", rootPathItem.typeName);
 }
+export function serializeSparseArrayStatistics(writer: SerializationWriter, sparseArrayStatistics: SparseArrayStatistics | undefined = {} as SparseArrayStatistics) : void {
+    writer.writeNumberValue("count", sparseArrayStatistics.count);
+    writer.writeNumberValue("methodTable", sparseArrayStatistics.methodTable);
+    writer.writeNumberValue("totalWasted", sparseArrayStatistics.totalWasted);
+    writer.writeStringValue("typeName", sparseArrayStatistics.typeName);
+}
 export function serializeStringDuplicate(writer: SerializationWriter, stringDuplicate: StringDuplicate | undefined = {} as StringDuplicate) : void {
     writer.writeNumberValue("count", stringDuplicate.count);
     writer.writeNumberValue("fullLength", stringDuplicate.fullLength);
@@ -571,6 +583,24 @@ export function serializeStringInfo(writer: SerializationWriter, stringInfo: Str
     writer.writeNumberValue("length", stringInfo.length);
     writer.writeNumberValue("size", stringInfo.size);
     writer.writeStringValue("value", stringInfo.value);
+}
+export interface SparseArrayStatistics extends Parsable {
+    /**
+     * The count property
+     */
+    count?: number;
+    /**
+     * The methodTable property
+     */
+    methodTable?: number;
+    /**
+     * The totalWasted property
+     */
+    totalWasted?: number;
+    /**
+     * The typeName property
+     */
+    typeName?: string;
 }
 export interface StringDuplicate extends Parsable {
     /**
@@ -608,7 +638,6 @@ export interface StringInfo extends Parsable {
      */
     value?: string;
 }
-export type TraversingHeapModes = (typeof TraversingHeapModesObject)[keyof typeof TraversingHeapModesObject];
 export const ArchitectureObject = {
     X86: "X86",
     X64: "X64",
@@ -648,10 +677,9 @@ export const GenerationObject = {
     Frozen: "Frozen",
     Unknown: "Unknown",
 }  as const;
-export const TraversingHeapModesObject = {
+export const ObjectGCStatusObject = {
     Live: "Live",
     Dead: "Dead",
-    All: "All",
 }  as const;
 /* tslint:enable */
 /* eslint-enable */

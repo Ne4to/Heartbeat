@@ -31,8 +31,7 @@ public record GetClrObjectResult(
     ulong MethodTable,
     ulong Size,
     Generation Generation,
-    string? Value,
-    IReadOnlyList<ClrObjectField> Fields);
+    string? Value);
 
 public record ClrObjectField(
     ulong MethodTable,
@@ -60,3 +59,5 @@ public record ClrObjectRootPath(RootInfo Root, IReadOnlyList<RootPathItem> PathI
 public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, ulong Size, Generation Generation);
 
 public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);
+
+public record SparseArrayStatistics(ulong MethodTable, string? TypeName, int Count, ulong TotalWasted);

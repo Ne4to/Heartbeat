@@ -25,8 +25,32 @@ export interface Theme {
     dark?: RaThemeOptions;
 }
 
+const lightTheme = {
+    ...defaultLightTheme,
+    components: {
+        ...defaultLightTheme.components,
+        RaButton: {
+            styleOverrides: {
+                root: {
+                    fontFamily: 'monospace',
+                }
+            }
+        },
+        RaMenuItemLink: {
+            styleOverrides: {
+                root: {
+                    borderLeft: '3px solid #fff',
+                    '&.RaMenuItemLink-active': {
+                        borderLeft: '3px solid #4f3cc9',
+                    },
+                },
+            },
+        },
+    }
+}
+
 export const themes: Theme[] = [
-    { name: 'soft', light: softLightTheme, dark: softDarkTheme },
+    { name: 'soft', light: lightTheme, dark: softDarkTheme },
     { name: 'default', light: defaultLightTheme, dark: defaultDarkTheme },
     { name: 'nano', light: nanoLightTheme, dark: nanoDarkTheme },
     { name: 'radiant', light: radiantLightTheme, dark: radiantDarkTheme },

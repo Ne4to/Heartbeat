@@ -1,13 +1,14 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public sealed class TimerQueueTimerAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public sealed class TimerQueueTimerAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
 
     public TimerQueueTimerAnalyzer(RuntimeContext context) : base(context)
     {
@@ -15,14 +16,14 @@ public sealed class TimerQueueTimerAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
 
     public void Dump(ILogger logger)
     {
-        WriteLog(logger, TraversingHeapMode);
+        WriteLog(logger, ObjectGcStatus);
     }
 
-    public IReadOnlyCollection<TimerQueueTimerInfo> GetTimers(TraversingHeapModes traversingMode)
+    public IReadOnlyCollection<TimerQueueTimerInfo> GetTimers(ObjectGCStatus? status)
     {
         var result = new List<TimerQueueTimerInfo>();
 
-        foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Threading.TimerQueueTimer", traversingMode))
+        foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Threading.TimerQueueTimer", status))
         {
             var timerObjectType = Context.Heap.GetObjectType(address);
 
@@ -56,9 +57,9 @@ public sealed class TimerQueueTimerAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
         return result;
     }
 
-    private void WriteLog(ILogger logger, TraversingHeapModes traversingMode)
+    private void WriteLog(ILogger logger, ObjectGCStatus? status)
     {
-        foreach (var timer in GetTimers(traversingMode))
+        foreach (var timer in GetTimers(status))
         {
             logger.LogInformation($"{timer.Address} m_dueTime = {timer.DueTime}, m_period = {timer.Period}, m_canceled = {timer.Cancelled}");
 

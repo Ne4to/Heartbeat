@@ -1,13 +1,14 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
 
     public LongStringAnalyzer(RuntimeContext context)
         : base(context)
@@ -16,18 +17,18 @@ public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
 
     public void Dump(ILogger logger)
     {
-        WriteLog(logger, TraversingHeapMode);
+        WriteLog(logger, ObjectGcStatus);
     }
 
-    private void WriteLog(ILogger logger, TraversingHeapModes traversingMode)
+    private void WriteLog(ILogger logger, ObjectGCStatus? status)
     {
-        LogLongestStrings(logger, traversingMode, 10);
+        LogLongestStrings(logger, status, 10);
     }
 
-    private IEnumerable<ClrObject> GetLongestStrings(int count, TraversingHeapModes traversingMode)
+    private IEnumerable<ClrObject> GetLongestStrings(int count, ObjectGCStatus? status)
     {
         var query =
-            from clrObject in Context.EnumerateStrings(traversingMode)
+            from clrObject in Context.EnumerateStrings(status)
             orderby clrObject.Size descending
             select clrObject;
 
@@ -46,19 +47,19 @@ public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithTravers
         //                Console.WriteLine($"Value: {System.Text.Encoding.Unicode.GetString(buffer)}...");
     }
 
-    private void LogLongestStrings(ILogger logger, TraversingHeapModes traversingMode, int count, int maxLength = 200)
+    private void LogLongestStrings(ILogger logger, ObjectGCStatus? status, int count, int maxLength = 200)
     {
-        foreach (var s in GetStrings(count, maxLength))
+        foreach (var s in GetStrings(status, count, maxLength))
         {
             logger.LogInformation($"Length = {s.Length} symbols, Value = {s.Value}");
         }
     }
 
-    public IReadOnlyCollection<LongStringInfo> GetStrings(int count, int? truncateLength)
+    public IReadOnlyCollection<LongStringInfo> GetStrings(ObjectGCStatus? status, int count, int? truncateLength)
     {
         var result = new List<LongStringInfo>(count);
 
-        foreach (var stringClrObject in GetLongestStrings(count, TraversingHeapMode))
+        foreach (var stringClrObject in GetLongestStrings(count, status))
         {
             string value = stringClrObject.AsString(truncateLength ?? 4096)!;
             var length = stringClrObject.ReadField<int>("_stringLength");

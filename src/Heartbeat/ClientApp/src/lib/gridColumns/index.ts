@@ -9,7 +9,7 @@ export const methodTableColumn: GridColDef = {
     align: 'right',
     type: 'number',
     valueFormatter: formatAddress,
-    renderCell: renderMethodTable,
+    renderCell: renderMethodTable
 }
 
 export const objectAddressColumn: GridColDef = {

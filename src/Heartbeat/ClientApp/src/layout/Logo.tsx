@@ -1,11 +1,15 @@
 import MonitorHeart from '@mui/icons-material/MonitorHeart'
+import {Stack, Typography} from "@mui/material";
+import Box from "@mui/material/Box";
 
 const Logo = () => {
     return (
-        <>
+        <Box display="flex" alignItems="center">
             <MonitorHeart />
-            <a href="https://github.com/Ne4to/Heartbeat" target="_blank">Heartbeat</a>
-        </>
+            <Typography component="span" variant="h5">
+                Heartbeat
+            </Typography>
+        </Box>
     );
 };
 

@@ -1,6 +1,8 @@
 import {GridRenderCellParams, GridValueFormatterParams} from "@mui/x-data-grid";
 import toHexAddress from "../toHexAddress";
 import React from "react";
+import {Button, Link} from "react-admin";
+import {NavLink} from "react-router-dom";
 
 export function renderAddress(params: GridRenderCellParams): React.ReactNode {
     const address = toHexAddress(params.value)
@@ -10,9 +12,13 @@ export function renderAddress(params: GridRenderCellParams): React.ReactNode {
 }
 
 export function renderClrObjectAddress(params: GridRenderCellParams): React.ReactNode {
-    const address = toHexAddress(params.value)
+    return renderClrObjectLink(params.value);
+}
+
+export function renderClrObjectLink(address: number, label: string|undefined=undefined):React.ReactNode {
+    const hexAddress = toHexAddress(address)
     return (
-        <a className="monoFont" href={'#/clr-object?address=' + address}>{address}</a>
+        <Button component={NavLink} to={`/clr-object/${hexAddress}/show`} label={label ?? hexAddress} />
     )
 }
 
@@ -21,8 +27,8 @@ export function renderMethodTable(params: GridRenderCellParams): React.ReactNode
 }
 
 export function renderMethodTableLink(mt?: number):React.ReactNode {
-    const address = toHexAddress(mt)
+    const hexMt = toHexAddress(mt)
     return (
-        <a className="monoFont" href={'#/object-instances?mt=' + address}>{address}</a>
+        <Button component={NavLink} to={`/object-instances/${hexMt}/show`} label={hexMt} />
     )
 }

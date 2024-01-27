@@ -1,4 +1,5 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 
 using Microsoft.Diagnostics.Runtime;
@@ -6,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
 
-public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithTraversingHeapMode
+public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectGCStatus
 {
-    public TraversingHeapModes TraversingHeapMode { get; set; } = TraversingHeapModes.All;
+    public ObjectGCStatus? ObjectGcStatus { get; set; }
     public Generation? Generation { get; set; }
 
     public StringDuplicateAnalyzer(RuntimeContext context) : base(context)
@@ -50,7 +51,7 @@ public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithTr
         var stringCount = new Dictionary<string, StringDuplicateInfo>(StringComparer.OrdinalIgnoreCase);
 
         var query =
-            from clrObject in Context.EnumerateStrings(TraversingHeapMode, Generation)
+            from clrObject in Context.EnumerateStrings(ObjectGcStatus, Generation)
             select clrObject;
 
         foreach (var stringInstance in query)

@@ -16,7 +16,7 @@ try
     Set-Location $FrontendRoot
     $env:HEARTBEAT_GENERATE_CONTRACTS = 'true'
     dotnet swagger tofile --yaml --output $ContractPath $DllPath Heartbeat
-    dotnet kiota generate -l typescript --openapi $ContractPath -c HeartbeatClient -o ./src/client
+    dotnet kiota generate -l typescript --openapi $ContractPath -c HeartbeatClient -o ./src/client --clean-output
 
     # TODO try  --serializer  Microsoft.Kiota.Serialization.Json.JsonSerializationWriterFactory --deserializer Microsoft.Kiota.Serialization.Json.JsonParseNodeFactory
 }

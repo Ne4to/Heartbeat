@@ -1,5 +1,6 @@
 ﻿using Heartbeat.Domain;
 using Heartbeat.Runtime;
+using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
@@ -18,7 +19,7 @@ static void ProcessFile(string filePath)
 
     static void WriteWebRequests(RuntimeContext runtimeContext)
     {
-        var q = from clrObject in runtimeContext.EnumerateObjectsByTypeName("System.Net.HttpWebRequest", TraversingHeapModes.All)
+        var q = from clrObject in runtimeContext.EnumerateObjectsByTypeName("System.Net.HttpWebRequest", null)
                 let webRequestProxy = new HttpWebRequestProxy(runtimeContext, clrObject)
                 let requestContentLength = webRequestProxy.ContentLength
                 let responseContentLength = webRequestProxy.Response?.ContentLength
