@@ -1,13 +1,17 @@
 using Heartbeat.Host.CommandLine;
 using Heartbeat.Host.Extensions;
 using Heartbeat.Runtime;
+using Heartbeat.Runtime.Domain;
 
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Diagnostics.Runtime;
 
 using System.CommandLine;
 using System.Net.Mime;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
+#if DEBUG
 if (Environment.GetEnvironmentVariable("HEARTBEAT_GENERATE_CONTRACTS") == "true")
 {
     var builder = WebApplication.CreateBuilder(args);
@@ -17,8 +21,13 @@ if (Environment.GetEnvironmentVariable("HEARTBEAT_GENERATE_CONTRACTS") == "true"
         .AddJsonOptions(
             options =>
             {
-                var enumConverter = new JsonStringEnumConverter();
-                options.JsonSerializerOptions.Converters.Add(enumConverter);
+                // var enumConverter = new JsonStringEnumConverter();
+                // options.JsonSerializerOptions.Converters.Add(enumConverter);
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<ObjectGCStatus>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<Generation>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<Architecture>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<GCSegmentKind>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<ClrRootKind>());
             });
     
     builder.Services.AddSwagger();
@@ -32,6 +41,7 @@ if (Environment.GetEnvironmentVariable("HEARTBEAT_GENERATE_CONTRACTS") == "true"
     app.Run();
     return;
 }
+#endif
 
 var (rootCommand, binder) = WebCommandOptions.RootCommand();
 rootCommand.SetHandler((WebCommandOptions options) => MainWeb(options, args), binder);
@@ -54,8 +64,13 @@ static void MainWeb(WebCommandOptions options, string[] args)
         .AddJsonOptions(
             options =>
             {
-                var enumConverter = new JsonStringEnumConverter();
-                options.JsonSerializerOptions.Converters.Add(enumConverter);
+                // var enumConverter = new JsonStringEnumConverter();
+                // options.JsonSerializerOptions.Converters.Add(enumConverter);
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<ObjectGCStatus>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<Generation>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<Architecture>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<GCSegmentKind>());
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter<ClrRootKind>());
             });
     builder.Services.AddProblemDetails();
     builder.Services.AddSwagger();

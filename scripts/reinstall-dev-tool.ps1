@@ -18,9 +18,10 @@ try
     dotnet clean --configuration Release
     Get-Date -Format ''
     $VersionSuffix = "rc.$(Get-Date -Format 'yyyy-MM-dd-HHmm')"
-    dotnet pack --version-suffix $VersionSuffix
-    $PackageVersion = "$VersionPrefix-$VersionSuffix"
-    dotnet tool install --global --add-source ./src/Heartbeat/nupkg Heartbeat --version $PackageVersion
+    dotnet publish --runtime win-x64
+    dotnet pack --runtime win-x64 --version-suffix $VersionSuffix
+#    $PackageVersion = "$VersionPrefix-$VersionSuffix"
+#    dotnet tool install --global --add-source ./src/Heartbeat/nupkg Heartbeat --version $PackageVersion
 }
 catch {
     Write-Host 'Install global tool - FAILED!' -ForegroundColor Red

@@ -3,6 +3,12 @@
         <Using Include="Heartbeat.Domain"/>
     </ItemGroup>
 
+    <PropertyGroup>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <PublishAot>true</PublishAot>
+        <IsAotCompatible>true</IsAotCompatible>
+    </PropertyGroup>
+
     <!--    <ItemGroup>-->
     <!--        <Reference Include="Microsoft.Diagnostics.Runtime">-->
     <!--            <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\net6.0\Microsoft.Diagnostics.Runtime.dll</HintPath>-->

@@ -13,11 +13,20 @@
         <SpaProxyServerUrl>https://localhost:44443</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <PublishAot>true</PublishAot>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
 
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <PackAsTool>true</PackAsTool>
-        <ToolCommandName>heartbeat</ToolCommandName>
+<!--   TODO nuget package is created but `dotnet tool install` fails:     -->
+<!--        The settings file in the tool's NuGet package is invalid: Entry point file 'Heartbeat.dll' for command 'heartbeat.exe' was not found in the package.-->
+<!--        Tool 'heartbeat' failed to install. Contact the tool author for assistance.-->
+        <ToolCommandName>heartbeat.exe</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
