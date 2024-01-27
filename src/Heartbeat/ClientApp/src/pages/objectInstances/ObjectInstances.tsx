@@ -1,26 +1,23 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useParams} from 'react-router-dom';
-import {
-    DataGrid,
-    GridColDef
-} from '@mui/x-data-grid';
-
-import { ObjectGCStatusSelect } from '../../components/ObjectGCStatusSelect'
+import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {Stack} from "@mui/material";
 
 import getClient from '../../lib/getClient'
+import {Generation, GetObjectInstancesResult, ObjectGCStatus, ObjectInstance,} from '../../client/models';
+
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
+import {useNotifyError} from "../../hooks/useNotifyError";
+
 import toHexAddress from '../../lib/toHexAddress'
-import {
-    Generation,
-    GetObjectInstancesResult,
-    ObjectInstance,
-    ObjectGCStatus,
-} from '../../client/models';
-import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
-import {GenerationSelect} from "../../components/GenerationSelect";
 import {objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
 import toSizeString from "../../lib/toSizeString";
-import {Stack} from "@mui/material";
+import fetchData from "../../lib/handleFetchData";
+
 import {ProgressContainer} from "../../components/ProgressContainer";
+import {ObjectGCStatusSelect} from '../../components/ObjectGCStatusSelect'
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+import {GenerationSelect} from "../../components/GenerationSelect";
 
 const columns: GridColDef[] = [
     objectAddressColumn,
@@ -30,17 +27,24 @@ const columns: GridColDef[] = [
 // TODO add type select (search by name, get list from backend)
 export const ObjectInstances = () => {
     const { id } = useParams();
-    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
-    const [generation, setGeneration] = React.useState<Generation>()
     const mt = Number('0x' + id)
 
-    const getData = async() => {
-        const client = getClient();
-        const result = await client.api.dump.objectInstances.byMt(mt).get(
-            { queryParameters: { gcStatus: gcStatus, generation: generation } }
-        );
-        return result!
-    }
+    const {notify, notifyError} = useNotifyError();
+
+    const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
+    const [generation, setGeneration] = React.useState<Generation>()
+    const [data, setData, isLoading, setIsLoading] = useStateWithLoading<GetObjectInstancesResult>()
+
+    useEffect(() => {
+        const fetchInstances = async() => {
+            const client = getClient();
+            return await client.api.dump.objectInstances.byMt(mt).get(
+                {queryParameters: {gcStatus: gcStatus, generation: generation}}
+            )
+        }
+
+        fetchData(fetchInstances, setData, setIsLoading, notifyError);
+    }, [gcStatus, generation, notify]);
 
     const renderTable = (instances: ObjectInstance[]) => {
         return (
@@ -63,7 +67,10 @@ export const ObjectInstances = () => {
         );
     }
 
-    const getChildrenContent = (data: GetObjectInstancesResult) => {
+    const getChildrenContent = (data?: GetObjectInstancesResult) => {
+        if (!data)
+            return undefined;
+
         const instances = data.instances!;
 
         const totalSize = instances.map(m => m.size!)
@@ -88,7 +95,9 @@ export const ObjectInstances = () => {
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
-            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+            <ProgressContainer isLoading={isLoading}>
+                {getChildrenContent(data)}
+            </ProgressContainer>
         </Stack>
     );
 }

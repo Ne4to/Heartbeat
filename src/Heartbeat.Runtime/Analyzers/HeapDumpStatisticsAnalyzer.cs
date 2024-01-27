@@ -38,9 +38,7 @@ public sealed class HeapDumpStatisticsAnalyzer : AnalyzerBase, ILoggerDump, IWit
     {
         return (
             from obj in Context.EnumerateObjects(ObjectGcStatus, Generation)
-            let objSize = obj.Size
-            //group new { size = objSize } by type.Name into g
-            group objSize by obj.Type
+            group obj.Size by obj.Type
             into g
             let totalSize = (ulong)g.Sum(t => (long)t)
             let clrType = g.Key

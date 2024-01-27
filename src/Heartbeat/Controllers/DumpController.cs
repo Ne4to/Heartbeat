@@ -6,15 +6,18 @@ using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Diagnostics.Runtime;
 
 using Swashbuckle.AspNetCore.Annotations;
 
+using System.Globalization;
 using System.Net.Mime;
 
 namespace Heartbeat.Host.Controllers;
 
 [ApiController]
+[OutputCache]
 [Route("api/dump")]
 [ApiExplorerSettings(GroupName = "Heartbeat")]
 [Consumes(MediaTypeNames.Application.Json)]
@@ -88,7 +91,7 @@ public class DumpController : ControllerBase
     public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
     {
         return
-            from root in _context.Heap.EnumerateRoots().ToArray()
+            from root in _context.Heap.EnumerateRoots()
             where kind == null || root.RootKind == kind
             let objectType = root.Object.Type
             select new RootInfo(
@@ -111,11 +114,7 @@ public class DumpController : ControllerBase
         // TODO filter by just my code - how to filter Action<MyType>?
         // TODO filter by type name
     {
-        var analyzer = new HeapDumpStatisticsAnalyzer(_context)
-        {
-            ObjectGcStatus = gcStatus,
-            Generation = generation
-        };
+        var analyzer = new HeapDumpStatisticsAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         var statistics = analyzer.GetObjectTypeStatistics()
             .OrderByDescending(s => s.TotalSize)
@@ -153,11 +152,7 @@ public class DumpController : ControllerBase
             [FromQuery] Generation? generation = null)
         // TODO filter by min length 
     {
-        var analyzer = new StringDuplicateAnalyzer(_context)
-        {
-            ObjectGcStatus = gcStatus, 
-            Generation = generation
-        };
+        var analyzer = new StringDuplicateAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         return analyzer.GetStringDuplicates()
             .Select(sd => new StringDuplicate(sd.Value, sd.Count, sd.FullLength, sd.WastedMemory));
@@ -199,7 +194,7 @@ public class DumpController : ControllerBase
     // TODO add arrays
     // TODO add arrays/sparse
     // TODO add arrays/sparse/stat
-    public IEnumerable<ArrayInfo> GetSparseArrays(        
+    public IEnumerable<ArrayInfo> GetSparseArrays(
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
@@ -207,17 +202,18 @@ public class DumpController : ControllerBase
             where obj.IsArray
             let proxy = new ArrayProxy(_context, obj)
             where proxy.UnusedItemsPercent >= 0.2
-            orderby proxy.Wasted descending 
-            select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount, proxy.UnusedItemsPercent, proxy.Wasted);
-        
+            orderby proxy.Wasted descending
+            select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount,
+                proxy.UnusedItemsPercent, proxy.Wasted);
+
         return query.Take(100);
     }
-    
+
     [HttpGet]
     [Route("arrays/sparse/stat")]
     [ProducesResponseType(typeof(SparseArrayStatistics[]), StatusCodes.Status200OK)]
     [SwaggerOperation(summary: "Get arrays")]
-    public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(        
+    public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
@@ -234,7 +230,7 @@ public class DumpController : ControllerBase
                 grp.Count(),
                 Size.Sum(grp.Select(t => t.Wasted))
             );
-        
+
         return query;
     }
 
@@ -251,11 +247,34 @@ public class DumpController : ControllerBase
             return NotFound();
         }
 
+        var result = new GetClrObjectResult(
+            clrObject.Address,
+            clrObject.Type.Module.Name,
+            clrObject.Type.Name,
+            clrObject.Type.MethodTable,
+            clrObject.Size,
+            _context.Heap.GetGeneration(clrObject.Address),
+            clrObject.Type.IsString ? clrObject.AsString() : null);
+
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("object/{address}/fields")]
+    [ProducesResponseType(typeof(ClrObjectField[]), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [SwaggerOperation(summary: "Get object fields")]
+    public IActionResult GetClrObjectFields(ulong address)
+    {
+        var clrObject = _context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return NotFound();
+        }
+
         var fields = (
             from field in clrObject.Type.Fields
-            let mt = field.Type?.MethodTable != null
-                ? new MethodTable(field.Type.MethodTable)
-                : new MethodTable(0)
+            let mt = field.Type?.MethodTable ?? 0UL
             let objectAddress = GetFieldObjectAddress(field, clrObject.Address)
             let value = GetFieldValue(field, clrObject.Address)
             select new ClrObjectField(
@@ -267,18 +286,8 @@ public class DumpController : ControllerBase
                 value,
                 field.Name)
         ).ToArray();
-        
-        var result = new GetClrObjectResult(
-            clrObject.Address,
-            clrObject.Type.Module.Name,
-            clrObject.Type.Name,
-            clrObject.Type.MethodTable,
-            clrObject.Size,
-            _context.Heap.GetGeneration(clrObject.Address),
-            clrObject.Type.IsString ? clrObject.AsString() : null,
-            fields);
 
-        return Ok(result);
+        return Ok(fields);
     }
 
     [HttpGet]
@@ -295,7 +304,7 @@ public class DumpController : ControllerBase
         }
 
         var result = new List<ClrObjectRootPath>();
-        GCRoot gcRoot = new(_context.Heap, new [] { address });
+        GCRoot gcRoot = new(_context.Heap, new[] { address });
         foreach ((ClrRoot root, GCRoot.ChainLink path) in gcRoot.EnumerateRootPaths(ct))
         {
             var rootType = root.Object.Type!;
@@ -310,24 +319,24 @@ public class DumpController : ControllerBase
             );
 
             List<RootPathItem> pathItems = new();
-            
+
             GCRoot.ChainLink? current = path;
             while (current != null)
             {
                 var obj = _context.Heap.GetObject(current.Object);
-                
+
                 var item = new RootPathItem(
                     obj.Address,
                     obj.Type!.MethodTable,
                     obj.Type.Name,
                     obj.Size,
                     _context.Heap.GetGeneration(obj.Address));
-                
+
                 pathItems.Add(item);
-                
+
                 current = current.Next;
             }
-            
+
             result.Add(new ClrObjectRootPath(rootInfo, pathItems));
             // TODO get only one root path
             break;
@@ -348,13 +357,29 @@ public class DumpController : ControllerBase
 
     private static string GetFieldValue(ClrInstanceField field, ulong address)
     {
-        return field.Type?.Name switch
+        if (field.IsPrimitive)
         {
-            "System.Boolean" => field.Read<bool>(address, false).ToString(),
-            "System.String" => field.ReadString(address, false) ?? "<null>",
-            "System.Int32" => field.Read<int>(address, false).ToString(),
-            _ => GetAddress()
-        };
+            return field.ElementType switch
+            {
+                ClrElementType.Boolean => field.Read<bool>(address, false).ToString(),
+                ClrElementType.Char => field.Read<char>(address, false).ToString(),
+                ClrElementType.Int8 => field.Read<sbyte>(address, false).ToString(),
+                ClrElementType.UInt8 => field.Read<byte>(address, false).ToString(),
+                ClrElementType.Int16 => field.Read<short>(address, false).ToString(),
+                ClrElementType.UInt16 => field.Read<ushort>(address, false).ToString(),
+                ClrElementType.Int32 => field.Read<int>(address, false).ToString(),
+                ClrElementType.UInt32 => field.Read<int>(address, false).ToString(),
+                ClrElementType.Int64 => field.Read<long>(address, false).ToString(),
+                ClrElementType.UInt64 => field.Read<ulong>(address, false).ToString(),
+                ClrElementType.Float => field.Read<float>(address, false).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Double => field.Read<double>(address, false).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.NativeInt => field.Read<nint>(address, false).ToString(),
+                ClrElementType.NativeUInt => field.Read<nuint>(address, false).ToString(),
+                _ => throw new ArgumentOutOfRangeException($"Unable to get primitive value for {field.ElementType} field")
+            };
+        }
+
+        return GetAddress();
 
         string GetAddress()
         {
@@ -377,10 +402,28 @@ public class DumpController : ControllerBase
 
             if (field.Type?.IsObjectReference ?? false)
             {
-                ulong fieldAddress = field.ReadObject(address, false).Address;
-                return fieldAddress != 0
-                    ? fieldAddress.ToString("x16")
-                    : "<null>";
+                ClrObject clrObject = field.ReadObject(address, false);
+                if (clrObject.IsNull)
+                {
+                    return "<null>";
+                }
+
+                if (clrObject.Type?.IsString ?? false)
+                {
+                    return clrObject.AsString(100);
+                }
+
+                if (clrObject is { IsNull: false, Type.Name: "System.Version" })
+                {
+                    var major = clrObject.ReadField<int>("_Major");
+                    var minor = clrObject.ReadField<int>("_Minor");
+                    var build = clrObject.ReadField<int>("_Build");
+                    var revision = clrObject.ReadField<int>("_Revision");
+                    var version = new Version(major, minor, build, revision);
+                    return version.ToString();
+                }
+
+                return clrObject.Address.ToString("x16");
             }
 
             return string.Empty;

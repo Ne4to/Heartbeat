@@ -326,6 +326,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/fields':
+    get:
+      tags:
+        - Dump
+      summary: Get object fields
+      operationId: GetClrObjectFields
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClrObjectField'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/roots':
     get:
       tags:
@@ -513,7 +548,6 @@ components:
     GetClrObjectResult:
       required:
         - address
-        - fields
         - generation
         - methodTable
         - size
@@ -539,10 +573,6 @@ components:
         value:
           type: string
           nullable: true
-        fields:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClrObjectField'
       additionalProperties: false
     GetObjectInstancesResult:
       required:

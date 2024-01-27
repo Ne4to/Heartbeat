@@ -166,7 +166,6 @@ export function deserializeIntoDumpInfo(dumpInfo: DumpInfo | undefined = {} as D
 export function deserializeIntoGetClrObjectResult(getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : Record<string, (node: ParseNode) => void> {
     return {
         "address": n => { getClrObjectResult.address = n.getNumberValue(); },
-        "fields": n => { getClrObjectResult.fields = n.getCollectionOfObjectValues<ClrObjectField>(createClrObjectFieldFromDiscriminatorValue); },
         "generation": n => { getClrObjectResult.generation = n.getEnumValue<Generation>(GenerationObject); },
         "methodTable": n => { getClrObjectResult.methodTable = n.getNumberValue(); },
         "moduleName": n => { getClrObjectResult.moduleName = n.getStringValue(); },
@@ -304,10 +303,6 @@ export interface GetClrObjectResult extends Parsable {
      * The address property
      */
     address?: number;
-    /**
-     * The fields property
-     */
-    fields?: ClrObjectField[];
     /**
      * The generation property
      */
@@ -516,7 +511,6 @@ export function serializeDumpInfo(writer: SerializationWriter, dumpInfo: DumpInf
 }
 export function serializeGetClrObjectResult(writer: SerializationWriter, getClrObjectResult: GetClrObjectResult | undefined = {} as GetClrObjectResult) : void {
     writer.writeNumberValue("address", getClrObjectResult.address);
-    writer.writeCollectionOfObjectValues<ClrObjectField>("fields", getClrObjectResult.fields, serializeClrObjectField);
     writer.writeEnumValue<Generation>("generation", getClrObjectResult.generation);
     writer.writeNumberValue("methodTable", getClrObjectResult.methodTable);
     writer.writeStringValue("moduleName", getClrObjectResult.moduleName);

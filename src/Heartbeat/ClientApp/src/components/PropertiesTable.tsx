@@ -1,3 +1,5 @@
+import React from "react";
+
 export type PropertyRow = {
     title: string,
     value?: string | React.ReactNode

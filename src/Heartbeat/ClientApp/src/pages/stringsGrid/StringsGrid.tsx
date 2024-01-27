@@ -1,14 +1,20 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
+import {Stack} from "@mui/material";
+
+import {Generation, ObjectGCStatus, StringInfo} from '../../client/models';
+
+import {useNotifyError} from "../../hooks/useNotifyError";
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
 
 import getClient from '../../lib/getClient'
-import {Generation, ObjectGCStatus, StringInfo} from '../../client/models';
+import {objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
+import handleFetchData from "../../lib/handleFetchData";
+
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../../components/GenerationSelect";
-import {objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
-import toSizeString from "../../lib/toSizeString";
-import {Stack} from "@mui/material";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
@@ -29,16 +35,22 @@ const columns: GridColDef[] = [
 ];
 
 export const StringsGrid = () => {
+    const {notify, notifyError} = useNotifyError();
+
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
+    const [strings, setStrings, isLoading, setIsLoading] = useStateWithLoading<StringInfo[]>()
 
-    const getData = async() => {
-        const client = getClient();
-        const result = await client.api.dump.strings.get(
-            {queryParameters: {gcStatus: gcStatus, generation: generation}}
-        )
-        return result!
-    }
+    useEffect(() => {
+        const fetchStrings = async () => {
+            const client = getClient();
+            return await client.api.dump.strings.get(
+                {queryParameters: {gcStatus: gcStatus, generation: generation}}
+            )
+        }
+
+        handleFetchData(fetchStrings, setStrings, setIsLoading, notifyError);
+    }, [gcStatus, generation, notify]);
 
     const renderTable = (strings: StringInfo[]) => {
         return (
@@ -69,7 +81,10 @@ export const StringsGrid = () => {
         );
     }
 
-    const getChildrenContent = (strings: StringInfo[]) => {
+    const getChildrenContent = (strings?: StringInfo[]) => {
+        if (!strings || strings.length === 0)
+            return undefined;
+
         const totalSize = strings.map(m => m.size!).reduce((sum, current) => sum + current, 0)
 
         const propertyRows: PropertyRow[] = [
@@ -89,7 +104,9 @@ export const StringsGrid = () => {
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
-            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+            <ProgressContainer isLoading={isLoading}>
+                {getChildrenContent(strings)}
+            </ProgressContainer>
         </Stack>
     );
 }

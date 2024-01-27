@@ -15,10 +15,10 @@ export function renderClrObjectAddress(params: GridRenderCellParams): React.Reac
     return renderClrObjectLink(params.value);
 }
 
-export function renderClrObjectLink(address: number):React.ReactNode {
+export function renderClrObjectLink(address: number, label: string|undefined=undefined):React.ReactNode {
     const hexAddress = toHexAddress(address)
     return (
-        <Button component={NavLink} to={`/clr-object/${hexAddress}/show`} label={hexAddress} />
+        <Button component={NavLink} to={`/clr-object/${hexAddress}/show`} label={label ?? hexAddress} />
     )
 }
 

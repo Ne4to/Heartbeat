@@ -31,8 +31,7 @@ public record GetClrObjectResult(
     ulong MethodTable,
     ulong Size,
     Generation Generation,
-    string? Value,
-    IReadOnlyList<ClrObjectField> Fields);
+    string? Value);
 
 public record ClrObjectField(
     ulong MethodTable,

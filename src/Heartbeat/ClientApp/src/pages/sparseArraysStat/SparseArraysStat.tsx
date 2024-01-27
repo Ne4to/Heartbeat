@@ -1,18 +1,21 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 
+import {Stack} from "@mui/material";
+
+import {Generation, ObjectGCStatus, SparseArrayStatistics,} from '../../client/models';
+
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
+import {useNotifyError} from "../../hooks/useNotifyError";
+
 import getClient from '../../lib/getClient'
-import {
-    Generation,
-    ObjectGCStatus,
-    SparseArrayStatistics,
-} from '../../client/models';
+import toSizeString from "../../lib/toSizeString";
+import {methodTableColumn, sizeColumn} from "../../lib/gridColumns";
+import fetchData from "../../lib/handleFetchData";
+
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../../components/GenerationSelect";
-import {methodTableColumn, sizeColumn} from "../../lib/gridColumns";
-import toSizeString from "../../lib/toSizeString";
-import {Stack} from "@mui/material";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
@@ -36,16 +39,22 @@ const columns: GridColDef[] = [
 ];
 
 export const SparseArraysStat = () => {
+    const {notify, notifyError} = useNotifyError();
+
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
+    const [arrays, setArrays, isLoading, setIsLoading] = useStateWithLoading<SparseArrayStatistics[]>()
 
-    const getData = async () => {
-        const client = getClient();
-        const result = await client.api.dump.arrays.sparse.stat.get(
-            {queryParameters: {gcStatus: gcStatus, generation: generation}}
-        )
-        return result!
-    }
+    useEffect(() => {
+        const fetchArrays = async () => {
+            const client = getClient();
+            return await client.api.dump.arrays.sparse.stat.get(
+                {queryParameters: {gcStatus: gcStatus, generation: generation}}
+            )
+        }
+
+        fetchData(fetchArrays, setArrays, setIsLoading, notifyError);
+    }, [gcStatus, generation, notify]);
 
     const renderTable = (arrays: SparseArrayStatistics[]) => {
         return (
@@ -76,7 +85,10 @@ export const SparseArraysStat = () => {
         );
     }
 
-    const getChildrenContent = (arrays: SparseArrayStatistics[]) => {
+    const getChildrenContent = (arrays?: SparseArrayStatistics[]) => {
+        if (!arrays || arrays.length === 0)
+            return undefined;
+
         const totalWasted = arrays.map(m => m.totalWasted!).reduce((sum, current) => sum + current, 0)
 
         const propertyRows: PropertyRow[] = [
@@ -96,7 +108,9 @@ export const SparseArraysStat = () => {
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
-            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+            <ProgressContainer isLoading={isLoading}>
+                {getChildrenContent(arrays)}
+            </ProgressContainer>
         </Stack>
     );
 }

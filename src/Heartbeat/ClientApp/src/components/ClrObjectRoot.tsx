@@ -4,6 +4,7 @@ import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
 import {ClrObjectRootPath, RootPathItem} from '../client/models';
 import {PropertiesTable, PropertyRow} from './PropertiesTable'
 import {methodTableColumn, objectAddressColumn, sizeColumn} from "../lib/gridColumns";
+import {Stack} from "@mui/material";
 
 const columns: GridColDef[] = [
     methodTableColumn,
@@ -57,10 +58,9 @@ export const ClrObjectRoot = (props: ClrObjectRootProps) => {
     ]
 
     return (
-        <div style={{display: 'flex', flexFlow: 'column'}}>
-            <h5 id="tableLabel" style={{flexGrow: 1}}>Clr Object root</h5>
+        <Stack>
             <PropertiesTable rows={propertyRows}/>
             {grid}
-        </div>
+        </Stack>
     );
 }

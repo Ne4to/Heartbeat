@@ -1,12 +1,18 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {Stack} from "@mui/material";
 
 import getClient from '../../lib/getClient'
 import {Module} from '../../client/models';
-import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
+
+import {useNotifyError} from "../../hooks/useNotifyError";
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
+
 import {addressColumn, sizeColumn} from "../../lib/gridColumns";
 import toSizeString from "../../lib/toSizeString";
-import {Stack} from "@mui/material";
+import fetchData from "../../lib/handleFetchData";
+
+import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
@@ -21,11 +27,18 @@ const columns: GridColDef[] = [
 ];
 
 export const Modules = () => {
-    const getData = async () => {
-        const client = getClient();
-        const result = await client.api.dump.modules.get()
-        return result!
-    }
+    const {notify, notifyError} = useNotifyError();
+
+    const [modules, setModules, isLoading, setIsLoading] = useStateWithLoading<Module[]>()
+
+    useEffect(() => {
+        const fetchModules = async () => {
+            const client = getClient();
+            return await client.api.dump.modules.get()
+        }
+
+        fetchData(fetchModules, setModules, setIsLoading, notifyError);
+    }, [notify]);
 
     const renderTable = (modules: Module[]) => {
         return (
@@ -46,7 +59,10 @@ export const Modules = () => {
         )
     }
 
-    const getChildrenContent = (modules: Module[]) => {
+    const getChildrenContent = (modules?: Module[]) => {
+        if (!modules || modules.length === 0)
+            return undefined;
+
         const totalSize = modules.map(m => m.size!).reduce((sum, current) => sum + current, 0)
 
         const propertyRows: PropertyRow[] = [
@@ -61,6 +77,8 @@ export const Modules = () => {
     }
 
     return (
-        <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+        <ProgressContainer isLoading={isLoading}>
+            {getChildrenContent(modules)}
+        </ProgressContainer>
     );
 }

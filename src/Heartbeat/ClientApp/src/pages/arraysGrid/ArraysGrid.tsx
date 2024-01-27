@@ -1,19 +1,21 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DataGrid, GridColDef, GridToolbar} from '@mui/x-data-grid';
+import {Stack} from "@mui/material";
 
+import {ArrayInfo, Generation, ObjectGCStatus,} from '../../client/models';
+
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
+import {useNotifyError} from "../../hooks/useNotifyError";
+
+import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
+import toSizeString from "../../lib/toSizeString";
 import getClient from '../../lib/getClient'
 import {formatPercent} from '../../lib/gridFormatter';
-import {
-    ArrayInfo,
-    Generation,
-    ObjectGCStatus,
-} from '../../client/models';
+import handleFetchData from "../../lib/handleFetchData";
+
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {ObjectGCStatusSelect} from "../../components/ObjectGCStatusSelect";
 import {GenerationSelect} from "../../components/GenerationSelect";
-import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
-import toSizeString from "../../lib/toSizeString";
-import {Stack} from "@mui/material";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
@@ -44,16 +46,22 @@ const columns: GridColDef[] = [
 ];
 
 export const ArraysGrid = () => {
+    const {notify, notifyError} = useNotifyError();
+
     const [gcStatus, setGcStatus] = React.useState<ObjectGCStatus>()
     const [generation, setGeneration] = React.useState<Generation>()
+    const [arrays, setArrays, isLoading, setIsLoading] = useStateWithLoading<ArrayInfo[]>()
 
-    const getData = async() => {
-        const client = getClient();
-        const result = await client.api.dump.arrays.sparse.get(
-            {queryParameters: {gcStatus: gcStatus, generation: generation}}
-        )
-        return result!
-    }
+    useEffect(() => {
+        const fetchArrays = async() => {
+            const client = getClient();
+            return await client.api.dump.arrays.sparse.get(
+                {queryParameters: {gcStatus: gcStatus, generation: generation}}
+            )
+        }
+
+        handleFetchData(fetchArrays, setArrays, setIsLoading, notifyError);
+    }, [gcStatus, generation, notify]);
 
     const renderTable = (arrays: ArrayInfo[]) => {
         return (
@@ -80,7 +88,10 @@ export const ArraysGrid = () => {
         );
     }
 
-    const getChildrenContent = (arrays: ArrayInfo[]) => {
+    const getChildrenContent = (arrays?: ArrayInfo[]) => {
+        if (!arrays || arrays.length === 0)
+            return undefined;
+
         const totalWasted = arrays.map(m => m.wasted!).reduce((sum, current) => sum + current, 0)
 
         const propertyRows: PropertyRow[] = [
@@ -100,7 +111,9 @@ export const ArraysGrid = () => {
                 <ObjectGCStatusSelect gcStatus={gcStatus} onChange={(status) => setGcStatus(status)}/>
                 <GenerationSelect generation={generation} onChange={(generation) => setGeneration(generation)}/>
             </Stack>
-            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+            <ProgressContainer isLoading={isLoading}>
+                {getChildrenContent(arrays)}
+            </ProgressContainer>
         </Stack>
     );
 }

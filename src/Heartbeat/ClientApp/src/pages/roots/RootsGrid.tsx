@@ -1,15 +1,18 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
+import {Stack} from "@mui/material";
+
+import {useNotifyError} from "../../hooks/useNotifyError";
+import {useStateWithLoading} from "../../hooks/useStateWithLoading";
+
+import {ClrRootKind, RootInfo,} from '../../client/models';
 
 import getClient from '../../lib/getClient'
-import {
-    ClrRootKind,
-    RootInfo,
-} from '../../client/models';
+import fetchData from "../../lib/handleFetchData";
+import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
+
 import {PropertiesTable, PropertyRow} from "../../components/PropertiesTable";
 import {RootKindSelect} from "../../components/RootKindSelect";
-import {methodTableColumn, objectAddressColumn, sizeColumn} from "../../lib/gridColumns";
-import {Stack} from "@mui/material";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
 const columns: GridColDef[] = [
@@ -34,15 +37,21 @@ const columns: GridColDef[] = [
 ];
 
 export const RootsGrid = () => {
-    const [rootKind, setRootKind] = React.useState<ClrRootKind>()
+    const {notify, notifyError} = useNotifyError();
 
-    const getData = async () => {
-        const client = getClient();
-        const result = await client.api.dump.roots.get(
-            {queryParameters: {kind: rootKind}}
-        )
-        return result!
-    }
+    const [rootKind, setRootKind] = React.useState<ClrRootKind>()
+    const [roots, setRoots, isLoading, setIsLoading] = useStateWithLoading<RootInfo[]>()
+
+    useEffect(() => {
+        const fetchRoots = async () => {
+            const client = getClient();
+            return await client.api.dump.roots.get(
+                {queryParameters: {kind: rootKind}}
+            )
+        }
+
+        fetchData(fetchRoots, setRoots, setIsLoading, notifyError);
+    }, [rootKind, notify]);
 
     const renderTable = (roots: RootInfo[]) => {
         return (
@@ -60,7 +69,10 @@ export const RootsGrid = () => {
         );
     }
 
-    const getChildrenContent = (roots: RootInfo[]) => {
+    const getChildrenContent = (roots?: RootInfo[]) => {
+        if (!roots || roots.length === 0)
+            return undefined;
+
         const propertyRows: PropertyRow[] = [
             {title: 'Count', value: String(roots.length)},
         ]
@@ -74,7 +86,9 @@ export const RootsGrid = () => {
     return (
         <Stack>
             <RootKindSelect kind={rootKind} onChange={(kind) => setRootKind(kind)}/>
-            <ProgressContainer loadData={getData} getChildren={getChildrenContent}/>
+            <ProgressContainer isLoading={isLoading}>
+                {getChildrenContent(roots)}
+            </ProgressContainer>
         </Stack>
     );
 }
