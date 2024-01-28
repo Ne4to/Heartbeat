@@ -35,8 +35,8 @@ jobs:
     - name: 'Upload Artifact'
       uses: actions/upload-artifact@v4
       with:
-        name: Heartbeat
-        path: artifacts/linux-x64/Heartbeat
+        name: Heartbeat-linux-x64
+        path: artifacts/linux-x64/
         retention-days: 1
 
 # \artifacts\win-x64\Heartbeat.exe
