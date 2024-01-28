@@ -17,7 +17,6 @@ export class ModulesRequestBuilder extends BaseRequestBuilder<ModulesRequestBuil
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/modules", (x, y) => new ModulesRequestBuilder(x, y));
     }
     /**
-     * Get modules
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of Module
      */
@@ -31,7 +30,6 @@ export class ModulesRequestBuilder extends BaseRequestBuilder<ModulesRequestBuil
         return this.requestAdapter.sendCollectionAsync<Module>(requestInfo, createModuleFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get modules
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

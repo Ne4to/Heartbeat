@@ -13,51 +13,65 @@
         <SpaProxyServerUrl>https://localhost:44443</SpaProxyServerUrl>
         <SpaProxyLaunchCommand>npm start</SpaProxyLaunchCommand>
     </PropertyGroup>
-    
-    <PropertyGroup>
-        <InvariantGlobalization>true</InvariantGlobalization>
-        <PublishAot>true</PublishAot>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'DebugOpenAPI'">
+        <DefineConstants>DEBUG;OPENAPI</DefineConstants>
+        <!-- workaround for https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2550 -->
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'ReleaseAOT'">
+        <PublishAot>true</PublishAot>
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <DefineConstants>RELEASE;AOT</DefineConstants>
+        <Optimize>true</Optimize>
+        <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(Configuration)' == 'ReleaseAOT'">
+        <EmbeddedResource Include="$(SpaRoot)build\**"/>
+    </ItemGroup>
 
     <PropertyGroup>
         <IsPackable>true</IsPackable>
         <PackAsTool>true</PackAsTool>
-<!--   TODO nuget package is created but `dotnet tool install` fails:     -->
-<!--        The settings file in the tool's NuGet package is invalid: Entry point file 'Heartbeat.dll' for command 'heartbeat.exe' was not found in the package.-->
-<!--        Tool 'heartbeat' failed to install. Contact the tool author for assistance.-->
-        <ToolCommandName>heartbeat.exe</ToolCommandName>
+        <ToolCommandName>heartbeat</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../../README.md" Pack="true" PackagePath="\" />
+        <None Include="../../README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj" />
+        <ProjectReference Include="..\Heartbeat.Runtime\Heartbeat.Runtime.csproj"/>
     </ItemGroup>
 
-<!--    <ItemGroup>-->
-<!--        <Reference Include="Microsoft.Diagnostics.Runtime">-->
-<!--            <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\net6.0\Microsoft.Diagnostics.Runtime.dll</HintPath>-->
-<!--        </Reference>-->
-<!--    </ItemGroup>-->
+    <!--    <ItemGroup>-->
+    <!--        <Reference Include="Microsoft.Diagnostics.Runtime">-->
+    <!--            <HintPath>..\..\..\clrmd\artifacts\bin\Microsoft.Diagnostics.Runtime\Debug\net6.0\Microsoft.Diagnostics.Runtime.dll</HintPath>-->
+    <!--        </Reference>-->
+    <!--    </ItemGroup>-->
+
+    <ItemGroup Condition="'$(Configuration)' == 'DebugOpenAPI'">
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0"/>
+    </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="8.0.1"/>
+        <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="8.0.1"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.5.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -91,8 +105,9 @@
             <DistFiles Include="$(SpaRoot)build\**"/>
             <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
                 <RelativePath>wwwroot\%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
-                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-                <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+                <CopyToPublishDirectory Condition="'$(Configuration)' == 'ReleaseAOT'">Never</CopyToPublishDirectory>
+                <CopyToPublishDirectory Condition="'$(Configuration)' != 'ReleaseAOT'">PreserveNewest</CopyToPublishDirectory>
+                <ExcludeFromSingleFile>false</ExcludeFromSingleFile>
             </ResolvedFileToPublish>
         </ItemGroup>
     </Target>

@@ -1,0 +1,42 @@
+name: Publish native AOT
+
+on:
+  push:
+    branches: [ native-aot ]
+  # pull_request:
+  #   # Sequence of patterns matched against refs/heads
+  #   branches:
+  #     - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # temp fix frontend build
+      # Treating warnings as errors because process.env.CI = true.
+      # Most CI servers set it automatically.
+      CI: 'false'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+    - uses: actions/setup-node@v4
+      with:
+          # Version Spec of the version to use in SemVer notation.
+          # It also emits such aliases as lts, latest, nightly and canary builds
+          # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+        node-version: 20
+    - name: Publish AOT version
+      shell: pwsh
+      run: |
+        ./scripts/publish-native-aot.ps1
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: Heartbeat
+        path: artifacts/linux-x64/Heartbeat
+        retention-days: 1
+
+# \artifacts\win-x64\Heartbeat.exe

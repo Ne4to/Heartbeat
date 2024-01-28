@@ -1,6 +1,7 @@
 using Microsoft.Diagnostics.Runtime;
 
 using System.Runtime.InteropServices;
+using System.Text.Json.Serialization;
 
 namespace Heartbeat.Host.Controllers;
 
@@ -56,8 +57,27 @@ public record StringDuplicate(string Value, int Count, int FullLength, ulong Was
 public record RootInfo(ulong Address, ClrRootKind Kind, bool IsPinned, ulong Size, ulong MethodTable, string TypeName);
 
 public record ClrObjectRootPath(RootInfo Root, IReadOnlyList<RootPathItem> PathItems);
+
 public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, ulong Size, Generation Generation);
 
 public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);
 
 public record SparseArrayStatistics(ulong MethodTable, string? TypeName, int Count, ulong TotalWasted);
+
+[JsonSourceGenerationOptions(UseStringEnumConverter = true)]
+[JsonSerializable(typeof(DumpInfo))]
+[JsonSerializable(typeof(GetObjectInstancesResult))]
+[JsonSerializable(typeof(GetClrObjectResult))]
+[JsonSerializable(typeof(Module[]))]
+[JsonSerializable(typeof(ClrObjectField[]))]
+[JsonSerializable(typeof(List<ClrObjectRootPath>))]
+[JsonSerializable(typeof(IEnumerable<HeapSegment>))]
+[JsonSerializable(typeof(IEnumerable<IEnumerable<RootInfo>>))]
+[JsonSerializable(typeof(IEnumerable<ObjectTypeStatistics>))]
+[JsonSerializable(typeof(IEnumerable<StringInfo>))]
+[JsonSerializable(typeof(IEnumerable<StringDuplicate>))]
+[JsonSerializable(typeof(IEnumerable<ArrayInfo>))]
+[JsonSerializable(typeof(IEnumerable<SparseArrayStatistics>))]
+internal partial class AppJsonSerializerContext : JsonSerializerContext
+{
+}

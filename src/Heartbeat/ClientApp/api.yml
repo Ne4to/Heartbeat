@@ -12,68 +12,64 @@ paths:
     get:
       tags:
         - Dump
-      summary: Get dump info
       operationId: GetInfo
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DumpInfo'
-  /api/dump/modules:
-    get:
-      tags:
-        - Dump
-      summary: Get modules
-      operationId: GetModules
-      responses:
         '500':
-          description: Server Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/dump/modules:
+    get:
+      tags:
+        - Dump
+      operationId: GetModules
+      responses:
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Module'
-  /api/dump/segments:
-    get:
-      tags:
-        - Dump
-      summary: Get segments
-      operationId: GetSegments
-      responses:
         '500':
-          description: Server Error
+          description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/dump/segments:
+    get:
+      tags:
+        - Dump
+      operationId: GetSegments
+      responses:
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/HeapSegment'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/roots:
     get:
       tags:
         - Dump
-      summary: Get heap roots
       operationId: GetRoots
       parameters:
         - name: kind
@@ -82,25 +78,24 @@ paths:
           schema:
             $ref: '#/components/schemas/ClrRootKind'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/RootInfo'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/heap-dump-statistics:
     get:
       tags:
         - Dump
-      summary: Get heap dump statistics
       operationId: GetHeapDumpStat
       parameters:
         - name: gcStatus
@@ -114,25 +109,24 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ObjectTypeStatistics'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/strings:
     get:
       tags:
         - Dump
-      summary: Get heap dump statistics
       operationId: GetStrings
       parameters:
         - name: gcStatus
@@ -146,25 +140,24 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/StringInfo'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/string-duplicates:
     get:
       tags:
         - Dump
-      summary: Get string duplicates
       operationId: GetStringDuplicates
       parameters:
         - name: gcStatus
@@ -178,25 +171,24 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/StringDuplicate'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object-instances/{mt}':
     get:
       tags:
         - Dump
-      summary: Get object instances
       operationId: GetObjectInstances
       parameters:
         - name: mt
@@ -217,23 +209,22 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetObjectInstancesResult'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/arrays/sparse:
     get:
       tags:
         - Dump
-      summary: Get sparse arrays
       operationId: GetSparseArrays
       parameters:
         - name: gcStatus
@@ -247,25 +238,24 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/ArrayInfo'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /api/dump/arrays/sparse/stat:
     get:
       tags:
         - Dump
-      summary: Get arrays
       operationId: GetSparseArraysStat
       parameters:
         - name: gcStatus
@@ -279,25 +269,24 @@ paths:
           schema:
             $ref: '#/components/schemas/Generation'
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/SparseArrayStatistics'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}':
     get:
       tags:
         - Dump
-      summary: Get object
       operationId: GetClrObject
       parameters:
         - name: address
@@ -308,14 +297,8 @@ paths:
             type: integer
             format: int64
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
@@ -326,11 +309,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/fields':
     get:
       tags:
         - Dump
-      summary: Get object fields
       operationId: GetClrObjectFields
       parameters:
         - name: address
@@ -341,14 +329,8 @@ paths:
             type: integer
             format: int64
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
@@ -361,11 +343,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/roots':
     get:
       tags:
         - Dump
-      summary: Get object roots
       operationId: GetClrObjectRoots
       parameters:
         - name: address
@@ -376,14 +363,8 @@ paths:
             type: integer
             format: int64
       responses:
-        '500':
-          description: Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetails'
         '200':
-          description: Success
+          description: OK
           content:
             application/json:
               schema:
@@ -392,6 +373,12 @@ paths:
                   $ref: '#/components/schemas/ClrObjectRootPath'
         '404':
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
           content:
             application/json:
               schema:

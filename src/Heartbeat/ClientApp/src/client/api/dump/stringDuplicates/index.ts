@@ -21,7 +21,6 @@ export class StringDuplicatesRequestBuilder extends BaseRequestBuilder<StringDup
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/string-duplicates{?gcStatus*,generation*}", (x, y) => new StringDuplicatesRequestBuilder(x, y));
     }
     /**
-     * Get string duplicates
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of StringDuplicate
      */
@@ -35,7 +34,6 @@ export class StringDuplicatesRequestBuilder extends BaseRequestBuilder<StringDup
         return this.requestAdapter.sendCollectionAsync<StringDuplicate>(requestInfo, createStringDuplicateFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get string duplicates
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

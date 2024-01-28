@@ -17,7 +17,6 @@ export class FieldsRequestBuilder extends BaseRequestBuilder<FieldsRequestBuilde
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/object/{address}/fields", (x, y) => new FieldsRequestBuilder(x, y));
     }
     /**
-     * Get object fields
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of ClrObjectField
      */
@@ -32,7 +31,6 @@ export class FieldsRequestBuilder extends BaseRequestBuilder<FieldsRequestBuilde
         return this.requestAdapter.sendCollectionAsync<ClrObjectField>(requestInfo, createClrObjectFieldFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get object fields
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

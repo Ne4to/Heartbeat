@@ -1,3 +1,4 @@
+#if OPENAPI
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 
@@ -77,9 +78,7 @@ public class RequireNonNullablePropertiesSchemaFilter : ISchemaFilter
 {
     public void Apply(OpenApiSchema model, SchemaFilterContext context)
     {
-#if DEBUG
         FixNullableProperties(model, context);
-#endif    
 
         var additionalRequiredProps = model.Properties
             .Where(x => !x.Value.Nullable && !model.Required.Contains(x.Key))
@@ -120,3 +119,4 @@ public class RequireNonNullablePropertiesSchemaFilter : ISchemaFilter
         }
     }
 }
+#endif
