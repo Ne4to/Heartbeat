@@ -22,10 +22,17 @@ function Assert-ExitCode {
 
 $Configuration = 'ReleaseAOT'
 $RepositoryRoot = Split-Path $PSScriptRoot
+$SpaRoot = Join-Path $RepositoryRoot 'src/Heartbeat/ClientApp'
+$PublishProject = Join-Path $RepositoryRoot 'src/Heartbeat/Heartbeat.csproj'
 $ArtifactsRoot = Join-Path $RepositoryRoot 'artifacts'
 
 Push-Location
 try {
+    $SpaRoot
+    Set-Location $SpaRoot
+    npm install
+    npm run build
+
     Set-Location $RepositoryRoot
 
     # [xml]$XmlConfig = Get-Content 'Directory.Build.props'
@@ -37,7 +44,7 @@ try {
     # $VersionSuffix = "rc.$(Get-Date -Format 'yyyy-MM-dd-HHmm')"
     # $PackageVersion = "$VersionPrefix-$VersionSuffix"
 
-    dotnet clean --configuration $Configuration
+    # dotnet clean --configuration $Configuration
 
     # https://learn.microsoft.com/en-us/dotnet/core/rid-catalog
     # $Runtimes = @('win-x64', 'win-arm64', 'linux-x64', 'linux-arm64', 'osx-x64', 'osx-arm64')
@@ -46,12 +53,12 @@ try {
     # $env:PROCESSOR_ARCHITECTURE
     foreach ($Runtime in $Runtimes) {
         $OutDir = Join-Path $ArtifactsRoot $Runtime
-        Write-Host "Publish AOT version for $Runtime to $OutDir"
-        dotnet publish --configuration $Configuration --runtime $Runtime --output $OutDir
+        Write-Host "Publish native AOT version for $Runtime to $OutDir"
+        dotnet publish --configuration $Configuration --runtime $Runtime --output $OutDir $PublishProject
         Assert-ExitCode
 
         Write-Host "Files in $OutDir"
-        Get-ChildItem $OutDir
+        Get-ChildItem $OutDir | Select-Object -Property Length,Name
     }
 
     # TODO zip?

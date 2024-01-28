@@ -30,22 +30,21 @@ using ObjectTypeStatistics = Heartbeat.Host.Controllers.ObjectTypeStatistics;
 using StringDuplicate = Heartbeat.Host.Controllers.StringDuplicate;
 using StringInfo = Heartbeat.Host.Controllers.StringInfo;
 
+PrintFlatFiles();
 PrintFiles();
 
 #if OPENAPI
 Console.WriteLine("Generating OpenAPI contract");
 var builder = WebApplication.CreateSlimBuilder(args);
 
+// workaround for https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2550
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
-// workaround for https://github.com/domaindrivendev/Swashbuckle.AspNetCore/issues/2550
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    // options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    // options.SerializerOptions.Converters.Add(new JsonStringEnumConverter<GCSegmentKind>());
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
 });
 
@@ -67,6 +66,7 @@ static void MainWeb(WebCommandOptions options, string[] args)
 #if !DEBUG && !AOT
     // fix for static files when running as dotnet tool
     string rootDir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
+    Console.WriteLine($"Set current directory = {rootDir}");
     Directory.SetCurrentDirectory(rootDir);
 #endif
 
@@ -208,6 +208,19 @@ static void PrintFiles()
             using var reader = new StreamReader(stream);
             Console.WriteLine(reader.ReadToEnd());
         }
+    }
+}
+
+[Conditional("AOT")]
+static void PrintFlatFiles()
+{
+    Console.WriteLine("Embedded files:");
+    IFileProvider fileProvider = new EmbeddedFileProvider(typeof(Program).Assembly);
+    var contents = fileProvider.GetDirectoryContents("/");
+    using IEnumerator<IFileInfo> enumerator = contents.GetEnumerator();
+    while (enumerator.MoveNext())
+    {
+        Console.WriteLine(enumerator.Current.Name);
     }
 }
 
