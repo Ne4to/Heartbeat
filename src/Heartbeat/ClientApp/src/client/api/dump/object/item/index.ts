@@ -31,7 +31,6 @@ export class WithAddressItemRequestBuilder extends BaseRequestBuilder<WithAddres
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/object/{address}", (x, y) => new WithAddressItemRequestBuilder(x, y));
     }
     /**
-     * Get object
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of GetClrObjectResult
      */
@@ -46,7 +45,6 @@ export class WithAddressItemRequestBuilder extends BaseRequestBuilder<WithAddres
         return this.requestAdapter.sendAsync<GetClrObjectResult>(requestInfo, createGetClrObjectResultFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get object
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

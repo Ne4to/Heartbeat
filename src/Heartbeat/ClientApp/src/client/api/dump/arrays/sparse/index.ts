@@ -28,7 +28,6 @@ export class SparseRequestBuilder extends BaseRequestBuilder<SparseRequestBuilde
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/arrays/sparse{?gcStatus*,generation*}", (x, y) => new SparseRequestBuilder(x, y));
     }
     /**
-     * Get sparse arrays
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of ArrayInfo
      */
@@ -42,7 +41,6 @@ export class SparseRequestBuilder extends BaseRequestBuilder<SparseRequestBuilde
         return this.requestAdapter.sendCollectionAsync<ArrayInfo>(requestInfo, createArrayInfoFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get sparse arrays
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

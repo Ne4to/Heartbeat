@@ -21,7 +21,6 @@ export class StatRequestBuilder extends BaseRequestBuilder<StatRequestBuilder> {
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/arrays/sparse/stat{?gcStatus*,generation*}", (x, y) => new StatRequestBuilder(x, y));
     }
     /**
-     * Get arrays
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of SparseArrayStatistics
      */
@@ -35,7 +34,6 @@ export class StatRequestBuilder extends BaseRequestBuilder<StatRequestBuilder> {
         return this.requestAdapter.sendCollectionAsync<SparseArrayStatistics>(requestInfo, createSparseArrayStatisticsFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get arrays
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

@@ -20,7 +20,6 @@ export class RootsRequestBuilder extends BaseRequestBuilder<RootsRequestBuilder>
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/roots{?kind*}", (x, y) => new RootsRequestBuilder(x, y));
     }
     /**
-     * Get heap roots
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of RootInfo
      */
@@ -34,7 +33,6 @@ export class RootsRequestBuilder extends BaseRequestBuilder<RootsRequestBuilder>
         return this.requestAdapter.sendCollectionAsync<RootInfo>(requestInfo, createRootInfoFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get heap roots
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

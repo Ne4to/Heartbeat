@@ -5,62 +5,40 @@ using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.Diagnostics.Runtime;
 
-using Swashbuckle.AspNetCore.Annotations;
-
 using System.Globalization;
-using System.Net.Mime;
 
-namespace Heartbeat.Host.Controllers;
+namespace Heartbeat.Host.Endpoints;
 
-[ApiController]
-[OutputCache]
-[Route("api/dump")]
-[ApiExplorerSettings(GroupName = "Heartbeat")]
-[Consumes(MediaTypeNames.Application.Json)]
-[Produces(MediaTypeNames.Application.Json)]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-public class DumpController : ControllerBase
+internal static class RouteHandlers
 {
-    private readonly RuntimeContext _context;
-
-    public DumpController(RuntimeContext context)
+    public static DumpInfo GetInfo([FromServices] RuntimeContext context)
     {
-        _context = context;
-    }
-
-    [HttpGet]
-    [Route("info")]
-    [ProducesResponseType(typeof(DumpInfo), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get dump info")]
-    public DumpInfo GetInfo()
-    {
-        var clrHeap = _context.Heap;
-        var clrInfo = _context.Runtime.ClrInfo;
+        var clrHeap = context.Heap;
+        var clrInfo = context.Runtime.ClrInfo;
         var dataReader = clrInfo.DataTarget.DataReader;
+        
 
-        return new DumpInfo(
-            _context.DumpPath,
+        var dumpInfo = new DumpInfo(
+            context.DumpPath,
             clrHeap.CanWalkHeap,
             clrHeap.IsServer,
             clrInfo.ModuleInfo.FileName,
             dataReader.Architecture,
             dataReader.ProcessId,
             dataReader.TargetPlatform.ToString(),
-            clrInfo.Version.ToString(2)
+            clrInfo.Version.ToString()
         );
+
+        return dumpInfo;
     }
 
-    [HttpGet]
-    [Route("modules")]
-    [ProducesResponseType(typeof(Module[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get modules")]
-    public IEnumerable<Module> GetModules()
+    public static Module[] GetModules([FromServices] RuntimeContext context)
     {
-        var modules = _context.Runtime
+        var modules = context.Runtime
             .EnumerateModules()
             .Select(m => new Module(m.Address, m.Size, m.Name))
             .ToArray();
@@ -68,30 +46,23 @@ public class DumpController : ControllerBase
         return modules;
     }
 
-    [HttpGet]
-    [Route("segments")]
-    [ProducesResponseType(typeof(HeapSegment[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get segments")]
-    public IEnumerable<HeapSegment> GetSegments()
+    public static IEnumerable<HeapSegment> GetSegments([FromServices] RuntimeContext context)
     {
         var segments =
-            from s in _context.Heap.Segments
+            from s in context.Heap.Segments
             select new HeapSegment(
                 s.Start,
                 s.End,
-                s.Kind);
+                s.Kind
+            );
 
         return segments;
     }
 
-    [HttpGet]
-    [Route("roots")]
-    [ProducesResponseType(typeof(RootInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap roots")]
-    public IEnumerable<RootInfo> GetRoots([FromQuery] ClrRootKind? kind = null)
+    public static IEnumerable<RootInfo> GetRoots([FromServices] RuntimeContext context, [FromQuery] ClrRootKind? kind = null)
     {
         return
-            from root in _context.Heap.EnumerateRoots()
+            from root in context.Heap.EnumerateRoots()
             where kind == null || root.RootKind == kind
             let objectType = root.Object.Type
             select new RootInfo(
@@ -104,17 +75,14 @@ public class DumpController : ControllerBase
             );
     }
 
-    [HttpGet]
-    [Route("heap-dump-statistics")]
-    [ProducesResponseType(typeof(ObjectTypeStatistics[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics")]
-    public IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
+    public static IEnumerable<ObjectTypeStatistics> GetHeapDumpStat(
+            [FromServices] RuntimeContext context,
             [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by just my code - how to filter Action<MyType>?
         // TODO filter by type name
     {
-        var analyzer = new HeapDumpStatisticsAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
+        var analyzer = new HeapDumpStatisticsAnalyzer(context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         var statistics = analyzer.GetObjectTypeStatistics()
             .OrderByDescending(s => s.TotalSize)
@@ -124,17 +92,14 @@ public class DumpController : ControllerBase
         return statistics;
     }
 
-    [HttpGet]
-    [Route("strings")]
-    [ProducesResponseType(typeof(StringInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get heap dump statistics")]
-    public IEnumerable<StringInfo> GetStrings(
+    public static IEnumerable<StringInfo> GetStrings(
+            [FromServices] RuntimeContext context,
             [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length
         // TODO filter by max length
     {
-        var query = from obj in _context.EnumerateStrings(gcStatus, generation)
+        var query = from obj in context.EnumerateStrings(gcStatus, generation)
             let str = obj.AsString()
             let length = obj.ReadField<int>("_stringLength")
             select new StringInfo(obj.Address, length, obj.Size, str);
@@ -143,26 +108,20 @@ public class DumpController : ControllerBase
         return query;
     }
 
-    [HttpGet]
-    [Route("string-duplicates")]
-    [ProducesResponseType(typeof(StringDuplicate[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get string duplicates")]
-    public IEnumerable<StringDuplicate> GetStringDuplicates(
+    public static IEnumerable<StringDuplicate> GetStringDuplicates(
+            [FromServices] RuntimeContext context,
             [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
         // TODO filter by min length 
     {
-        var analyzer = new StringDuplicateAnalyzer(_context) { ObjectGcStatus = gcStatus, Generation = generation };
+        var analyzer = new StringDuplicateAnalyzer(context) { ObjectGcStatus = gcStatus, Generation = generation };
 
         return analyzer.GetStringDuplicates()
             .Select(sd => new StringDuplicate(sd.Value, sd.Count, sd.FullLength, sd.WastedMemory));
     }
 
-    [HttpGet]
-    [Route("object-instances/{mt}")]
-    [ProducesResponseType(typeof(GetObjectInstancesResult), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get object instances")]
-    public GetObjectInstancesResult GetObjectInstances(
+    public static GetObjectInstancesResult GetObjectInstances(
+            [FromServices] RuntimeContext context,
             ulong mt,
             [FromQuery] ObjectGCStatus? gcStatus = null,
             [FromQuery] Generation? generation = null)
@@ -170,10 +129,10 @@ public class DumpController : ControllerBase
     {
         var methodTable = new MethodTable(mt);
 
-        var clrType = _context.Heap.FindTypeByMethodTable(methodTable);
+        var clrType = context.Heap.FindTypeByMethodTable(methodTable);
 
         var instances = (
-            from obj in _context.EnumerateObjects(gcStatus, generation)
+            from obj in context.EnumerateObjects(gcStatus, generation)
             where obj.Type != null
                   && obj.Type.MethodTable == methodTable
             orderby obj.Size descending
@@ -187,20 +146,17 @@ public class DumpController : ControllerBase
         return new GetObjectInstancesResult(methodTable, clrType?.Name, instances);
     }
 
-    [HttpGet]
-    [Route("arrays/sparse")]
-    [ProducesResponseType(typeof(ArrayInfo[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get sparse arrays")]
     // TODO add arrays
     // TODO add arrays/sparse
     // TODO add arrays/sparse/stat
-    public IEnumerable<ArrayInfo> GetSparseArrays(
+    public static IEnumerable<ArrayInfo> GetSparseArrays(
+        [FromServices] RuntimeContext context,
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
+        var query = from obj in context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
-            let proxy = new ArrayProxy(_context, obj)
+            let proxy = new ArrayProxy(context, obj)
             where proxy.UnusedItemsPercent >= 0.2
             orderby proxy.Wasted descending
             select new ArrayInfo(obj.Address, obj.Type.MethodTable, obj.Type.Name, proxy.Length, proxy.UnusedItemsCount,
@@ -209,17 +165,14 @@ public class DumpController : ControllerBase
         return query.Take(100);
     }
 
-    [HttpGet]
-    [Route("arrays/sparse/stat")]
-    [ProducesResponseType(typeof(SparseArrayStatistics[]), StatusCodes.Status200OK)]
-    [SwaggerOperation(summary: "Get arrays")]
-    public IEnumerable<SparseArrayStatistics> GetSparseArraysStat(
+    public static IEnumerable<SparseArrayStatistics> GetSparseArraysStat(
+        [FromServices] RuntimeContext context,
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in _context.EnumerateObjects(gcStatus, generation)
+        var query = from obj in context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
-            let proxy = new ArrayProxy(_context, obj)
+            let proxy = new ArrayProxy(context, obj)
             where proxy.UnusedItemsCount != 0
             group proxy by obj.Type.MethodTable
             into grp
@@ -234,17 +187,12 @@ public class DumpController : ControllerBase
         return query;
     }
 
-    [HttpGet]
-    [Route("object/{address}")]
-    [ProducesResponseType(typeof(GetClrObjectResult), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object")]
-    public IActionResult GetClrObject(ulong address)
+    public static Results<Ok<GetClrObjectResult>, NotFound> GetClrObject([FromServices] RuntimeContext context, ulong address)
     {
-        var clrObject = _context.Heap.GetObject(address);
+        var clrObject = context.Heap.GetObject(address);
         if (clrObject.Type == null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
         var result = new GetClrObjectResult(
@@ -253,23 +201,18 @@ public class DumpController : ControllerBase
             clrObject.Type.Name,
             clrObject.Type.MethodTable,
             clrObject.Size,
-            _context.Heap.GetGeneration(clrObject.Address),
+            context.Heap.GetGeneration(clrObject.Address),
             clrObject.Type.IsString ? clrObject.AsString() : null);
 
-        return Ok(result);
+        return TypedResults.Ok(result);
     }
 
-    [HttpGet]
-    [Route("object/{address}/fields")]
-    [ProducesResponseType(typeof(ClrObjectField[]), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object fields")]
-    public IActionResult GetClrObjectFields(ulong address)
+    public static Results<Ok<ClrObjectField[]>, NotFound> GetClrObjectFields([FromServices] RuntimeContext context, ulong address)
     {
-        var clrObject = _context.Heap.GetObject(address);
+        var clrObject = context.Heap.GetObject(address);
         if (clrObject.Type == null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
         var fields = (
@@ -287,24 +230,19 @@ public class DumpController : ControllerBase
                 field.Name)
         ).ToArray();
 
-        return Ok(fields);
+        return TypedResults.Ok(fields);
     }
 
-    [HttpGet]
-    [Route("object/{address}/roots")]
-    [ProducesResponseType(typeof(ClrObjectRootPath[]), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [SwaggerOperation(summary: "Get object roots")]
-    public IActionResult GetClrObjectRoots(ulong address, CancellationToken ct)
+    public static Results<Ok<List<ClrObjectRootPath>>, NotFound> GetClrObjectRoots([FromServices] RuntimeContext context, ulong address, CancellationToken ct)
     {
-        var clrObject = _context.Heap.GetObject(address);
+        var clrObject = context.Heap.GetObject(address);
         if (clrObject.Type == null)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
 
         var result = new List<ClrObjectRootPath>();
-        GCRoot gcRoot = new(_context.Heap, new[] { address });
+        GCRoot gcRoot = new(context.Heap, new[] { address });
         foreach ((ClrRoot root, GCRoot.ChainLink path) in gcRoot.EnumerateRootPaths(ct))
         {
             var rootType = root.Object.Type!;
@@ -323,14 +261,14 @@ public class DumpController : ControllerBase
             GCRoot.ChainLink? current = path;
             while (current != null)
             {
-                var obj = _context.Heap.GetObject(current.Object);
+                var obj = context.Heap.GetObject(current.Object);
 
                 var item = new RootPathItem(
                     obj.Address,
                     obj.Type!.MethodTable,
                     obj.Type.Name,
                     obj.Size,
-                    _context.Heap.GetGeneration(obj.Address));
+                    context.Heap.GetGeneration(obj.Address));
 
                 pathItems.Add(item);
 
@@ -342,7 +280,7 @@ public class DumpController : ControllerBase
             break;
         }
 
-        return Ok(result);
+        return TypedResults.Ok(result);
     }
 
     private static Address? GetFieldObjectAddress(ClrInstanceField field, ulong address)
@@ -386,12 +324,12 @@ public class DumpController : ControllerBase
             if (field.Type?.IsEnum ?? false)
             {
                 ClrEnum enumField = field.Type.AsEnum();
-                // TODO handle other types
+                // TODO handle other enum base types
                 if (enumField.ElementType == ClrElementType.Int32)
                 {
                     var fieldValue = field.Read<int>(address, false);
                     var name = enumField.EnumerateValues()
-                        .FirstOrDefault(v => (int)v.Value == fieldValue)
+                        .FirstOrDefault(v => v.Value != null && (int)v.Value == fieldValue)
                         .Name;
 
                     return !string.IsNullOrEmpty(name)
@@ -410,7 +348,7 @@ public class DumpController : ControllerBase
 
                 if (clrObject.Type?.IsString ?? false)
                 {
-                    return clrObject.AsString(100);
+                    return clrObject.AsString(100) ?? string.Empty;
                 }
 
                 if (clrObject is { IsNull: false, Type.Name: "System.Version" })

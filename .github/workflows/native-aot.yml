@@ -1,0 +1,50 @@
+name: Publish native AOT
+
+on:
+  push:
+    branches: [ disabled ]
+
+jobs:
+  build-aot:
+    name: Build Native AOT
+    strategy:
+      matrix:
+        # https://github.com/actions/runner-images
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      # temp fix frontend build
+      # Treating warnings as errors because process.env.CI = true.
+      # Most CI servers set it automatically.
+      CI: 'false'
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        global-json-file: global.json
+    - uses: actions/setup-node@v4
+      with:
+          # Version Spec of the version to use in SemVer notation.
+          # It also emits such aliases as lts, latest, nightly and canary builds
+          # Examples: 12.x, 10.15.1, >=10.15.0, lts/Hydrogen, 16-nightly, latest, node
+        node-version: 20
+    - name: Publish AOT version
+      shell: pwsh
+      run: |
+        ./scripts/publish-native-aot.ps1
+    # TODO join steps
+    - name: 'Upload Artifact linux-x64'
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Heartbeat-linux-x64
+        path: artifacts/linux-x64/
+        retention-days: 1
+    - name: 'Upload Artifact win-x64'
+      if: ${{ matrix.os == 'windows-latest' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Heartbeat-win-x64
+        path: artifacts/win-x64/
+        retention-days: 1

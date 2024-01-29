@@ -21,7 +21,6 @@ export class HeapDumpStatisticsRequestBuilder extends BaseRequestBuilder<HeapDum
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/heap-dump-statistics{?gcStatus*,generation*}", (x, y) => new HeapDumpStatisticsRequestBuilder(x, y));
     }
     /**
-     * Get heap dump statistics
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of ObjectTypeStatistics
      */
@@ -35,7 +34,6 @@ export class HeapDumpStatisticsRequestBuilder extends BaseRequestBuilder<HeapDum
         return this.requestAdapter.sendCollectionAsync<ObjectTypeStatistics>(requestInfo, createObjectTypeStatisticsFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get heap dump statistics
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

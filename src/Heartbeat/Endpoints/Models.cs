@@ -2,7 +2,7 @@ using Microsoft.Diagnostics.Runtime;
 
 using System.Runtime.InteropServices;
 
-namespace Heartbeat.Host.Controllers;
+namespace Heartbeat.Host.Endpoints;
 
 // ReSharper disable NotAccessedPositionalProperty.Global
 public record DumpInfo(
@@ -40,7 +40,7 @@ public record ClrObjectField(
     bool IsValueType,
     ulong? ObjectAddress,
     string Value,
-    string Name);
+    string? Name);
 
 public record Module(ulong Address, ulong Size, string? Name);
 
@@ -56,6 +56,7 @@ public record StringDuplicate(string Value, int Count, int FullLength, ulong Was
 public record RootInfo(ulong Address, ClrRootKind Kind, bool IsPinned, ulong Size, ulong MethodTable, string TypeName);
 
 public record ClrObjectRootPath(RootInfo Root, IReadOnlyList<RootPathItem> PathItems);
+
 public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, ulong Size, Generation Generation);
 
 public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);

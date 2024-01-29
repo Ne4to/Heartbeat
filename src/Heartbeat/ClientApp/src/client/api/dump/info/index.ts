@@ -17,7 +17,6 @@ export class InfoRequestBuilder extends BaseRequestBuilder<InfoRequestBuilder> {
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/info", (x, y) => new InfoRequestBuilder(x, y));
     }
     /**
-     * Get dump info
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of DumpInfo
      */
@@ -31,7 +30,6 @@ export class InfoRequestBuilder extends BaseRequestBuilder<InfoRequestBuilder> {
         return this.requestAdapter.sendAsync<DumpInfo>(requestInfo, createDumpInfoFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get dump info
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

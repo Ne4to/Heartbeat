@@ -21,7 +21,6 @@ export class StringsRequestBuilder extends BaseRequestBuilder<StringsRequestBuil
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/strings{?gcStatus*,generation*}", (x, y) => new StringsRequestBuilder(x, y));
     }
     /**
-     * Get heap dump statistics
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of StringInfo
      */
@@ -35,7 +34,6 @@ export class StringsRequestBuilder extends BaseRequestBuilder<StringsRequestBuil
         return this.requestAdapter.sendCollectionAsync<StringInfo>(requestInfo, createStringInfoFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get heap dump statistics
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

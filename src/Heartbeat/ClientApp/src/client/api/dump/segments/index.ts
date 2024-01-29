@@ -17,7 +17,6 @@ export class SegmentsRequestBuilder extends BaseRequestBuilder<SegmentsRequestBu
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/segments", (x, y) => new SegmentsRequestBuilder(x, y));
     }
     /**
-     * Get segments
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of HeapSegment
      */
@@ -31,7 +30,6 @@ export class SegmentsRequestBuilder extends BaseRequestBuilder<SegmentsRequestBu
         return this.requestAdapter.sendCollectionAsync<HeapSegment>(requestInfo, createHeapSegmentFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get segments
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

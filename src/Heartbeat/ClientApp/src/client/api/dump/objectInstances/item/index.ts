@@ -21,7 +21,6 @@ export class WithMtItemRequestBuilder extends BaseRequestBuilder<WithMtItemReque
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/object-instances/{mt}{?gcStatus*,generation*}", (x, y) => new WithMtItemRequestBuilder(x, y));
     }
     /**
-     * Get object instances
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of GetObjectInstancesResult
      */
@@ -35,7 +34,6 @@ export class WithMtItemRequestBuilder extends BaseRequestBuilder<WithMtItemReque
         return this.requestAdapter.sendAsync<GetObjectInstancesResult>(requestInfo, createGetObjectInstancesResultFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get object instances
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */

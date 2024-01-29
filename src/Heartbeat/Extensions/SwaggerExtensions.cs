@@ -1,9 +1,11 @@
+#if OPENAPI
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Heartbeat.Host.Extensions;
@@ -88,6 +90,7 @@ public class RequireNonNullablePropertiesSchemaFilter : ISchemaFilter
         }
     }
 
+    [Conditional("DEBUG")]    
     private static void FixNullableProperties(OpenApiSchema schema, SchemaFilterContext context)
     {
         foreach (var property in schema.Properties)
@@ -116,3 +119,4 @@ public class RequireNonNullablePropertiesSchemaFilter : ISchemaFilter
         }
     }
 }
+#endif

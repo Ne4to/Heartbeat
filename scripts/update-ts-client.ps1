@@ -1,9 +1,10 @@
 $ErrorActionPreference = "Stop"
 
+$Configuration = 'DebugOpenAPI'
 $RepositoryRoot = Split-Path $PSScriptRoot
 $FrontendRoot = Join-Path $RepositoryRoot 'src/Heartbeat/ClientApp'
 $ContractPath = Join-Path $FrontendRoot 'api.yml'
-$DllPath = Join-Path $RepositoryRoot 'src/Heartbeat/bin/Debug/net8.0/Heartbeat.dll'
+$DllPath = Join-Path $RepositoryRoot "src/Heartbeat/bin/$Configuration/net8.0/Heartbeat.dll"
 
 Push-Location
 try
@@ -11,10 +12,9 @@ try
     Set-Location $RepositoryRoot
 
     dotnet tool restore
-    dotnet build --configuration Debug
-    
+    dotnet build --configuration $Configuration
+
     Set-Location $FrontendRoot
-    $env:HEARTBEAT_GENERATE_CONTRACTS = 'true'
     dotnet swagger tofile --yaml --output $ContractPath $DllPath Heartbeat
     dotnet kiota generate -l typescript --openapi $ContractPath -c HeartbeatClient -o ./src/client --clean-output
 
@@ -26,5 +26,4 @@ catch {
 }
 finally {
     Pop-Location
-    $env:HEARTBEAT_GENERATE_CONTRACTS = $null
 }

@@ -17,7 +17,6 @@ export class RootsRequestBuilder extends BaseRequestBuilder<RootsRequestBuilder>
         super(pathParameters, requestAdapter, "{+baseurl}/api/dump/object/{address}/roots", (x, y) => new RootsRequestBuilder(x, y));
     }
     /**
-     * Get object roots
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a Promise of ClrObjectRootPath
      */
@@ -32,7 +31,6 @@ export class RootsRequestBuilder extends BaseRequestBuilder<RootsRequestBuilder>
         return this.requestAdapter.sendCollectionAsync<ClrObjectRootPath>(requestInfo, createClrObjectRootPathFromDiscriminatorValue, errorMapping);
     }
     /**
-     * Get object roots
      * @param requestConfiguration Configuration for the request such as headers, query parameters, and middleware options.
      * @returns a RequestInformation
      */
