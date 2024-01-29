@@ -1,9 +1,13 @@
 # Heartbeat
 [![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
 
-Diagnostics utility with web UI to analyze memory dumps of .NET application
+Diagnostics utility with web UI to analyze .NET application memory dump
 
 ## Getting started
+
+### dotnet tool
+
+.NET 8 SDK is required
 
 ```shell
 dotnet tool install --global Heartbeat
@@ -12,7 +16,9 @@ export PATH=$PATH:$HOME/.dotnet/tools
 heartbeat --dump <path-to-dump-file>
 ```
 Open `http://localhost:5000/` in web browser.
-See [UI screen](https://github.com/Ne4to/Heartbeat/tree/master/assets) for examples
+
+### Native AOT
+Heartbeat is also available in [Native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/) version. You can download it from the [latest release](https://github.com/Ne4to/Heartbeat/releases/latest)
 
 <!---
 TODO: update description
@@ -46,7 +52,7 @@ Issue Finder example:
 - Find hung System.Threading.Tasks.Task objects;
 - Find System.Threading.Tasks.Task state.
 -->
-## Usage
+### Using Heartbeat
 
 ```
 heartbeat [options]
@@ -59,6 +65,9 @@ Options:
   --version                 Show version information
   -?, -h, --help            Show help and usage information
 ```
-<!---
-TODO: add screens
--->
+
+See [UI screen](https://github.com/Ne4to/Heartbeat/tree/master/assets) for examples.
+
+### Listening endpoint
+
+Use [ASPNETCORE_URLS](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/endpoints?view=aspnetcore-8.0) environment variable to change default endpoint (`export ASPNETCORE_URLS=http://0.0.0.0:5555` or `$env:ASPNETCORE_URLS='http://127.0.0.1:5555'`)

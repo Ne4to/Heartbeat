@@ -1,16 +1,21 @@
-name: Publish native AOT
+name: Create release
 
 on:
   push:
-    branches: [ native-aot ]
+    branches: [ disabled ]
+    # tags:
+    #   - "v*.*.*"
 
 jobs:
+
   build-aot:
     name: Build Native AOT
     strategy:
       matrix:
         # https://github.com/actions/runner-images
         os: [ubuntu-latest, windows-latest]
+        version: [a, b, c]
+
     runs-on: ${{ matrix.os }}
     env:
       # temp fix frontend build
@@ -33,18 +38,20 @@ jobs:
       shell: pwsh
       run: |
         ./scripts/publish-native-aot.ps1
-    # TODO join steps
-    - name: 'Upload Artifact linux-x64'
-      if: ${{ matrix.os == 'ubuntu-latest' }}
+    - name: 'Upload Artifact'
       uses: actions/upload-artifact@v4
       with:
         name: Heartbeat-linux-x64
         path: artifacts/linux-x64/
         retention-days: 1
-    - name: 'Upload Artifact win-x64'
-      if: ${{ matrix.os == 'windows-latest' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Heartbeat-win-x64
-        path: artifacts/win-x64/
-        retention-days: 1
+
+  # https://github.com/softprops/action-gh-release
+
+  # https://github.com/marketplace/actions/gh-release
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Release
+        uses: softprops/action-gh-release@v1

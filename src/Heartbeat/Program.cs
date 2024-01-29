@@ -81,6 +81,7 @@ static void MainWeb(WebCommandOptions options, string[] args)
 
 // TODO support auth
 // TODO setup listening port
+    Console.WriteLine($"Open dump: {options.Dump.FullName}");
     var runtimeContext = new RuntimeContext(options.Dump.FullName, options.DacPath?.FullName, options.IgnoreDacMismatch ?? false);
     builder.Services.AddSingleton(runtimeContext);
 
