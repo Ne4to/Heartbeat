@@ -19,9 +19,11 @@ jobs:
       # Most CI servers set it automatically.
       CI: 'false'
     steps:
-    - uses: actions/checkout@v3
+    # https://github.com/marketplace/actions/checkout
+    - uses: actions/checkout@v4
+    # https://github.com/marketplace/actions/setup-net-core-sdk
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4.0.0
       with:
         global-json-file: global.json
     - uses: actions/setup-node@v4
@@ -55,13 +57,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # https://github.com/actions/download-artifact
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts
-          merge-multiple: true
+          merge-multiple: false
+      - name: Zip artifacts
+        working-directory: ./release-artifacts
+        run: for i in */; do zip -r "${i%/}.zip" -m "$i"; done
       # https://github.com/softprops/action-gh-release
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -69,5 +74,3 @@ jobs:
           draft: true
           generate_release_notes: true
           files: release-artifacts/**
-
-      # TODO try https://github.com/marketplace/actions/release-drafter
