@@ -2,7 +2,7 @@ name: Publish native AOT
 
 on:
   push:
-    branches: [ native-aot ]
+    branches: [ disabled ]
 
 jobs:
   build-aot:

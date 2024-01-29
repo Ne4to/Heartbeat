@@ -1,9 +1,8 @@
 using Microsoft.Diagnostics.Runtime;
 
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
 
-namespace Heartbeat.Host.Controllers;
+namespace Heartbeat.Host.Endpoints;
 
 // ReSharper disable NotAccessedPositionalProperty.Global
 public record DumpInfo(
@@ -41,7 +40,7 @@ public record ClrObjectField(
     bool IsValueType,
     ulong? ObjectAddress,
     string Value,
-    string Name);
+    string? Name);
 
 public record Module(ulong Address, ulong Size, string? Name);
 
@@ -63,21 +62,3 @@ public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, u
 public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);
 
 public record SparseArrayStatistics(ulong MethodTable, string? TypeName, int Count, ulong TotalWasted);
-
-[JsonSourceGenerationOptions(UseStringEnumConverter = true)]
-[JsonSerializable(typeof(DumpInfo))]
-[JsonSerializable(typeof(GetObjectInstancesResult))]
-[JsonSerializable(typeof(GetClrObjectResult))]
-[JsonSerializable(typeof(Module[]))]
-[JsonSerializable(typeof(ClrObjectField[]))]
-[JsonSerializable(typeof(List<ClrObjectRootPath>))]
-[JsonSerializable(typeof(IEnumerable<HeapSegment>))]
-[JsonSerializable(typeof(IEnumerable<IEnumerable<RootInfo>>))]
-[JsonSerializable(typeof(IEnumerable<ObjectTypeStatistics>))]
-[JsonSerializable(typeof(IEnumerable<StringInfo>))]
-[JsonSerializable(typeof(IEnumerable<StringDuplicate>))]
-[JsonSerializable(typeof(IEnumerable<ArrayInfo>))]
-[JsonSerializable(typeof(IEnumerable<SparseArrayStatistics>))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
-{
-}
