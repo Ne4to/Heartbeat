@@ -1,4 +1,5 @@
 ﻿using Heartbeat.Domain;
+using Heartbeat.Host.Helpers;
 using Heartbeat.Runtime;
 using Heartbeat.Runtime.Analyzers;
 using Heartbeat.Runtime.Domain;
@@ -294,7 +295,7 @@ internal static class RouteHandlers
         {
             ArrayProxy arrayProxy = new(context, clrObject);
 
-            var str = arrayProxy.AsStringValue();
+            // TODO var str = arrayProxy.AsStringValue();
            
             var items = arrayProxy.EnumerateArrayElements()
                 .Select(e => new ClrObjectArrayItem(e.Index, e.Address, e.Value));
@@ -303,6 +304,29 @@ internal static class RouteHandlers
         }
 
         return TypedResults.NoContent();
+    }
+
+    public static Results<Ok<JwtInfo>, NoContent, NotFound> GetClrObjectAsJwt([FromServices] RuntimeContext context, ulong address)
+    {
+        var clrObject = context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (!clrObject.Type.IsString)
+            return TypedResults.NoContent();
+
+        try
+        {
+            var str = clrObject.AsString() ?? string.Empty;
+            var result = JwtParser.ToJwtInfo(str);
+            return TypedResults.Ok(result);
+        }
+        catch (Exception)
+        {
+            return TypedResults.NoContent();
+        }
     }
 
     private static Address? GetFieldObjectAddress(ClrInstanceField field, ulong address)

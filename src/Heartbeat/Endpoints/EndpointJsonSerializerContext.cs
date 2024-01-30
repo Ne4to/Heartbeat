@@ -6,6 +6,7 @@ namespace Heartbeat.Host.Endpoints;
 [JsonSerializable(typeof(DumpInfo))]
 [JsonSerializable(typeof(GetObjectInstancesResult))]
 [JsonSerializable(typeof(GetClrObjectResult))]
+[JsonSerializable(typeof(JwtInfo))]
 [JsonSerializable(typeof(Module[]))]
 [JsonSerializable(typeof(ClrObjectField[]))]
 [JsonSerializable(typeof(List<ClrObjectRootPath>))]

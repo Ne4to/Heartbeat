@@ -351,6 +351,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/as-jwt':
+    get:
+      tags:
+        - Dump
+      operationId: GetClrObjectAsJwt
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtInfo'
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/fields':
     get:
       tags:
@@ -469,7 +503,6 @@ components:
       required:
         - address
         - index
-        - value
       type: object
       properties:
         index:
@@ -480,6 +513,7 @@ components:
           format: int64
         value:
           type: string
+          nullable: true
       additionalProperties: false
     ClrObjectField:
       required:
@@ -650,6 +684,35 @@ components:
           type: integer
           format: int64
           readOnly: true
+      additionalProperties: false
+    JwtInfo:
+      required:
+        - header
+        - payload
+      type: object
+      properties:
+        header:
+          type: array
+          items:
+            $ref: '#/components/schemas/JwtValue'
+        payload:
+          type: array
+          items:
+            $ref: '#/components/schemas/JwtValue'
+      additionalProperties: false
+    JwtValue:
+      required:
+        - key
+        - value
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        description:
+          type: string
+          nullable: true
       additionalProperties: false
     Module:
       required:

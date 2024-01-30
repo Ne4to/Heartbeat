@@ -4,7 +4,7 @@ import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar} from '@mui/x-da
 import {Stack} from "@mui/material";
 import {TabbedShowLayout} from "react-admin";
 
-import {ClrObjectArrayItem, ClrObjectField, ClrObjectRootPath, GetClrObjectResult} from '../../client/models';
+import {ClrObjectArrayItem, ClrObjectField, ClrObjectRootPath, GetClrObjectResult, JwtInfo} from '../../client/models';
 
 import {useStateWithLoading} from "../../hooks/useStateWithLoading";
 import {useNotifyError} from "../../hooks/useNotifyError";
@@ -19,6 +19,7 @@ import toSizeString from "../../lib/toSizeString";
 import {PropertiesTable, PropertyRow} from '../../components/PropertiesTable'
 import {ClrObjectRoot} from "../../components/ClrObjectRoot";
 import {ProgressContainer} from "../../components/ProgressContainer";
+import Box from "@mui/material/Box";
 
 // TODO add Dictionary, Queue, Stack and other collections view to a new tab
 // TODO add ConcurrentDictionary view to a new tab (dcd, dumpconcurrentdictionary <address>    Displays concurrent dictionary content.)
@@ -35,6 +36,7 @@ export const ClrObject = () => {
     const [fields, setFields, isFieldsLoading, setIsFieldsLoading] = useStateWithLoading<ClrObjectField[]>()
     const [roots, setRoots, isRootsLoading, setIsRootsLoading] = useStateWithLoading<ClrObjectRootPath[]>()
     const [arrayItems, setArrayItems, isArrayItemsLoading, setArrayItemsLoading] = useStateWithLoading<ClrObjectArrayItem[]>()
+    const [jwt, setJwt, isJwtLoading, setJwtLoading] = useStateWithLoading<JwtInfo>()
 
     useEffect(() => {
         const getObject = async () => {
@@ -70,6 +72,15 @@ export const ClrObject = () => {
         }
 
         fetchData(fetchArrayItems, setArrayItems, setArrayItemsLoading, notifyError)
+    }, [address, notify]);
+
+    useEffect(() => {
+        const fetchJwt = async () => {
+            const client = getClient();
+            return await client.api.dump.object.byAddress(address).asJwt.get()
+        }
+
+        fetchData(fetchJwt, setJwt, setJwtLoading, notifyError)
     }, [address, notify]);
 
     const getChildrenContent = (objectResult?: GetClrObjectResult) => {
@@ -109,8 +120,11 @@ export const ClrObject = () => {
                 <TabbedShowLayout.Tab label="Roots">
                     <RootsTabContent isLoading={isRootsLoading} roots={roots}/>
                 </TabbedShowLayout.Tab>
-                <TabbedShowLayout.Tab label="Array">
+                <TabbedShowLayout.Tab label="Array" hidden={!isArrayItemsLoading && !arrayItems}>
                     <ArrayTabContent isLoading={isArrayItemsLoading} arrayItems={arrayItems}/>
+                </TabbedShowLayout.Tab>
+                <TabbedShowLayout.Tab label="JWT" hidden={!isJwtLoading && !jwt}>
+                    <JwtTabContent isLoading={isJwtLoading} jwt={jwt}/>
                 </TabbedShowLayout.Tab>
             </TabbedShowLayout>
         </Stack>
@@ -244,4 +258,54 @@ const ArrayTabContent = (props: { isLoading: boolean, arrayItems?: ClrObjectArra
     return (<ProgressContainer isLoading={props.isLoading}>
         {getArrayItemsContent(props.arrayItems)}
     </ProgressContainer>);
+}
+
+const JwtTabContent = (props: { isLoading: boolean, jwt?: JwtInfo }) => {
+    const getRootsContent = (jwt?: JwtInfo) => {
+        if (!jwt)
+            return undefined;
+
+        const columns: GridColDef[] = [
+            {
+                field: 'key',
+                headerName: 'Key',
+                minWidth: 200
+            },
+            {
+                field: 'value',
+                headerName: 'Value',
+                width: 600
+            },
+            {
+                field: 'description',
+                headerName: 'Description',
+                flex: 1
+            }
+        ];
+
+        return (
+            <Stack>
+                <Box>Header</Box>
+                <DataGrid
+                    rows={props.jwt?.header!}
+                    getRowId={(row) => row.key!}
+                    columns={columns}
+                    rowHeight={25}
+                    density='compact'
+                />
+                <Box>Payload</Box>
+                <DataGrid
+                    rows={props.jwt?.payload!}
+                    getRowId={(row) => row.key!}
+                    columns={columns}
+                    rowHeight={25}
+                    density='compact'
+                />
+            </Stack>
+        );
+    }
+
+    return (<ProgressContainer isLoading={props.isLoading}>
+        {getRootsContent(props.jwt)}
+    </ProgressContainer>)
 }
