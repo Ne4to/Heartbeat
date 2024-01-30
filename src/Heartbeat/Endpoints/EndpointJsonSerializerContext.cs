@@ -16,4 +16,5 @@ namespace Heartbeat.Host.Endpoints;
 [JsonSerializable(typeof(IEnumerable<StringDuplicate>))]
 [JsonSerializable(typeof(IEnumerable<ArrayInfo>))]
 [JsonSerializable(typeof(IEnumerable<SparseArrayStatistics>))]
+[JsonSerializable(typeof(IEnumerable<ClrObjectArrayItem>))]
 internal partial class EndpointJsonSerializerContext : JsonSerializerContext;

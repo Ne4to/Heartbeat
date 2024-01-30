@@ -55,6 +55,12 @@ internal static class EndpointRouteBuilderExtensions
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
             .WithName("GetClrObject");
+        
+        dumpGroup.MapGet("object/{address}/as-array", RouteHandlers.GetClrObjectAsArray)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+            .WithName("GetClrObjectAsArray");
 
         dumpGroup.MapGet("object/{address}/fields", RouteHandlers.GetClrObjectFields)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)

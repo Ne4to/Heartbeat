@@ -315,6 +315,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/as-array':
+    get:
+      tags:
+        - Dump
+      operationId: GetClrObjectAsArray
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClrObjectArrayItem'
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/fields':
     get:
       tags:
@@ -429,11 +465,26 @@ components:
           type: integer
           format: int64
       additionalProperties: false
+    ClrObjectArrayItem:
+      required:
+        - address
+        - index
+        - value
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        address:
+          type: integer
+          format: int64
+        value:
+          type: string
+      additionalProperties: false
     ClrObjectField:
       required:
         - isValueType
         - methodTable
-        - name
         - offset
         - value
       type: object
@@ -457,6 +508,7 @@ components:
           type: string
         name:
           type: string
+          nullable: true
       additionalProperties: false
     ClrObjectRootPath:
       required:

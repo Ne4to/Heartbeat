@@ -1,5 +1,7 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 
+using System.Globalization;
+
 namespace Heartbeat.Runtime.Extensions
 {
     public static class ClrValueTypeExtensions
@@ -51,6 +53,32 @@ namespace Heartbeat.Runtime.Extensions
 
             return true;
         }
+        
+        public static string GetValueAsString(this ClrValueType valueType)
+        {
+            if (valueType.Type == null)
+            {
+                return "<unknown type>";
+            }
+
+            if (valueType.Type.IsObjectReference)
+                return "<object>";
+            
+            if (valueType.Type.IsPrimitive)
+            {
+                if (valueType.Type.Fields.Length == 1)
+                {
+                    return GetValueAsString(valueType.Address, valueType.Type.Fields[0]);
+                }
+
+                return $"primitive type with {valueType.Type.Fields.Length} fields";
+            }
+            
+            if (valueType.Type.IsValueType)
+                return "<struct>";
+
+            return valueType.Type.Name ?? "<unknown type>";
+        }
 
         private static bool IsValueDefault(ulong objRef, ClrInstanceField field)
         {
@@ -71,6 +99,28 @@ namespace Heartbeat.Runtime.Extensions
                 ClrElementType.NativeInt => field.Read<nint>(objRef, true) == nint.Zero,
                 ClrElementType.NativeUInt => field.Read<nuint>(objRef, true) == nuint.Zero,
                 _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+        
+        private static string GetValueAsString(ulong objRef, ClrInstanceField field)
+        {
+            return field.ElementType switch
+            {
+                ClrElementType.Boolean => field.Read<bool>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Char => field.Read<char>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Int8 => field.Read<sbyte>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.UInt8 => field.Read<byte>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Int16 => field.Read<short>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.UInt16 => field.Read<ushort>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Int32 => field.Read<int>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.UInt32 => field.Read<int>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Int64 => field.Read<long>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.UInt64 => field.Read<ulong>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Float => field.Read<float>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.Double => field.Read<double>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.NativeInt => field.Read<nint>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                ClrElementType.NativeUInt => field.Read<nuint>(objRef, true).ToString(CultureInfo.InvariantCulture),
+                _ => throw new ArgumentOutOfRangeException($"Unable to get primitive value for {field.ElementType} field")
             };
         }
 

@@ -2,6 +2,8 @@ using Heartbeat.Runtime.Extensions;
 
 using Microsoft.Diagnostics.Runtime;
 
+using System.Text;
+
 namespace Heartbeat.Runtime.Proxies;
 
 public sealed class ArrayProxy : ProxyBase
@@ -9,6 +11,7 @@ public sealed class ArrayProxy : ProxyBase
     private ClrArray _clrArray;
     private readonly Lazy<int> _unusedItemsCount;
 
+    public ClrArray InnerArray => _clrArray;
     public int Length => _clrArray.Length;
 
     public int UnusedItemsCount => _unusedItemsCount.Value;
@@ -165,4 +168,58 @@ public sealed class ArrayProxy : ProxyBase
         return EnumerateObjectItems(_clrArray)
             .Count(t => t.IsNull);
     }
+    
+    public IEnumerable<ArrayItem> EnumerateArrayElements()
+    {
+        // TODO set real index
+        int index = 0;
+        
+        if (_clrArray.Type.ComponentType?.IsObjectReference ?? false)
+        {
+            foreach (var arrayElement in EnumerateObjectItems(_clrArray))
+            {
+                string? value = arrayElement.Type?.IsString ?? false
+                    ? arrayElement.AsString()
+                    : "<object>";
+                
+                yield return new ArrayItem(index++, new Address(arrayElement.Address), value);
+            }
+        }
+        else if (_clrArray.Type.ComponentType?.IsValueType ?? false)
+        {            
+            // TODO use _clrArray.ReadValues for IsPrimitive == true
+            
+            // TODO test and compare with WinDbg / dotnet dump
+            foreach (var arrayElement in EnumerateValueTypes(_clrArray))
+            {
+                // Support value type on UI, return MethodTable
+                // !DumpVC <MethodTable address> <Address>
+                // new Address(arrayElement.Address)
+                // Context.Heap.GetObject(arrayElement.Address, arrayElement.Type).Type.Fields.Single(f => f.Name == "runningValue").GetAddress(arrayElement.Address, true).ToString("x8")
+                yield return new ArrayItem(index++, Address.Null, arrayElement.GetValueAsString());
+            }
+        }
+        else
+        {
+            throw new NotSupportedException($"Enumerating array of {_clrArray.Type.ComponentType} type is not supported");
+        }
+    }
+
+    public string? AsStringValue()
+    {
+        if (_clrArray.Type.ComponentType?.ElementType == ClrElementType.UInt8)
+        {
+            var bytes = _clrArray.ReadValues<byte>(0, _clrArray.Length);
+            if (bytes != null)
+            {
+                return Encoding.UTF8.GetString(bytes);
+            }
+        }
+        
+        // read char[] as string
+        
+        return null;
+    }
 }
+
+public record struct ArrayItem(int Index, Address Address, string? Value);
