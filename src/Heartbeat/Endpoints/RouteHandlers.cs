@@ -20,7 +20,6 @@ internal static class RouteHandlers
         var clrHeap = context.Heap;
         var clrInfo = context.Runtime.ClrInfo;
         var dataReader = clrInfo.DataTarget.DataReader;
-        
 
         var dumpInfo = new DumpInfo(
             context.DumpPath,
@@ -282,6 +281,29 @@ internal static class RouteHandlers
 
         return TypedResults.Ok(result);
     }
+    
+    public static Results<Ok<IEnumerable<ClrObjectArrayItem>>, NoContent, NotFound> GetClrObjectAsArray([FromServices] RuntimeContext context, ulong address)
+    {
+        var clrObject = context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (clrObject.IsArray)
+        {
+            ArrayProxy arrayProxy = new(context, clrObject);
+
+            var str = arrayProxy.AsStringValue();
+           
+            var items = arrayProxy.EnumerateArrayElements()
+                .Select(e => new ClrObjectArrayItem(e.Index, e.Address, e.Value));
+            
+            return TypedResults.Ok(items);
+        }
+
+        return TypedResults.NoContent();
+    }
 
     private static Address? GetFieldObjectAddress(ClrInstanceField field, ulong address)
     {
@@ -295,6 +317,7 @@ internal static class RouteHandlers
 
     private static string GetFieldValue(ClrInstanceField field, ulong address)
     {
+        // TODO merge with ClrValueTypeExtensions.GetValueAsString
         if (field.IsPrimitive)
         {
             return field.ElementType switch

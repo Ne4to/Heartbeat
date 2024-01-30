@@ -4,7 +4,7 @@ import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar} from '@mui/x-da
 import {Stack} from "@mui/material";
 import {TabbedShowLayout} from "react-admin";
 
-import {ClrObjectField, ClrObjectRootPath, GetClrObjectResult} from '../../client/models';
+import {ClrObjectArrayItem, ClrObjectField, ClrObjectRootPath, GetClrObjectResult} from '../../client/models';
 
 import {useStateWithLoading} from "../../hooks/useStateWithLoading";
 import {useNotifyError} from "../../hooks/useNotifyError";
@@ -13,16 +13,17 @@ import fetchData from "../../lib/handleFetchData";
 import getClient from '../../lib/getClient'
 import toHexAddress from '../../lib/toHexAddress'
 import {renderClrObjectLink, renderMethodTableLink} from "../../lib/gridRenderCell";
-import {methodTableColumn} from "../../lib/gridColumns";
+import {methodTableColumn, objectAddressColumn} from "../../lib/gridColumns";
 import toSizeString from "../../lib/toSizeString";
 
 import {PropertiesTable, PropertyRow} from '../../components/PropertiesTable'
 import {ClrObjectRoot} from "../../components/ClrObjectRoot";
 import {ProgressContainer} from "../../components/ProgressContainer";
 
-// TODO add Dictionary view to a new tab
-// TODO add Array view to a new tab
-// TODO add JWT decode tab (https://github.com/panva/jose)
+// TODO add Dictionary, Queue, Stack and other collections view to a new tab
+// TODO add ConcurrentDictionary view to a new tab (dcd, dumpconcurrentdictionary <address>    Displays concurrent dictionary content.)
+// TODO add ConcurrentQueue view to a new tab (dcq, dumpconcurrentqueue <address>         Displays concurrent queue content.)
+// TODO add JWT decode tab (https://github.com/panva/jose) (System.IdentityModel.Tokens.Jwt)
 // TODO find other debugger visualizers
 
 export const ClrObject = () => {
@@ -33,6 +34,7 @@ export const ClrObject = () => {
     const [clrObject, setClrObject, isClrObjectLoading, setIsClrObjectLoading] = useStateWithLoading<GetClrObjectResult>()
     const [fields, setFields, isFieldsLoading, setIsFieldsLoading] = useStateWithLoading<ClrObjectField[]>()
     const [roots, setRoots, isRootsLoading, setIsRootsLoading] = useStateWithLoading<ClrObjectRootPath[]>()
+    const [arrayItems, setArrayItems, isArrayItemsLoading, setArrayItemsLoading] = useStateWithLoading<ClrObjectArrayItem[]>()
 
     useEffect(() => {
         const getObject = async () => {
@@ -61,6 +63,61 @@ export const ClrObject = () => {
         fetchData(getRoots, setRoots, setIsRootsLoading, notifyError)
     }, [address, notify]);
 
+    useEffect(() => {
+        const fetchArrayItems = async () => {
+            const client = getClient();
+            return await client.api.dump.object.byAddress(address).asArray.get()
+        }
+
+        fetchData(fetchArrayItems, setArrayItems, setArrayItemsLoading, notifyError)
+    }, [address, notify]);
+
+    const getChildrenContent = (objectResult?: GetClrObjectResult) => {
+        if (!objectResult)
+            return undefined;
+
+        const propertyRows: PropertyRow[] = [
+            {title: 'Address', value: toHexAddress(objectResult.address)},
+            {title: 'Size', value: toSizeString(objectResult.size || 0)},
+            {title: 'Generation', value: objectResult.generation},
+            // TODO add Live / Dead
+            {title: 'MethodTable', value: renderMethodTableLink(objectResult.methodTable)},
+            {title: 'Type', value: objectResult.typeName},
+            {title: 'Module', value: objectResult.moduleName},
+        ]
+
+        if (objectResult.value) {
+            propertyRows.push(
+                {title: 'Value', value: objectResult.value},
+            )
+        }
+
+        return <PropertiesTable rows={propertyRows}/>
+    }
+
+    return (
+        <Stack>
+            <ProgressContainer isLoading={isClrObjectLoading}>
+                {getChildrenContent(clrObject)}
+            </ProgressContainer>
+
+            {/* TODO move each tab to a separate component */}
+            <TabbedShowLayout record={{id: 0}} syncWithLocation={false}>
+                <TabbedShowLayout.Tab label="Fields">
+                    <FieldsTabContent isLoading={isFieldsLoading} fields={fields}/>
+                </TabbedShowLayout.Tab>
+                <TabbedShowLayout.Tab label="Roots">
+                    <RootsTabContent isLoading={isRootsLoading} roots={roots}/>
+                </TabbedShowLayout.Tab>
+                <TabbedShowLayout.Tab label="Array">
+                    <ArrayTabContent isLoading={isArrayItemsLoading} arrayItems={arrayItems}/>
+                </TabbedShowLayout.Tab>
+            </TabbedShowLayout>
+        </Stack>
+    );
+}
+
+const FieldsTabContent = (props: { isLoading: boolean, fields?: ClrObjectField[] }) => {
     const fieldsGridColumns: GridColDef[] = [
         methodTableColumn,
         {
@@ -107,29 +164,6 @@ export const ClrObject = () => {
         }
     ];
 
-    const getChildrenContent = (objectResult?: GetClrObjectResult) => {
-        if (!objectResult)
-            return undefined;
-
-        const propertyRows: PropertyRow[] = [
-            {title: 'Address', value: toHexAddress(objectResult.address)},
-            {title: 'Size', value: toSizeString(objectResult.size || 0)},
-            {title: 'Generation', value: objectResult.generation},
-            // TODO add Live / Dead
-            {title: 'MethodTable', value: renderMethodTableLink(objectResult.methodTable)},
-            {title: 'Type', value: objectResult.typeName},
-            {title: 'Module', value: objectResult.moduleName},
-        ]
-
-        if (objectResult.value) {
-            propertyRows.push(
-                {title: 'Value', value: objectResult.value},
-            )
-        }
-
-        return <PropertiesTable rows={propertyRows}/>
-    }
-
     const getFieldsGrid = (fields?: ClrObjectField[]) => {
         if (!fields || fields.length === 0)
             return undefined;
@@ -137,7 +171,7 @@ export const ClrObject = () => {
         return (
             <DataGrid
                 rows={fields}
-                getRowId={(row) => row.name}
+                getRowId={(row) => row.name!}
                 columns={fieldsGridColumns}
                 rowHeight={25}
                 pageSizeOptions={[20, 50, 100]}
@@ -150,6 +184,12 @@ export const ClrObject = () => {
         );
     }
 
+    return (<ProgressContainer isLoading={props.isLoading}>
+        {getFieldsGrid(props.fields)}
+    </ProgressContainer>);
+}
+
+const RootsTabContent = (props: { isLoading: boolean, roots?: ClrObjectRootPath[] }) => {
     const getRootsContent = (roots?: ClrObjectRootPath[]) => {
         if (!roots || roots.length === 0)
             return undefined;
@@ -157,24 +197,51 @@ export const ClrObject = () => {
         return <ClrObjectRoot rootPath={roots[0]}/>
     }
 
-    return (
-        <Stack>
-            <ProgressContainer isLoading={isClrObjectLoading}>
-                {getChildrenContent(clrObject)}
-            </ProgressContainer>
+    return (<ProgressContainer isLoading={props.isLoading}>
+        {getRootsContent(props.roots)}
+    </ProgressContainer>)
+}
 
-            <TabbedShowLayout record={{id: 0}} syncWithLocation={false}>
-                <TabbedShowLayout.Tab label="Fields">
-                    <ProgressContainer isLoading={isFieldsLoading}>
-                        {getFieldsGrid(fields)}
-                    </ProgressContainer>
-                </TabbedShowLayout.Tab>
-                <TabbedShowLayout.Tab label="Roots">
-                    <ProgressContainer isLoading={isRootsLoading}>
-                        {getRootsContent(roots)}
-                    </ProgressContainer>
-                </TabbedShowLayout.Tab>
-            </TabbedShowLayout>
-        </Stack>
-    );
+const ArrayTabContent = (props: { isLoading: boolean, arrayItems?: ClrObjectArrayItem[] }) => {
+
+    // TODO show char[] as string
+    // TODO show byte[] as utf8 string
+    const getArrayItemsContent = (arrayItems?: ClrObjectArrayItem[]) => {
+        if (!arrayItems || arrayItems.length === 0)
+            return undefined;
+
+        const arrayItemsColumns: GridColDef[] = [
+            {
+                field: 'index',
+                headerName: 'Index',
+                type: 'number'
+            },
+            objectAddressColumn,
+            {
+                field: 'value',
+                headerName: 'Value',
+                minWidth: 200,
+                flex: 1
+            }
+        ];
+
+        return (
+            <DataGrid
+                rows={arrayItems}
+                getRowId={(row) => row.index}
+                columns={arrayItemsColumns}
+                rowHeight={25}
+                pageSizeOptions={[20, 50, 100]}
+                density='compact'
+                slots={{toolbar: GridToolbar}}
+                initialState={{
+                    pagination: {paginationModel: {pageSize: 20}},
+                }}
+            />
+        );
+    }
+
+    return (<ProgressContainer isLoading={props.isLoading}>
+        {getArrayItemsContent(props.arrayItems)}
+    </ProgressContainer>);
 }

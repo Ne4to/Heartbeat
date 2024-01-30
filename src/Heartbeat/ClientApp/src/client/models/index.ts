@@ -34,6 +34,20 @@ export interface ArrayInfo extends Parsable {
      */
     wasted?: number;
 }
+export interface ClrObjectArrayItem extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The index property
+     */
+    index?: number;
+    /**
+     * The value property
+     */
+    value?: string;
+}
 export interface ClrObjectField extends Parsable {
     /**
      * The isValueType property
@@ -77,6 +91,9 @@ export interface ClrObjectRootPath extends Parsable {
 export type ClrRootKind = (typeof ClrRootKindObject)[keyof typeof ClrRootKindObject];
 export function createArrayInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoArrayInfo;
+}
+export function createClrObjectArrayItemFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoClrObjectArrayItem;
 }
 export function createClrObjectFieldFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoClrObjectField;
@@ -132,6 +149,13 @@ export function deserializeIntoArrayInfo(arrayInfo: ArrayInfo | undefined = {} a
         "unusedItemsCount": n => { arrayInfo.unusedItemsCount = n.getNumberValue(); },
         "unusedPercent": n => { arrayInfo.unusedPercent = n.getNumberValue(); },
         "wasted": n => { arrayInfo.wasted = n.getNumberValue(); },
+    }
+}
+export function deserializeIntoClrObjectArrayItem(clrObjectArrayItem: ClrObjectArrayItem | undefined = {} as ClrObjectArrayItem) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { clrObjectArrayItem.address = n.getNumberValue(); },
+        "index": n => { clrObjectArrayItem.index = n.getNumberValue(); },
+        "value": n => { clrObjectArrayItem.value = n.getStringValue(); },
     }
 }
 export function deserializeIntoClrObjectField(clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : Record<string, (node: ParseNode) => void> {
@@ -485,6 +509,11 @@ export function serializeArrayInfo(writer: SerializationWriter, arrayInfo: Array
     writer.writeNumberValue("unusedItemsCount", arrayInfo.unusedItemsCount);
     writer.writeNumberValue("unusedPercent", arrayInfo.unusedPercent);
     writer.writeNumberValue("wasted", arrayInfo.wasted);
+}
+export function serializeClrObjectArrayItem(writer: SerializationWriter, clrObjectArrayItem: ClrObjectArrayItem | undefined = {} as ClrObjectArrayItem) : void {
+    writer.writeNumberValue("address", clrObjectArrayItem.address);
+    writer.writeNumberValue("index", clrObjectArrayItem.index);
+    writer.writeStringValue("value", clrObjectArrayItem.value);
 }
 export function serializeClrObjectField(writer: SerializationWriter, clrObjectField: ClrObjectField | undefined = {} as ClrObjectField) : void {
     writer.writeBooleanValue("isValueType", clrObjectField.isValueType);
