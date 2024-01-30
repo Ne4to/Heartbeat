@@ -64,3 +64,6 @@ public record RootPathItem(ulong Address, ulong MethodTable, string? TypeName, u
 public record ArrayInfo(ulong Address, ulong MethodTable, string? TypeName, int Length, int UnusedItemsCount, double UnusedPercent, ulong Wasted);
 
 public record SparseArrayStatistics(ulong MethodTable, string? TypeName, int Count, ulong TotalWasted);
+
+public record JwtInfo(IReadOnlyList<JwtValue> Header, IReadOnlyList<JwtValue> Payload);
+public record JwtValue(string Key, string Value, string? Description);

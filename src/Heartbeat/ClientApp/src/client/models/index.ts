@@ -113,6 +113,12 @@ export function createGetObjectInstancesResultFromDiscriminatorValue(parseNode: 
 export function createHeapSegmentFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoHeapSegment;
 }
+export function createJwtInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoJwtInfo;
+}
+export function createJwtValueFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoJwtValue;
+}
 export function createModuleFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoModule;
 }
@@ -211,6 +217,19 @@ export function deserializeIntoHeapSegment(heapSegment: HeapSegment | undefined 
         "kind": n => { heapSegment.kind = n.getEnumValue<GCSegmentKind>(GCSegmentKindObject); },
         "size": n => { heapSegment.size = n.getNumberValue(); },
         "start": n => { heapSegment.start = n.getNumberValue(); },
+    }
+}
+export function deserializeIntoJwtInfo(jwtInfo: JwtInfo | undefined = {} as JwtInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "header": n => { jwtInfo.header = n.getCollectionOfObjectValues<JwtValue>(createJwtValueFromDiscriminatorValue); },
+        "payload": n => { jwtInfo.payload = n.getCollectionOfObjectValues<JwtValue>(createJwtValueFromDiscriminatorValue); },
+    }
+}
+export function deserializeIntoJwtValue(jwtValue: JwtValue | undefined = {} as JwtValue) : Record<string, (node: ParseNode) => void> {
+    return {
+        "description": n => { jwtValue.description = n.getStringValue(); },
+        "key": n => { jwtValue.key = n.getStringValue(); },
+        "value": n => { jwtValue.value = n.getStringValue(); },
     }
 }
 export function deserializeIntoModule(module: Module | undefined = {} as Module) : Record<string, (node: ParseNode) => void> {
@@ -384,6 +403,30 @@ export interface HeapSegment extends Parsable {
      */
     start?: number;
 }
+export interface JwtInfo extends Parsable {
+    /**
+     * The header property
+     */
+    header?: JwtValue[];
+    /**
+     * The payload property
+     */
+    payload?: JwtValue[];
+}
+export interface JwtValue extends Parsable {
+    /**
+     * The description property
+     */
+    description?: string;
+    /**
+     * The key property
+     */
+    key?: string;
+    /**
+     * The value property
+     */
+    value?: string;
+}
 export interface Module extends Parsable {
     /**
      * The address property
@@ -556,6 +599,15 @@ export function serializeHeapSegment(writer: SerializationWriter, heapSegment: H
     writer.writeNumberValue("end", heapSegment.end);
     writer.writeEnumValue<GCSegmentKind>("kind", heapSegment.kind);
     writer.writeNumberValue("start", heapSegment.start);
+}
+export function serializeJwtInfo(writer: SerializationWriter, jwtInfo: JwtInfo | undefined = {} as JwtInfo) : void {
+    writer.writeCollectionOfObjectValues<JwtValue>("header", jwtInfo.header, serializeJwtValue);
+    writer.writeCollectionOfObjectValues<JwtValue>("payload", jwtInfo.payload, serializeJwtValue);
+}
+export function serializeJwtValue(writer: SerializationWriter, jwtValue: JwtValue | undefined = {} as JwtValue) : void {
+    writer.writeStringValue("description", jwtValue.description);
+    writer.writeStringValue("key", jwtValue.key);
+    writer.writeStringValue("value", jwtValue.value);
 }
 export function serializeModule(writer: SerializationWriter, module: Module | undefined = {} as Module) : void {
     writer.writeNumberValue("address", module.address);

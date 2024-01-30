@@ -7,3 +7,8 @@ ul {
 .monoFont {
     font-family: monospace;
 }
+
+.hardWrap {
+    overflow-wrap: break-word;
+    word-break: break-all;
+}
