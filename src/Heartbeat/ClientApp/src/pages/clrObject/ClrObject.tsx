@@ -24,7 +24,9 @@ import Box from "@mui/material/Box";
 // TODO add Dictionary, Queue, Stack and other collections view to a new tab
 // TODO add ConcurrentDictionary view to a new tab (dcd, dumpconcurrentdictionary <address>    Displays concurrent dictionary content.)
 // TODO add ConcurrentQueue view to a new tab (dcq, dumpconcurrentqueue <address>         Displays concurrent queue content.)
-// TODO add JWT decode tab (https://github.com/panva/jose) (System.IdentityModel.Tokens.Jwt)
+// TODO add base64 decode tab (base64 string -> utf8 string) | devenv dump - https://localhost:44443/#/clr-object/0000021d1b6452b8/show
+// TODO add gzip string decode tab | devenv dump - https://localhost:44443/#/clr-object/0000021d1b6f6f80/show
+// TODO add certificate decode tab
 // TODO find other debugger visualizers
 
 export const ClrObject = () => {
@@ -92,6 +94,7 @@ export const ClrObject = () => {
             {title: 'Size', value: toSizeString(objectResult.size || 0)},
             {title: 'Generation', value: objectResult.generation},
             // TODO add Live / Dead
+            // TODO add ValueType / reference type
             {title: 'MethodTable', value: renderMethodTableLink(objectResult.methodTable)},
             {title: 'Type', value: objectResult.typeName},
             {title: 'Module', value: objectResult.moduleName},

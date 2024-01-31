@@ -101,7 +101,7 @@ internal static class RouteHandlers
     {
         var query = from obj in context.EnumerateStrings(gcStatus, generation)
             let str = obj.AsString()
-            let length = obj.ReadField<int>("_stringLength")
+            let length = obj.ReadField<int>(context.GetStringLengthFieldName())
             select new StringInfo(obj.Address, length, obj.Size, str);
 
         // TODO limit output qty
