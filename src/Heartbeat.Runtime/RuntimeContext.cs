@@ -1,4 +1,3 @@
-
 using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
@@ -45,6 +44,13 @@ public sealed class RuntimeContext
         throw new NotImplementedException();
     }
 
+    public string GetStringLengthFieldName()
+    {
+        return IsCoreRuntime
+            ? "_stringLength"
+            : "m_stringLength";
+    }
+    
     public IEnumerable<ulong> EnumerateObjectAddressesByTypeName(string typeName, ObjectGCStatus? status)
     {
         var clrType = Heap.GetTypeByName(typeName);
@@ -74,7 +80,7 @@ public sealed class RuntimeContext
     }
 
     public IEnumerable<ClrObject> EnumerateObjectsByTypeName(
-        string typeName, 
+        string typeName,
         ObjectGCStatus? status,
         Generation? generation = null)
     {
@@ -114,7 +120,7 @@ public sealed class RuntimeContext
             where type != null && !type.IsFree && type.Name == "System.Threading.Thread"
             let managedThreadId = type.GetFieldByName("m_ManagedThreadId")!.Read<int>(clrObject, true)
             let threadName = type.GetFieldByName("m_Name")!.ReadString(clrObject, false)
-            select new {managedThreadId, threadName};
+            select new { managedThreadId, threadName };
 
 //            // <{0}>k__BackingField
 //            var threadQuery = from address in heap.EnumerateObjectAddresses()
@@ -195,7 +201,7 @@ public sealed class RuntimeContext
         var intPtrValueField = intPtrType.GetFieldByName(valueField);
 
         var handleAddr = weakRefHandleField.Read<long>(weakRefObject.Address, true);
-        var value = intPtrValueField.Read<ulong>((ulong) handleAddr, true);
+        var value = intPtrValueField.Read<ulong>((ulong)handleAddr, true);
 
         return value;
     }

@@ -64,7 +64,7 @@ public sealed class StringDuplicateAnalyzer : AnalyzerBase, ILoggerDump, IWithOb
             }
             else
             {
-                var fullLength = stringInstance.ReadField<int>("_stringLength");
+                var fullLength = stringInstance.ReadField<int>(Context.GetStringLengthFieldName());
                 stringCount[stringValue] = new StringDuplicateInfo(1, fullLength);
             }
         }

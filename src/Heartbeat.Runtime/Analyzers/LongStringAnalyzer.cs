@@ -62,7 +62,7 @@ public sealed class LongStringAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectG
         foreach (var stringClrObject in GetLongestStrings(count, status))
         {
             string value = stringClrObject.AsString(truncateLength ?? 4096)!;
-            var length = stringClrObject.ReadField<int>("_stringLength");
+            var length = stringClrObject.ReadField<int>(Context.GetStringLengthFieldName());
             var size = new Size(stringClrObject.Size);
             result.Add(new LongStringInfo(new(stringClrObject.Address), size, length, value));
         }

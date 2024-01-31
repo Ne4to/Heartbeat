@@ -96,10 +96,8 @@ internal static class JwtParser
         ["vp"] = "Verifiable Presentation as specified in the W3C Recommendation",
         ["sph"] = "SIP Priority header field",
         ["ace_profile"] = "The ACE profile a token is supposed to be used with.",
-        ["cnonce"] =
-            "\"client-nonce\". A nonce previously provided to the AS by the RS via the client. Used to verify token freshness when the RS cannot synchronize its clock with the AS.",
-        ["exi"] =
-            "\"Expires in\". Lifetime of the token in seconds from the time the RS first sees it. Used to implement a weaker from of token expiration for devices that cannot synchronize their internal clocks.",
+        ["cnonce"] = "\"client-nonce\". A nonce previously provided to the AS by the RS via the client. Used to verify token freshness when the RS cannot synchronize its clock with the AS.",
+        ["exi"] = "\"Expires in\". Lifetime of the token in seconds from the time the RS first sees it. Used to implement a weaker from of token expiration for devices that cannot synchronize their internal clocks.",
         ["roles"] = "Roles",
         ["groups"] = "Groups",
         ["entitlements"] = "Entitlements",
@@ -133,23 +131,17 @@ internal static class JwtParser
         ["cdnistt"] = "CDNI Signed Token Transport Method for Signed Token Renewal",
         ["cdnistd"] = "CDNI Signed Token Depth",
         ["sig_val_claims"] = "Signature Validation Token",
-        ["authorization_details"] =
-            "The claim authorization_details contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.",
-        ["verified_claims"] =
-            "This container Claim is composed of the verification evidence related to a certain verification process and the corresponding Claims about the End-User which were verified in this process.",
+        ["authorization_details"] = "The claim authorization_details contains a JSON array of JSON objects representing the rights of the access token. Each JSON object contains the data to specify the authorization requirements for a certain type of resource.",
+        ["verified_claims"] = "This container Claim is composed of the verification evidence related to a certain verification process and the corresponding Claims about the End-User which were verified in this process.",
         ["place_of_birth"] = "A structured Claim representing the End-User's place of birth.",
         ["nationalities"] = "String array representing the End-User's nationalities.",
-        ["birth_family_name"] =
-            "Family name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the family name(s) later in life for any reason. Note that in some cultures, people can have multiple family names or no family name; all can be present, with the names being separated by space characters.",
-        ["birth_given_name"] =
-            "Given name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the given name later in life for any reason. Note that in some cultures, people can have multiple given names; all can be present, with the names being separated by space characters.",
-        ["birth_middle_name"] =
-            "Middle name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the middle name later in life for any reason. Note that in some cultures, people can have multiple middle names; all can be present, with the names being separated by space characters. Also note that in some cultures, middle names are not used.",
+        ["birth_family_name"] = "Family name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the family name(s) later in life for any reason. Note that in some cultures, people can have multiple family names or no family name; all can be present, with the names being separated by space characters.",
+        ["birth_given_name"] = "Given name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the given name later in life for any reason. Note that in some cultures, people can have multiple given names; all can be present, with the names being separated by space characters.",
+        ["birth_middle_name"] = "Middle name(s) someone has when they were born, or at least from the time they were a child. This term can be used by a person who changes the middle name later in life for any reason. Note that in some cultures, people can have multiple middle names; all can be present, with the names being separated by space characters. Also note that in some cultures, middle names are not used.",
         ["salutation"] = "End-User's salutation, e.g., \"Mr.\"",
         ["title"] = "End-User's title, e.g., \"Dr.\"",
         ["msisdn"] = "End-User's mobile phone number formatted according to ITU-T recommendation [E.164]",
-        ["also_known_as"] =
-            "Stage name, religious name or any other type of alias/pseudonym with which a person is known in a specific context besides its legal name. This must be part of the applicable legislation and thus the trust framework (e.g., be an attribute on the identity card).",
+        ["also_known_as"] = "Stage name, religious name or any other type of alias/pseudonym with which a person is known in a specific context besides its legal name. This must be part of the applicable legislation and thus the trust framework (e.g., be an attribute on the identity card).",
         ["htm"] = "The HTTP method of the request",
         ["htu"] = "The HTTP URI of the request (without query and fragment parts)",
         ["ath"] = "The base64url-encoded SHA-256 hash of the ASCII encoding of the associated access token's value",
@@ -161,10 +153,8 @@ internal static class JwtParser
         ["msgi"] = "Message Integrity Information",
         ["_claim_names"] = "JSON object whose member names are the Claim Names for the Aggregated and Distributed Claims",
         ["_claim_sources"] = "JSON object whose member names are referenced by the member values of the _claim_names member",
-        ["rdap_allowed_purposes"] =
-            "This claim describes the set of RDAP query purposes that are available to an identity that is presented for access to a protected RDAP resource.",
-        ["rdap_dnt_allowed"] =
-            "This claim contains a JSON boolean literal that describes a \"do not track\" request for server-side tracking, logging, or recording of an identity that is presented for access to a protected RDAP resource.",
+        ["rdap_allowed_purposes"] = "This claim describes the set of RDAP query purposes that are available to an identity that is presented for access to a protected RDAP resource.",
+        ["rdap_dnt_allowed"] = "This claim contains a JSON boolean literal that describes a \"do not track\" request for server-side tracking, logging, or recording of an identity that is presented for access to a protected RDAP resource.",
     }.ToFrozenDictionary();
 
     public static JwtInfo ToJwtInfo(string str)
@@ -183,17 +173,27 @@ internal static class JwtParser
         var headerValues = header
             .Select(kvp => new JwtValue(kvp.Key, kvp.Value, _headerKeyDescription.GetValueOrDefault(kvp.Key)))
             .ToArray();
-
+        
         var payloadValues = payload
             .Select(kvp => new JwtValue(
                 kvp.Key,
-                _numericDateClaimKeys.Contains(kvp.Key)
-                    ? $"{kvp.Value} ({DateTimeOffset.FromUnixTimeSeconds((long)(decimal)kvp.Value):R})"
-                    : kvp.Value.ToString()!,
+                GetPayloadValue(kvp),
                 _payloadKeyDescription.GetValueOrDefault(kvp.Key)))
             .ToArray();
         var result = new JwtInfo(headerValues, payloadValues);
         return result;
+    }
+
+    private static string GetPayloadValue(KeyValuePair<string, object> kvp)
+    {
+        if (kvp.Value is List<object> list)
+        {
+            return $"[{string.Join(',', list)}]";
+        }
+        
+        return _numericDateClaimKeys.Contains(kvp.Key)
+            ? $"{kvp.Value} ({DateTimeOffset.FromUnixTimeSeconds((long)(decimal)kvp.Value):R})"
+            : kvp.Value.ToString()!;
     }
 }
 
