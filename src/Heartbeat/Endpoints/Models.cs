@@ -44,6 +44,9 @@ public record ClrObjectField(
 
 public record struct ClrObjectArrayItem(int Index, ulong Address, string? Value);
 
+public record DictionaryInfo(int Count, ulong KeyMethodTable, ulong ValueMethodTable, IEnumerable<KeyValuePair<DictionaryItem, DictionaryItem>> Items);
+public record struct DictionaryItem(ulong Address, string? Value);
+
 public record Module(ulong Address, ulong Size, string? Name);
 
 public record HeapSegment(ulong Start, ulong End, GCSegmentKind Kind)

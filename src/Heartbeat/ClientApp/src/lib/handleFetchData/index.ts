@@ -13,7 +13,7 @@ export default function fetchData<T>(load: () => Promise<T | undefined>,
 
             const getErrorMessage = () => {
                 // ProblemDetails
-                return error.detail ?? error.title
+                return error?.exception?.details ?? error.detail ?? error.title
                     ?? error;
             }
 

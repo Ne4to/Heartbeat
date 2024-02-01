@@ -282,7 +282,7 @@ internal static class RouteHandlers
 
         return TypedResults.Ok(result);
     }
-    
+
     public static Results<Ok<IEnumerable<ClrObjectArrayItem>>, NoContent, NotFound> GetClrObjectAsArray([FromServices] RuntimeContext context, ulong address)
     {
         var clrObject = context.Heap.GetObject(address);
@@ -296,14 +296,47 @@ internal static class RouteHandlers
             ArrayProxy arrayProxy = new(context, clrObject);
 
             // TODO var str = arrayProxy.AsStringValue();
-           
+
             var items = arrayProxy.EnumerateArrayElements()
                 .Select(e => new ClrObjectArrayItem(e.Index, e.Address, e.Value));
-            
+
             return TypedResults.Ok(items);
         }
 
         return TypedResults.NoContent();
+    }
+
+    public static Results<Ok<DictionaryInfo>, NoContent, NotFound> GetClrObjectAsDictionary([FromServices] RuntimeContext context, ulong address)
+    {
+        var clrObject = context.Heap.GetObject(address);
+        if (clrObject.Type == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        var typeName = clrObject.Type.Name ?? string.Empty;
+        var isDictType =
+            typeName.StartsWith("System.Collections.Generic.Dictionary")
+            && !typeName.EndsWith("+Entry[]");
+
+        if (!isDictType)
+        {
+            return TypedResults.NoContent();
+        }
+
+        var proxy = new DictionaryProxy(context, clrObject);
+        var items = proxy.EnumerateItems()
+            .Select(kvp => new KeyValuePair<DictionaryItem, DictionaryItem>(
+                MapItem(kvp.Key),
+                MapItem(kvp.Value)));
+
+        var result = new DictionaryInfo(proxy.Count, proxy.KeyMethodTable, proxy.ValueMethodTable, items);
+        return TypedResults.Ok(result);
+
+        static DictionaryItem MapItem(DictionaryProxy.Item item)
+        {
+            return new DictionaryItem(item.Address, item.Value);
+        }
     }
 
     public static Results<Ok<JwtInfo>, NoContent, NotFound> GetClrObjectAsJwt([FromServices] RuntimeContext context, ulong address)

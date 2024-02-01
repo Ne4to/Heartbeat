@@ -7,19 +7,61 @@ namespace Heartbeat.Runtime.Proxies;
 
 public class DictionaryProxy: ProxyBase, ILoggerDump
 {
-    public int Count => TargetObject.ReadField<int>("count");
+    public int Count => TargetObject.ReadField<int>(CountFieldName);
     public int Version => TargetObject.ReadField<int>("version");
-    // TODO add TKey
-    // TODO add TValue
+    public ulong KeyMethodTable { get; }
+    public ulong ValueMethodTable { get; }
 
     public DictionaryProxy(RuntimeContext context, ClrObject targetObject)
         : base(context, targetObject)
     {
+        (KeyMethodTable, ValueMethodTable) = GetMethodTables();
     }
 
     public DictionaryProxy(RuntimeContext context, ulong address)
         : base(context, address)
     {
+        (KeyMethodTable, ValueMethodTable) = GetMethodTables();
+    }
+
+    private string CountFieldName => Context.IsCoreRuntime ? "_count" : "count";
+    private string EntriesFieldName => Context.IsCoreRuntime ? "_entries" : "entries";
+
+    private (ulong, ulong) GetMethodTables()
+    {
+        // ulong keyMt = 0;
+        // ulong valueMt = 0;
+        //
+        // foreach (var genericParameter in TargetObject.Type!.EnumerateGenericParameters())
+        // {
+        //     if (keyMt == 0)
+        //     {
+        //         foreach (var module in Context.Heap.Runtime.EnumerateModules())
+        //         {
+        //             foreach ((ulong methodTable, int token) in module.EnumerateTypeRefToMethodTableMap())
+        //             {
+        //                 if (token == genericParameter.MetadataToken)
+        //                 {
+        //                     keyMt = methodTable;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        ClrObject entries = TargetObject.ReadObjectField(EntriesFieldName);
+        if (entries.IsNull)
+        {
+            return (0, 0);
+        }
+        var entriesArray = entries
+            .AsArray();
+        
+        var nextField = entriesArray.Type.ComponentType!.GetFieldByName("next")!;
+        var keyField = entriesArray.Type.ComponentType!.GetFieldByName("key")!;
+        var valueField = entriesArray.Type.ComponentType!.GetFieldByName("value")!;
+
+        return (keyField.Type.MethodTable, valueField.Type.MethodTable);
     }
 
     private IEnumerable<KeyValuePair<TKey, TValue>> EnumerateKeyValuePairs<TKey, TValue>(Func<ulong, ClrInstanceField, ClrInstanceField, KeyValuePair<TKey, TValue>> kvpBuilder)
@@ -51,6 +93,63 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
             }
 
             yield return kvpBuilder(elementAddress, keyField, valueField);
+        }
+    }
+
+    public IEnumerable<KeyValuePair<Item, Item>> EnumerateItems()
+    {
+        int count = TargetObject.ReadField<int>(Context.IsCoreRuntime ? "_count" : "count");
+        if (count == 0)
+            yield break;
+        
+        var entries = TargetObject.ReadObjectField(EntriesFieldName)
+            .AsArray();
+        
+        var nextField = entries.Type.ComponentType!.GetFieldByName("next")!;
+        var keyField = entries.Type.ComponentType!.GetFieldByName("key")!;
+        var valueField = entries.Type.ComponentType!.GetFieldByName("value")!;
+
+        // TODO return
+        // keyField.Type.MethodTable
+        // valueField.Type.MethodTable
+
+        for (int entryIndex = 0; entryIndex < count; entryIndex++)
+        {
+            var entry = entries.GetStructValue(entryIndex);
+
+            int next = nextField.Read<int>(entry.Address, true);
+            if (next < -1)
+            {
+                continue;
+            }
+
+            Item key;
+            Item value;
+            if (keyField.IsObjectReference)
+            {
+                // IClrValue
+                var entryKey = keyField.ReadObject(entry.Address, true);
+                key = new Item(entryKey.Address, entryKey.Type?.IsString ?? false ? entryKey.AsString() : null);
+            }
+            else
+            {
+                var entryKey = keyField.ReadStruct(entry.Address, true);
+                key = new Item(entryKey.Address, null);
+            }
+            
+            if (valueField.IsObjectReference)
+            {
+                // IClrValue
+                var entryValue = valueField.ReadObject(entry.Address, true);
+                value = new Item(entryValue.Address,  entryValue.Type?.IsString ?? false ? entryValue.AsString() : null);
+            }
+            else
+            {
+                var entryValue = valueField.ReadStruct(entry.Address, true);
+                value = new Item(entryValue.Address, null);
+            }
+
+            yield return new KeyValuePair<Item, Item>(key, value);
         }
     }
 
@@ -107,4 +206,6 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
             Console.WriteLine($"{kvp.Key} = {kvp.Value}");
         }
     }
+
+    public record struct Item(ulong Address, string? Value);
 }

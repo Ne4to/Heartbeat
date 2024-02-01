@@ -101,6 +101,15 @@ export function createClrObjectFieldFromDiscriminatorValue(parseNode: ParseNode 
 export function createClrObjectRootPathFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoClrObjectRootPath;
 }
+export function createDictionaryInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoDictionaryInfo;
+}
+export function createDictionaryItemDictionaryItemKeyValuePairFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoDictionaryItemDictionaryItemKeyValuePair;
+}
+export function createDictionaryItemFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoDictionaryItem;
+}
 export function createDumpInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoDumpInfo;
 }
@@ -179,6 +188,26 @@ export function deserializeIntoClrObjectRootPath(clrObjectRootPath: ClrObjectRoo
     return {
         "pathItems": n => { clrObjectRootPath.pathItems = n.getCollectionOfObjectValues<RootPathItem>(createRootPathItemFromDiscriminatorValue); },
         "root": n => { clrObjectRootPath.root = n.getObjectValue<RootInfo>(createRootInfoFromDiscriminatorValue); },
+    }
+}
+export function deserializeIntoDictionaryInfo(dictionaryInfo: DictionaryInfo | undefined = {} as DictionaryInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "count": n => { dictionaryInfo.count = n.getNumberValue(); },
+        "items": n => { dictionaryInfo.items = n.getCollectionOfObjectValues<DictionaryItemDictionaryItemKeyValuePair>(createDictionaryItemDictionaryItemKeyValuePairFromDiscriminatorValue); },
+        "keyMethodTable": n => { dictionaryInfo.keyMethodTable = n.getNumberValue(); },
+        "valueMethodTable": n => { dictionaryInfo.valueMethodTable = n.getNumberValue(); },
+    }
+}
+export function deserializeIntoDictionaryItem(dictionaryItem: DictionaryItem | undefined = {} as DictionaryItem) : Record<string, (node: ParseNode) => void> {
+    return {
+        "address": n => { dictionaryItem.address = n.getNumberValue(); },
+        "value": n => { dictionaryItem.value = n.getStringValue(); },
+    }
+}
+export function deserializeIntoDictionaryItemDictionaryItemKeyValuePair(dictionaryItemDictionaryItemKeyValuePair: DictionaryItemDictionaryItemKeyValuePair | undefined = {} as DictionaryItemDictionaryItemKeyValuePair) : Record<string, (node: ParseNode) => void> {
+    return {
+        "key": n => { dictionaryItemDictionaryItemKeyValuePair.key = n.getObjectValue<DictionaryItem>(createDictionaryItemFromDiscriminatorValue); },
+        "value": n => { dictionaryItemDictionaryItemKeyValuePair.value = n.getObjectValue<DictionaryItem>(createDictionaryItemFromDiscriminatorValue); },
     }
 }
 export function deserializeIntoDumpInfo(dumpInfo: DumpInfo | undefined = {} as DumpInfo) : Record<string, (node: ParseNode) => void> {
@@ -304,6 +333,44 @@ export function deserializeIntoStringInfo(stringInfo: StringInfo | undefined = {
         "size": n => { stringInfo.size = n.getNumberValue(); },
         "value": n => { stringInfo.value = n.getStringValue(); },
     }
+}
+export interface DictionaryInfo extends Parsable {
+    /**
+     * The count property
+     */
+    count?: number;
+    /**
+     * The items property
+     */
+    items?: DictionaryItemDictionaryItemKeyValuePair[];
+    /**
+     * The keyMethodTable property
+     */
+    keyMethodTable?: number;
+    /**
+     * The valueMethodTable property
+     */
+    valueMethodTable?: number;
+}
+export interface DictionaryItem extends Parsable {
+    /**
+     * The address property
+     */
+    address?: number;
+    /**
+     * The value property
+     */
+    value?: string;
+}
+export interface DictionaryItemDictionaryItemKeyValuePair extends Parsable {
+    /**
+     * The key property
+     */
+    key?: DictionaryItem;
+    /**
+     * The value property
+     */
+    value?: DictionaryItem;
 }
 export interface DumpInfo extends Parsable {
     /**
@@ -570,6 +637,20 @@ export function serializeClrObjectField(writer: SerializationWriter, clrObjectFi
 export function serializeClrObjectRootPath(writer: SerializationWriter, clrObjectRootPath: ClrObjectRootPath | undefined = {} as ClrObjectRootPath) : void {
     writer.writeCollectionOfObjectValues<RootPathItem>("pathItems", clrObjectRootPath.pathItems, serializeRootPathItem);
     writer.writeObjectValue<RootInfo>("root", clrObjectRootPath.root, serializeRootInfo);
+}
+export function serializeDictionaryInfo(writer: SerializationWriter, dictionaryInfo: DictionaryInfo | undefined = {} as DictionaryInfo) : void {
+    writer.writeNumberValue("count", dictionaryInfo.count);
+    writer.writeCollectionOfObjectValues<DictionaryItemDictionaryItemKeyValuePair>("items", dictionaryInfo.items, serializeDictionaryItemDictionaryItemKeyValuePair);
+    writer.writeNumberValue("keyMethodTable", dictionaryInfo.keyMethodTable);
+    writer.writeNumberValue("valueMethodTable", dictionaryInfo.valueMethodTable);
+}
+export function serializeDictionaryItem(writer: SerializationWriter, dictionaryItem: DictionaryItem | undefined = {} as DictionaryItem) : void {
+    writer.writeNumberValue("address", dictionaryItem.address);
+    writer.writeStringValue("value", dictionaryItem.value);
+}
+export function serializeDictionaryItemDictionaryItemKeyValuePair(writer: SerializationWriter, dictionaryItemDictionaryItemKeyValuePair: DictionaryItemDictionaryItemKeyValuePair | undefined = {} as DictionaryItemDictionaryItemKeyValuePair) : void {
+    writer.writeObjectValue<DictionaryItem>("key", dictionaryItemDictionaryItemKeyValuePair.key, serializeDictionaryItem);
+    writer.writeObjectValue<DictionaryItem>("value", dictionaryItemDictionaryItemKeyValuePair.value, serializeDictionaryItem);
 }
 export function serializeDumpInfo(writer: SerializationWriter, dumpInfo: DumpInfo | undefined = {} as DumpInfo) : void {
     writer.writeEnumValue<Architecture>("architecture", dumpInfo.architecture);
