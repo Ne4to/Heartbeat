@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionPrefix>0.6.0</VersionPrefix>
+    <VersionPrefix>0.7.0</VersionPrefix>
     <RepositoryUrl>https://github.com/Ne4to/Heartbeat</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -15,7 +15,7 @@
     <PackageTags>ClrMd diagnostics</PackageTags>
     <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <Configurations>Debug;Release;DebugOpenAPI;ReleaseAOT</Configurations>
   </PropertyGroup>
