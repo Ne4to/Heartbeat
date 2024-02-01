@@ -62,6 +62,12 @@ internal static class EndpointRouteBuilderExtensions
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
             .WithName(nameof(RouteHandlers.GetClrObjectAsArray));
         
+        dumpGroup.MapGet("object/{address}/as-dictionary", RouteHandlers.GetClrObjectAsDictionary)
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+            .WithName(nameof(RouteHandlers.GetClrObjectAsDictionary));        
+        
         dumpGroup.MapGet("object/{address}/as-jwt", RouteHandlers.GetClrObjectAsJwt)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)

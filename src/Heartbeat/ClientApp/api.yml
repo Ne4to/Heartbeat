@@ -351,6 +351,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  '/api/dump/object/{address}/as-dictionary':
+    get:
+      tags:
+        - Dump
+      operationId: GetClrObjectAsDictionary
+      parameters:
+        - name: address
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DictionaryInfo'
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}/as-jwt':
     get:
       tags:
@@ -568,6 +602,51 @@ components:
         - AsyncPinnedHandle
         - SizedRefHandle
       type: string
+    DictionaryInfo:
+      required:
+        - count
+        - items
+        - keyMethodTable
+        - valueMethodTable
+      type: object
+      properties:
+        count:
+          type: integer
+          format: int32
+        keyMethodTable:
+          type: integer
+          format: int64
+        valueMethodTable:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DictionaryItemDictionaryItemKeyValuePair'
+      additionalProperties: false
+    DictionaryItem:
+      required:
+        - address
+      type: object
+      properties:
+        address:
+          type: integer
+          format: int64
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DictionaryItemDictionaryItemKeyValuePair:
+      required:
+        - key
+        - value
+      type: object
+      properties:
+        key:
+          $ref: '#/components/schemas/DictionaryItem'
+        value:
+          $ref: '#/components/schemas/DictionaryItem'
+      additionalProperties: false
     DumpInfo:
       required:
         - architecture

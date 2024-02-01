@@ -4,7 +4,7 @@ import {DataGrid, GridColDef, GridRenderCellParams, GridToolbar} from '@mui/x-da
 import {Stack} from "@mui/material";
 import {TabbedShowLayout} from "react-admin";
 
-import {ClrObjectArrayItem, ClrObjectField, ClrObjectRootPath, GetClrObjectResult, JwtInfo} from '../../client/models';
+import {ClrObjectArrayItem, ClrObjectField, ClrObjectRootPath, DictionaryInfo, GetClrObjectResult, JwtInfo} from '../../client/models';
 
 import {useStateWithLoading} from "../../hooks/useStateWithLoading";
 import {useNotifyError} from "../../hooks/useNotifyError";
@@ -38,6 +38,7 @@ export const ClrObject = () => {
     const [fields, setFields, isFieldsLoading, setIsFieldsLoading] = useStateWithLoading<ClrObjectField[]>()
     const [roots, setRoots, isRootsLoading, setIsRootsLoading] = useStateWithLoading<ClrObjectRootPath[]>()
     const [arrayItems, setArrayItems, isArrayItemsLoading, setArrayItemsLoading] = useStateWithLoading<ClrObjectArrayItem[]>()
+    const [dictionary, setDictionary, isDictionaryLoading, setDictionaryLoading] = useStateWithLoading<DictionaryInfo>()
     const [jwt, setJwt, isJwtLoading, setJwtLoading] = useStateWithLoading<JwtInfo>()
 
     useEffect(() => {
@@ -74,6 +75,15 @@ export const ClrObject = () => {
         }
 
         fetchData(fetchArrayItems, setArrayItems, setArrayItemsLoading, notifyError)
+    }, [address, notify]);
+
+    useEffect(() => {
+        const fetchDictionary = async () => {
+            const client = getClient();
+            return await client.api.dump.object.byAddress(address).asDictionary.get()
+        }
+
+        fetchData(fetchDictionary, setDictionary, setDictionaryLoading, notifyError)
     }, [address, notify]);
 
     useEffect(() => {
@@ -115,7 +125,6 @@ export const ClrObject = () => {
                 {getChildrenContent(clrObject)}
             </ProgressContainer>
 
-            {/* TODO move each tab to a separate component */}
             <TabbedShowLayout record={{id: 0}} syncWithLocation={false}>
                 <TabbedShowLayout.Tab label="Fields">
                     <FieldsTabContent isLoading={isFieldsLoading} fields={fields}/>
@@ -125,6 +134,9 @@ export const ClrObject = () => {
                 </TabbedShowLayout.Tab>
                 <TabbedShowLayout.Tab label="Array" hidden={!isArrayItemsLoading && !arrayItems}>
                     <ArrayTabContent isLoading={isArrayItemsLoading} arrayItems={arrayItems}/>
+                </TabbedShowLayout.Tab>
+                <TabbedShowLayout.Tab label="Dictionary" hidden={!isDictionaryLoading && !dictionary}>
+                    <DictionaryTabContent isLoading={isDictionaryLoading} dictionary={dictionary}/>
                 </TabbedShowLayout.Tab>
                 <TabbedShowLayout.Tab label="JWT" hidden={!isJwtLoading && !jwt}>
                     <JwtTabContent isLoading={isJwtLoading} jwt={jwt}/>
@@ -260,6 +272,80 @@ const ArrayTabContent = (props: { isLoading: boolean, arrayItems?: ClrObjectArra
 
     return (<ProgressContainer isLoading={props.isLoading}>
         {getArrayItemsContent(props.arrayItems)}
+    </ProgressContainer>);
+}
+
+const DictionaryTabContent = (props: { isLoading: boolean, dictionary?: DictionaryInfo }) => {
+
+    // TODO show char[] as string
+    // TODO show byte[] as utf8 string
+    const getDictionaryItemsContent = (dictionary?: DictionaryInfo) => {
+        if (!dictionary)
+            return undefined;
+
+        const GetGrid = () => {
+            if (!dictionary || dictionary.items!.length === 0)
+                return (<></>);
+
+            const columns: GridColDef[] = [
+                {
+                    ...objectAddressColumn,
+                    field: 'key.address',
+                    headerName: 'Key address',
+                    valueGetter: params => params.row.key.address
+                },
+                {
+                    ...objectAddressColumn,
+                    field: 'value.address',
+                    headerName: 'Value address',
+                    valueGetter: params => params.row.value.address
+                },
+                {
+                    field: 'key.value',
+                    headerName: 'Key',
+                    valueGetter: params => params.row.key.value,
+                    flex: 0.5
+                },
+                {
+                    field: 'value.value',
+                    headerName: 'Value',
+                    valueGetter: params => params.row.value.value,
+                    flex: 1
+                },
+            ];
+
+            return (
+                <DataGrid
+                    rows={dictionary.items || []}
+                    getRowId={(row) => row.key!.address!}
+                    columns={columns}
+                    rowHeight={25}
+                    pageSizeOptions={[20, 50, 100]}
+                    density='compact'
+                    slots={{toolbar: GridToolbar}}
+                    initialState={{
+                        pagination: {paginationModel: {pageSize: 20}},
+                    }}
+                />
+            );
+        }
+
+        const propertyRows: PropertyRow[] = [
+            {title: 'Count', value: dictionary.count!},
+            // {title: 'Key MT', value: renderMethodTableLink(dictionary.keyMethodTable)},
+            // {title: 'Value MT', value: renderMethodTableLink(dictionary.keyMethodTable)},
+        ]
+
+        return (
+            <Stack>
+                <PropertiesTable rows={propertyRows}/>
+                {GetGrid()}
+            </Stack>
+        );
+    }
+
+    return (<ProgressContainer isLoading={props.isLoading}>
+        {getDictionaryItemsContent(props.dictionary)}
     </ProgressContainer>);
 }
 
