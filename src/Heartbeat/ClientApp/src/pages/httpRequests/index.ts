@@ -1,4 +1,4 @@
-import Icon from '@mui/icons-material/ViewModule';
+import Icon from '@mui/icons-material/Http';
 import { HttpRequests } from './HttpRequests';
 
 export default {

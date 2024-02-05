@@ -1,4 +1,4 @@
-import Icon from '@mui/icons-material/ViewModule';
+import Icon from '@mui/icons-material/ViewArray';
 import { ArraysGrid } from './ArraysGrid';
 
 export default {

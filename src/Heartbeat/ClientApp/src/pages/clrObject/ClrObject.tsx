@@ -21,6 +21,7 @@ import {ClrObjectRoot} from "../../components/ClrObjectRoot";
 import {ProgressContainer} from "../../components/ProgressContainer";
 import Box from "@mui/material/Box";
 
+// TODO add refs to current object
 // TODO add Dictionary, Queue, Stack and other collections view to a new tab
 // TODO add ConcurrentDictionary view to a new tab (dcd, dumpconcurrentdictionary <address>    Displays concurrent dictionary content.)
 // TODO add ConcurrentQueue view to a new tab (dcq, dumpconcurrentqueue <address>         Displays concurrent queue content.)

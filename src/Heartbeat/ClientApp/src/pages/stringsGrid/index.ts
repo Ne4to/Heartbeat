@@ -1,4 +1,4 @@
-import Icon from '@mui/icons-material/ViewModule';
+import Icon from '@mui/icons-material/Gesture';
 import { StringsGrid } from './StringsGrid';
 
 export default {
