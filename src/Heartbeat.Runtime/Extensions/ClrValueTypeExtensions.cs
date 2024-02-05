@@ -1,4 +1,5 @@
 ﻿using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 using System.Globalization;
 
@@ -6,7 +7,7 @@ namespace Heartbeat.Runtime.Extensions
 {
     public static class ClrValueTypeExtensions
     {
-        public static bool IsDefaultValue(this ClrValueType valueType)
+        public static bool IsDefaultValue(this IClrValue valueType)
         {
             if (valueType.Type == null)
             {
@@ -54,7 +55,7 @@ namespace Heartbeat.Runtime.Extensions
             return true;
         }
         
-        public static string GetValueAsString(this ClrValueType valueType)
+        public static string GetValueAsString(this IClrValue valueType)
         {
             if (valueType.Type == null)
             {
@@ -80,7 +81,7 @@ namespace Heartbeat.Runtime.Extensions
             return valueType.Type.Name ?? "<unknown type>";
         }
 
-        private static bool IsValueDefault(ulong objRef, ClrInstanceField field)
+        private static bool IsValueDefault(ulong objRef, IClrInstanceField field)
         {
             return field.ElementType switch
             {
@@ -102,7 +103,7 @@ namespace Heartbeat.Runtime.Extensions
             };
         }
         
-        private static string GetValueAsString(ulong objRef, ClrInstanceField field)
+        private static string GetValueAsString(ulong objRef, IClrInstanceField field)
         {
             return field.ElementType switch
             {
@@ -124,7 +125,7 @@ namespace Heartbeat.Runtime.Extensions
             };
         }
 
-        private static bool IsZeroPtr(ulong objRef, ClrInstanceField field)
+        private static bool IsZeroPtr(ulong objRef, IClrInstanceField field)
         {
             return field.Type.Name switch
             {

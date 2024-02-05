@@ -1,10 +1,8 @@
 using Heartbeat.Runtime.Analyzers.Interfaces;
-using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Exceptions;
-using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
@@ -41,10 +39,10 @@ public sealed class ServicePointManagerAnalyzer : AnalyzerBase, ILoggerDump
                 continue;
             }
 
-            var servicePointTableObject = servicePointTableField.ReadObject(appDomain);
+            IClrValue servicePointTableObject = servicePointTableField.ReadObject(appDomain);
 
-            IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>> servicePointTableProxy = Context.IsCoreRuntime
-                ? new ConcurrentDictionaryProxy(Context, servicePointTableObject) as IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>>
+            IReadOnlyCollection<KeyValuePair<IClrValue, IClrValue>> servicePointTableProxy = Context.IsCoreRuntime
+                ? new ConcurrentDictionaryProxy(Context, servicePointTableObject) as IReadOnlyCollection<KeyValuePair<IClrValue, IClrValue>>
                 : new HashtableProxy(Context, servicePointTableObject);
 
             foreach (var keyValuePair in servicePointTableProxy)
@@ -55,7 +53,7 @@ public sealed class ServicePointManagerAnalyzer : AnalyzerBase, ILoggerDump
                 }
                     
                 var weakRefValue = Context.GetWeakRefValue(keyValuePair.Value);
-                var weakRefTarget = heap.GetObject(weakRefValue);
+                IClrValue weakRefTarget = heap.GetObject(weakRefValue);
                 logger.LogInformation($"{keyValuePair.Key.AsString()}: {weakRefTarget}");
 
                 if (!weakRefTarget.IsNull)
@@ -67,7 +65,7 @@ public sealed class ServicePointManagerAnalyzer : AnalyzerBase, ILoggerDump
             }
         }
 
-        foreach (var spObject in Context.EnumerateObjectsByTypeName("System.Net.ServicePoint", null))
+        foreach (IClrValue spObject in Context.EnumerateObjectsByTypeName("System.Net.ServicePoint", null))
         {
             var servicePointProxy = new ServicePointProxy(Context, spObject);
             var servicePointAnalyzer = new ServicePointAnalyzer(Context, servicePointProxy)

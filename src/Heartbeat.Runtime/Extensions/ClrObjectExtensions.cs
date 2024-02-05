@@ -1,10 +1,10 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Extensions;
 
 public static class ClrObjectExtensions
 {
-    public static DateTime GetDateTimeFieldValue(this ClrObject clrObject, string fieldName)
+    public static DateTime GetDateTimeFieldValue(this IClrValue clrObject, string fieldName)
     {
         var createTimeField = clrObject.Type.GetFieldByName(fieldName);
         var dateDataField = createTimeField.Type.GetFieldByName("dateData");

@@ -2,17 +2,17 @@ using System.Collections;
 
 using Heartbeat.Runtime.Analyzers.Interfaces;
 
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Proxies;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Rename Heartbeat.Runtime.Proxies.HashtableProxy to end in 'Collection'.")]
-public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair<ClrObject, ClrObject>>, ILoggerDump
+public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair<IClrValue, IClrValue>>, ILoggerDump
 {
     public int Count => TargetObject.ReadField<int>("count");
 
-    public HashtableProxy(RuntimeContext context, ClrObject targetObject)
+    public HashtableProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
     }
@@ -22,7 +22,7 @@ public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair
     {
     }
 
-    public IReadOnlyList<KeyValuePair<ClrObject, ClrObject>> GetKeyValuePair()
+    public IReadOnlyList<KeyValuePair<IClrValue, IClrValue>> GetKeyValuePair()
     {
         // bucketsObject is an array of 'bucket' struct
         var bucketsObject = TargetObject.ReadObjectField("buckets");
@@ -31,20 +31,20 @@ public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair
         var bucketKeyField = elementType.GetFieldByName("key");
         var bucketValField = elementType.GetFieldByName("val");
         var bucketsLength = bucketsObject.AsArray().Length;
-        var result = new List<KeyValuePair<ClrObject, ClrObject>>();
+        var result = new List<KeyValuePair<IClrValue, IClrValue>>();
 
         for (int bucketIndex = 0; bucketIndex < bucketsLength; bucketIndex++)
         {
             //var arrayProxy = new ArrayProxy(Context, bucketsObject);
             // TODO move to ArrayProxy
             var elementAddress = bucketsObject.Type.GetArrayElementAddress(bucketsObject.Address, bucketIndex);
-            var keyObject = bucketKeyField.ReadObject(elementAddress, true);
+            IClrValue keyObject = bucketKeyField.ReadObject(elementAddress, true);
 
             if (!keyObject.IsNull)
             {
-                var valObject = bucketValField.ReadObject(elementAddress, true);
+                IClrValue valObject = bucketValField.ReadObject(elementAddress, true);
 
-                var kvp = new KeyValuePair<ClrObject, ClrObject>(keyObject, valObject);
+                var kvp = new KeyValuePair<IClrValue, IClrValue>(keyObject, valObject);
                 result.Add(kvp);
             }
         }
@@ -60,7 +60,7 @@ public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair
         }
     }
 
-    public IEnumerator<KeyValuePair<ClrObject, ClrObject>> GetEnumerator()
+    public IEnumerator<KeyValuePair<IClrValue, IClrValue>> GetEnumerator()
     {
         return new Enumerator(this);
     }
@@ -70,12 +70,12 @@ public sealed class HashtableProxy : ProxyBase, IReadOnlyCollection<KeyValuePair
         return GetEnumerator();
     }
 
-    private class Enumerator : IEnumerator<KeyValuePair<ClrObject, ClrObject>>
+    private class Enumerator : IEnumerator<KeyValuePair<IClrValue, IClrValue>>
     {
-        private readonly IReadOnlyList<KeyValuePair<ClrObject, ClrObject>> _items;
+        private readonly IReadOnlyList<KeyValuePair<IClrValue, IClrValue>> _items;
         private int _position = -1;
 
-        public KeyValuePair<ClrObject, ClrObject> Current => _items[_position];
+        public KeyValuePair<IClrValue, IClrValue> Current => _items[_position];
 
         object IEnumerator.Current => Current;
 

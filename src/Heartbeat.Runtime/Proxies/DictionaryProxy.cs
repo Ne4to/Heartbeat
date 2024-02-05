@@ -1,6 +1,7 @@
 ﻿using Heartbeat.Runtime.Analyzers.Interfaces;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Proxies;
@@ -12,7 +13,7 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
     public ulong KeyMethodTable { get; }
     public ulong ValueMethodTable { get; }
 
-    public DictionaryProxy(RuntimeContext context, ClrObject targetObject)
+    public DictionaryProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
         (KeyMethodTable, ValueMethodTable) = GetMethodTables();
@@ -49,7 +50,7 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
         //     }
         // }
 
-        ClrObject entries = TargetObject.ReadObjectField(EntriesFieldName);
+        IClrValue entries = TargetObject.ReadObjectField(EntriesFieldName);
         if (entries.IsNull)
         {
             return (0, 0);
@@ -82,7 +83,7 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
 
         for (int entryIndex = 0; entryIndex < Count; entryIndex++)
         {
-            var elementAddress = entries.Type.GetArrayElementAddress(entries, entryIndex);
+            var elementAddress = entries.Type.GetArrayElementAddress(entries.Address, entryIndex);
 
             var hashCode = hashCodeField.Read<int>(elementAddress, true);
             var next = nextField.Read<int>(elementAddress, true);
@@ -92,8 +93,11 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
                 continue;
             }
 
-            yield return kvpBuilder(elementAddress, keyField, valueField);
+            throw new NotImplementedException();
+            // yield return kvpBuilder(elementAddress, keyField, valueField);
         }
+        
+        throw new NotImplementedException();
     }
 
     public IEnumerable<KeyValuePair<Item, Item>> EnumerateItems()
@@ -129,24 +133,24 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
             {
                 // IClrValue
                 var entryKey = keyField.ReadObject(entry.Address, true);
-                key = new Item(entryKey.Address, entryKey.Type?.IsString ?? false ? entryKey.AsString() : null);
+                key = new Item(entryKey, entryKey.Type?.IsString ?? false ? entryKey.AsString() : null);
             }
             else
             {
                 var entryKey = keyField.ReadStruct(entry.Address, true);
-                key = new Item(entryKey.Address, null);
+                key = new Item(entryKey, null);
             }
             
             if (valueField.IsObjectReference)
             {
                 // IClrValue
                 var entryValue = valueField.ReadObject(entry.Address, true);
-                value = new Item(entryValue.Address,  entryValue.Type?.IsString ?? false ? entryValue.AsString() : null);
+                value = new Item( entryValue,  entryValue.Type?.IsString ?? false ? entryValue.AsString() : null);
             }
             else
             {
                 var entryValue = valueField.ReadStruct(entry.Address, true);
-                value = new Item(entryValue.Address, null);
+                value = new Item(entryValue, "<unknown_TODO>");
             }
 
             yield return new KeyValuePair<Item, Item>(key, value);
@@ -207,5 +211,5 @@ public class DictionaryProxy: ProxyBase, ILoggerDump
         }
     }
 
-    public record struct Item(ulong Address, string? Value);
+    public record struct Item(IClrValue Value, string? StringValue);
 }

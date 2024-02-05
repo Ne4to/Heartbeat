@@ -9,6 +9,7 @@ using Heartbeat.Runtime.Proxies;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 using System.Globalization;
 
@@ -154,7 +155,7 @@ internal static class RouteHandlers
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in context.EnumerateObjects(gcStatus, generation)
+        var query = from IClrValue obj in context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
             let proxy = new ArrayProxy(context, obj)
             where proxy.UnusedItemsPercent >= 0.2
@@ -170,7 +171,7 @@ internal static class RouteHandlers
         [FromQuery] ObjectGCStatus? gcStatus = null,
         [FromQuery] Generation? generation = null)
     {
-        var query = from obj in context.EnumerateObjects(gcStatus, generation)
+        var query = from IClrValue obj in context.EnumerateObjects(gcStatus, generation)
             where obj.IsArray
             let proxy = new ArrayProxy(context, obj)
             where proxy.UnusedItemsCount != 0
@@ -185,6 +186,37 @@ internal static class RouteHandlers
             );
 
         return query;
+    }
+
+    public static IEnumerable<HttpRequestInfo> GetHttpRequests(
+        [FromServices] RuntimeContext context,
+        [FromQuery] ObjectGCStatus? gcStatus = null,
+        // TODO [FromQuery] Generation? generation = null,
+        [FromQuery] HttpRequestStatus? status = null)
+    {
+        var analyzer = new HttpRequestAnalyzer(context) { ObjectGcStatus = gcStatus, RequestStatus = status };
+
+        return analyzer.EnumerateHttpRequests()
+            .Select(MapRequest);
+    }
+
+    private static HttpHeader[] MapHeaders(IReadOnlyList<Domain.HttpHeader> headers)
+    {
+        return headers.Select(header => new HttpHeader(header.Name, header.Value))
+            .ToArray();
+    }
+
+    private static HttpRequestInfo MapRequest(Domain.HttpRequestInfo request)
+    {
+        return new HttpRequestInfo(
+            request.Request.Address,
+            request.Request.Type!.MethodTable,
+            request.HttpMethod,
+            request.Url,
+            request.StatusCode,
+            MapHeaders(request.RequestHeaders),
+            MapHeaders(request.ResponseHeaders)
+        );
     }
 
     public static Results<Ok<GetClrObjectResult>, NotFound> GetClrObject([FromServices] RuntimeContext context, ulong address)
@@ -285,7 +317,7 @@ internal static class RouteHandlers
 
     public static Results<Ok<IEnumerable<ClrObjectArrayItem>>, NoContent, NotFound> GetClrObjectAsArray([FromServices] RuntimeContext context, ulong address)
     {
-        var clrObject = context.Heap.GetObject(address);
+        IClrValue clrObject = context.Heap.GetObject(address);
         if (clrObject.Type == null)
         {
             return TypedResults.NotFound();
@@ -298,7 +330,7 @@ internal static class RouteHandlers
             // TODO var str = arrayProxy.AsStringValue();
 
             var items = arrayProxy.EnumerateArrayElements()
-                .Select(e => new ClrObjectArrayItem(e.Index, e.Address, e.Value));
+                .Select(e => new ClrObjectArrayItem(e.Index, e.Value.Address, e.StringValue));
 
             return TypedResults.Ok(items);
         }
@@ -308,7 +340,7 @@ internal static class RouteHandlers
 
     public static Results<Ok<DictionaryInfo>, NoContent, NotFound> GetClrObjectAsDictionary([FromServices] RuntimeContext context, ulong address)
     {
-        var clrObject = context.Heap.GetObject(address);
+        IClrValue clrObject = context.Heap.GetObject(address);
         if (clrObject.Type == null)
         {
             return TypedResults.NotFound();
@@ -335,7 +367,7 @@ internal static class RouteHandlers
 
         static DictionaryItem MapItem(DictionaryProxy.Item item)
         {
-            return new DictionaryItem(item.Address, item.Value);
+            return new DictionaryItem(item.Value.Address, item.StringValue);
         }
     }
 
@@ -437,7 +469,11 @@ internal static class RouteHandlers
                     var minor = clrObject.ReadField<int>("_Minor");
                     var build = clrObject.ReadField<int>("_Build");
                     var revision = clrObject.ReadField<int>("_Revision");
-                    var version = new Version(major, minor, build, revision);
+                    var version = build < 0
+                        ? new Version(major, minor)
+                        : revision < 0
+                            ? new Version(major, minor, build)
+                            : new Version(major, minor, build, revision);
                     return version.ToString();
                 }
 

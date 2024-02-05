@@ -1,6 +1,6 @@
 using Heartbeat.Runtime.Extensions;
 
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -39,7 +39,7 @@ public sealed class ConnectionProxy : ProxyBase
 
     private ArrayListProxy WriteList => new(Context, TargetObject.ReadObjectField("m_WriteList"));
 
-    public ConnectionProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public ConnectionProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

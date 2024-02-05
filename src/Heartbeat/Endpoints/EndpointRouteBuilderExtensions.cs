@@ -50,6 +50,10 @@ internal static class EndpointRouteBuilderExtensions
         dumpGroup.MapGet("arrays/sparse/stat", RouteHandlers.GetSparseArraysStat)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
             .WithName(nameof(RouteHandlers.GetSparseArraysStat));
+        
+        dumpGroup.MapGet("http-requests", RouteHandlers.GetHttpRequests)
+            .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
+            .WithName(nameof(RouteHandlers.GetHttpRequests));
 
         dumpGroup.MapGet("object/{address}", RouteHandlers.GetClrObject)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
@@ -63,7 +67,7 @@ internal static class EndpointRouteBuilderExtensions
             .WithName(nameof(RouteHandlers.GetClrObjectAsArray));
         
         dumpGroup.MapGet("object/{address}/as-dictionary", RouteHandlers.GetClrObjectAsDictionary)
-            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status204NoContent)                    
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound)
             .Produces<ProblemDetails>(StatusCodes.Status500InternalServerError)
             .WithName(nameof(RouteHandlers.GetClrObjectAsDictionary));        

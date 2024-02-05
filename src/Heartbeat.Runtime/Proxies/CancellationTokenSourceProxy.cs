@@ -1,4 +1,4 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -10,7 +10,7 @@ public sealed class CancellationTokenSourceProxy : ProxyBase
 
     private int State => TargetObject.ReadField<int>("m_state");
 
-    public CancellationTokenSourceProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public CancellationTokenSourceProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

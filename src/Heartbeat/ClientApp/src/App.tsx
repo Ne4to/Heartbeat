@@ -10,6 +10,7 @@ import objectInstances from './pages/objectInstances'
 import clrObject from './pages/clrObject'
 import roots from './pages/roots'
 import modules from './pages/modules'
+import httpRequests from './pages/httpRequests'
 import arraysGrid from './pages/arraysGrid'
 import sparseArraysStat from './pages/sparseArraysStat'
 import stringsGrid from './pages/stringsGrid'
@@ -43,6 +44,7 @@ const App = () => {
             <Resource name='modules' {...modules} />
             <Resource name='clr-object' {...clrObject} />
             <Resource name='sparse-arrays-stat' {...sparseArraysStat} />
+            <Resource name='http-requests' {...httpRequests} />
             <Resource name='arrays' {...arraysGrid} />
             <Resource name='strings' {...stringsGrid} />
             <Resource name='string-duplicates' {...stringDuplicates} />

@@ -1,4 +1,4 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -6,7 +6,7 @@ public sealed class ListProxy : ProxyBase
 {
     public int Count => TargetObject.ReadField<int>("_size");
 
-    public ListProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public ListProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 
@@ -14,7 +14,7 @@ public sealed class ListProxy : ProxyBase
     {
     }
 
-    public IEnumerable<ClrObject> GetItems()
+    public IEnumerable<IClrValue> GetItems()
     {
         if (Count == 0)
         {

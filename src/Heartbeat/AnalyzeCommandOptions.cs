@@ -1,5 +1,4 @@
-﻿using Heartbeat.Domain;
-using Heartbeat.Runtime.Domain;
+﻿using Heartbeat.Runtime.Domain;
 
 using System.CommandLine;
 using System.CommandLine.Binding;

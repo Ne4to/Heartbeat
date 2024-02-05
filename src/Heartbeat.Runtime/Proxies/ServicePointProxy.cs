@@ -1,6 +1,6 @@
 using Heartbeat.Runtime.Exceptions;
 
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -61,7 +61,7 @@ public sealed class ServicePointProxy : ProxyBase
     public int CurrentConnections => GetCurrentConnections();
     // public DateTime LastDnsResolve => TargetObject.GetDateTimeFieldValue("m_LastDnsResolve");
 
-    public ServicePointProxy(RuntimeContext context, ClrObject targetObject)
+    public ServicePointProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
     }

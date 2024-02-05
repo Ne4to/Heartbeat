@@ -2,6 +2,7 @@ using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Proxies;
 
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Analyzers;
@@ -27,7 +28,7 @@ public sealed class TimerQueueTimerAnalyzer : AnalyzerBase, ILoggerDump, IWithOb
         {
             var timerObjectType = Context.Heap.GetObjectType(address);
 
-            var state = timerObjectType.GetFieldByName("m_state").ReadObject(address, false);
+            IClrValue state = timerObjectType.GetFieldByName("m_state").ReadObject(address, false);
             var dueTime = timerObjectType.GetFieldByName("m_dueTime").Read<uint>(address, true);
             var period = timerObjectType.GetFieldByName("m_period").Read<uint>(address, true);
             var canceled = timerObjectType.GetFieldByName("m_canceled").Read<bool>(address, true);

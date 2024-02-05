@@ -2,10 +2,7 @@ using Heartbeat.Host.CommandLine;
 using Heartbeat.Host.Endpoints;
 using Heartbeat.Runtime;
 
-using Microsoft.Extensions.FileProviders;
-
 using System.CommandLine;
-using System.Diagnostics;
 
 #if OPENAPI
 using Heartbeat.Host.Extensions;

@@ -1,5 +1,4 @@
-
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -47,7 +46,7 @@ public sealed class TaskProxy : ProxyBase
     public bool IsCompleted => GetIsCompleted(TargetObject);
     public bool IsFaulted => GetIsFaulted(TargetObject);
 
-    public TaskProxy(RuntimeContext context, ClrObject targetObject)
+    public TaskProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
     }
@@ -57,7 +56,7 @@ public sealed class TaskProxy : ProxyBase
     {
     }
 
-    private static TaskStatus GetStatus(ClrObject taskObject)
+    private static TaskStatus GetStatus(IClrValue taskObject)
     {
         var stateFlags = taskObject.ReadField<int>("m_stateFlags");
 
@@ -72,7 +71,7 @@ public sealed class TaskProxy : ProxyBase
         return TaskStatus.Created;
     }
 
-    private static bool GetIsCancelled(ClrObject taskObject)
+    private static bool GetIsCancelled(IClrValue taskObject)
     {
         var stateFlags = GetStateFlags(taskObject);
 
@@ -80,14 +79,14 @@ public sealed class TaskProxy : ProxyBase
         return (stateFlags & (TaskStateCanceled | TaskStateFaulted)) == TaskStateCanceled;
     }
 
-    private static bool GetIsCompleted(ClrObject taskObject)
+    private static bool GetIsCompleted(IClrValue taskObject)
     {
         var stateFlags = GetStateFlags(taskObject);
 
         return (stateFlags & TaskStateCompletedMask) != 0;
     }
 
-    private static bool GetIsFaulted(ClrObject taskObject)
+    private static bool GetIsFaulted(IClrValue taskObject)
     {
         var stateFlags = GetStateFlags(taskObject);
 
@@ -95,7 +94,7 @@ public sealed class TaskProxy : ProxyBase
         return (stateFlags & TaskStateFaulted) != 0;
     }
 
-    private static int GetStateFlags(ClrObject taskObject)
+    private static int GetStateFlags(IClrValue taskObject)
     {
         return taskObject.ReadField<int>("m_stateFlags");
     }

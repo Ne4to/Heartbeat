@@ -122,6 +122,12 @@ export function createGetObjectInstancesResultFromDiscriminatorValue(parseNode: 
 export function createHeapSegmentFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoHeapSegment;
 }
+export function createHttpHeaderFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoHttpHeader;
+}
+export function createHttpRequestInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
+    return deserializeIntoHttpRequestInfo;
+}
 export function createJwtInfoFromDiscriminatorValue(parseNode: ParseNode | undefined) {
     return deserializeIntoJwtInfo;
 }
@@ -246,6 +252,23 @@ export function deserializeIntoHeapSegment(heapSegment: HeapSegment | undefined 
         "kind": n => { heapSegment.kind = n.getEnumValue<GCSegmentKind>(GCSegmentKindObject); },
         "size": n => { heapSegment.size = n.getNumberValue(); },
         "start": n => { heapSegment.start = n.getNumberValue(); },
+    }
+}
+export function deserializeIntoHttpHeader(httpHeader: HttpHeader | undefined = {} as HttpHeader) : Record<string, (node: ParseNode) => void> {
+    return {
+        "name": n => { httpHeader.name = n.getStringValue(); },
+        "value": n => { httpHeader.value = n.getStringValue(); },
+    }
+}
+export function deserializeIntoHttpRequestInfo(httpRequestInfo: HttpRequestInfo | undefined = {} as HttpRequestInfo) : Record<string, (node: ParseNode) => void> {
+    return {
+        "httpMethod": n => { httpRequestInfo.httpMethod = n.getStringValue(); },
+        "requestAddress": n => { httpRequestInfo.requestAddress = n.getNumberValue(); },
+        "requestHeaders": n => { httpRequestInfo.requestHeaders = n.getCollectionOfObjectValues<HttpHeader>(createHttpHeaderFromDiscriminatorValue); },
+        "requestMethodTable": n => { httpRequestInfo.requestMethodTable = n.getNumberValue(); },
+        "responseHeaders": n => { httpRequestInfo.responseHeaders = n.getCollectionOfObjectValues<HttpHeader>(createHttpHeaderFromDiscriminatorValue); },
+        "statusCode": n => { httpRequestInfo.statusCode = n.getNumberValue(); },
+        "url": n => { httpRequestInfo.url = n.getStringValue(); },
     }
 }
 export function deserializeIntoJwtInfo(jwtInfo: JwtInfo | undefined = {} as JwtInfo) : Record<string, (node: ParseNode) => void> {
@@ -470,6 +493,47 @@ export interface HeapSegment extends Parsable {
      */
     start?: number;
 }
+export interface HttpHeader extends Parsable {
+    /**
+     * The name property
+     */
+    name?: string;
+    /**
+     * The value property
+     */
+    value?: string;
+}
+export interface HttpRequestInfo extends Parsable {
+    /**
+     * The httpMethod property
+     */
+    httpMethod?: string;
+    /**
+     * The requestAddress property
+     */
+    requestAddress?: number;
+    /**
+     * The requestHeaders property
+     */
+    requestHeaders?: HttpHeader[];
+    /**
+     * The requestMethodTable property
+     */
+    requestMethodTable?: number;
+    /**
+     * The responseHeaders property
+     */
+    responseHeaders?: HttpHeader[];
+    /**
+     * The statusCode property
+     */
+    statusCode?: number;
+    /**
+     * The url property
+     */
+    url?: string;
+}
+export type HttpRequestStatus = (typeof HttpRequestStatusObject)[keyof typeof HttpRequestStatusObject];
 export interface JwtInfo extends Parsable {
     /**
      * The header property
@@ -681,6 +745,19 @@ export function serializeHeapSegment(writer: SerializationWriter, heapSegment: H
     writer.writeEnumValue<GCSegmentKind>("kind", heapSegment.kind);
     writer.writeNumberValue("start", heapSegment.start);
 }
+export function serializeHttpHeader(writer: SerializationWriter, httpHeader: HttpHeader | undefined = {} as HttpHeader) : void {
+    writer.writeStringValue("name", httpHeader.name);
+    writer.writeStringValue("value", httpHeader.value);
+}
+export function serializeHttpRequestInfo(writer: SerializationWriter, httpRequestInfo: HttpRequestInfo | undefined = {} as HttpRequestInfo) : void {
+    writer.writeStringValue("httpMethod", httpRequestInfo.httpMethod);
+    writer.writeNumberValue("requestAddress", httpRequestInfo.requestAddress);
+    writer.writeCollectionOfObjectValues<HttpHeader>("requestHeaders", httpRequestInfo.requestHeaders, serializeHttpHeader);
+    writer.writeNumberValue("requestMethodTable", httpRequestInfo.requestMethodTable);
+    writer.writeCollectionOfObjectValues<HttpHeader>("responseHeaders", httpRequestInfo.responseHeaders, serializeHttpHeader);
+    writer.writeNumberValue("statusCode", httpRequestInfo.statusCode);
+    writer.writeStringValue("url", httpRequestInfo.url);
+}
 export function serializeJwtInfo(writer: SerializationWriter, jwtInfo: JwtInfo | undefined = {} as JwtInfo) : void {
     writer.writeCollectionOfObjectValues<JwtValue>("header", jwtInfo.header, serializeJwtValue);
     writer.writeCollectionOfObjectValues<JwtValue>("payload", jwtInfo.payload, serializeJwtValue);
@@ -838,6 +915,10 @@ export const GenerationObject = {
     Pinned: "Pinned",
     Frozen: "Frozen",
     Unknown: "Unknown",
+}  as const;
+export const HttpRequestStatusObject = {
+    Pending: "Pending",
+    Completed: "Completed",
 }  as const;
 export const ObjectGCStatusObject = {
     Live: "Live",

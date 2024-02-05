@@ -2,6 +2,7 @@ using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 using System.Collections.Immutable;
@@ -262,7 +263,7 @@ public static class LogExtensions
 
             logger.LogInformation($"{taskCompletionSourceAddress:X} {tcsObject.Type}");
 
-            var task = tcsObject.ReadObjectField("m_task");
+            IClrValue task = tcsObject.ReadObjectField("m_task");
 
             if (task.IsNull)
             {
@@ -316,7 +317,7 @@ public static class LogExtensions
 
         foreach (var taskInfo in taskQuery)
         {
-            var taskObject = heap.GetObject(taskInfo.Address);
+            IClrValue taskObject = heap.GetObject(taskInfo.Address);
             var taskProxy = new TaskProxy(runtimeContext, taskObject);
 
             var taskIsCompleted = taskProxy.IsCompleted;
