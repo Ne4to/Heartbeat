@@ -1,4 +1,4 @@
-﻿using Microsoft.Diagnostics.Runtime;
+﻿using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Models;
 
@@ -21,7 +21,7 @@ public class AsyncRecord
 
     public IReadOnlyList<Address> Continuations => _continuations;
 
-    public AsyncRecord(ClrObject clrObject)
+    public AsyncRecord(IClrValue clrObject)
     {
         if (clrObject.Type == null)
         {

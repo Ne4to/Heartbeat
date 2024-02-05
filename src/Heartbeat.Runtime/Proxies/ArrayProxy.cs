@@ -1,6 +1,7 @@
 using Heartbeat.Runtime.Extensions;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 using System.Text;
 
@@ -8,17 +9,17 @@ namespace Heartbeat.Runtime.Proxies;
 
 public sealed class ArrayProxy : ProxyBase
 {
-    private ClrArray _clrArray;
+    private IClrArray _clrArray;
     private readonly Lazy<int> _unusedItemsCount;
 
-    public ClrArray InnerArray => _clrArray;
+    public IClrArray InnerArray => _clrArray;
     public int Length => _clrArray.Length;
 
     public int UnusedItemsCount => _unusedItemsCount.Value;
     public double UnusedItemsPercent => (double)UnusedItemsCount / Length;
     public Size Wasted => new Size((ulong)(_clrArray.Type.ComponentSize *  UnusedItemsCount));
 
-    public ArrayProxy(RuntimeContext context, ClrObject targetObject)
+    public ArrayProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
         _clrArray = TargetObject.AsArray();
@@ -64,14 +65,14 @@ public sealed class ArrayProxy : ProxyBase
             .ReadValues<int>(0, Length);
     }
 
-    public ClrObject[] GetItems()
+    public IClrValue[] GetItems()
     {
         if (Length == 0)
         {
-            return Array.Empty<ClrObject>();
+            return Array.Empty<IClrValue>();
         }
 
-        var result = new ClrObject[Length];
+        var result = new IClrValue[Length];
 
         for (int itemIndex = 0; itemIndex < Length; itemIndex++)
         {
@@ -81,7 +82,7 @@ public sealed class ArrayProxy : ProxyBase
         return result;
     }
 
-    public static IEnumerable<ClrObject> EnumerateObjectItems(ClrArray array)
+    public static IEnumerable<IClrValue> EnumerateObjectItems(IClrArray array)
     {
         var length = array.Length;
 
@@ -119,7 +120,7 @@ public sealed class ArrayProxy : ProxyBase
         }
     }
 
-    public static IEnumerable<ClrValueType> EnumerateValueTypes(ClrArray array)
+    public static IEnumerable<IClrValue> EnumerateValueTypes(IClrArray array)
     {
         var length = array.Length;
 
@@ -182,7 +183,7 @@ public sealed class ArrayProxy : ProxyBase
                     ? arrayElement.AsString()
                     : "<object>";
                 
-                yield return new ArrayItem(index++, new Address(arrayElement.Address), value);
+                yield return new ArrayItem(index++, arrayElement, value);
             }
         }
         else if (_clrArray.Type.ComponentType?.IsValueType ?? false)
@@ -196,7 +197,7 @@ public sealed class ArrayProxy : ProxyBase
                 // !DumpVC <MethodTable address> <Address>
                 // new Address(arrayElement.Address)
                 // Context.Heap.GetObject(arrayElement.Address, arrayElement.Type).Type.Fields.Single(f => f.Name == "runningValue").GetAddress(arrayElement.Address, true).ToString("x8")
-                yield return new ArrayItem(index++, Address.Null, arrayElement.GetValueAsString());
+                yield return new ArrayItem(index++, arrayElement, arrayElement.GetValueAsString());
             }
         }
         else
@@ -222,4 +223,4 @@ public sealed class ArrayProxy : ProxyBase
     }
 }
 
-public record struct ArrayItem(int Index, Address Address, string? Value);
+public record struct ArrayItem(int Index, IClrValue Value, string? StringValue);

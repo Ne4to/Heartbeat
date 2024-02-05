@@ -3,6 +3,7 @@ using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Models;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime;
 
@@ -193,7 +194,7 @@ public sealed class RuntimeContext
 //        }
 
     // based on https://stackoverflow.com/questions/33290941/how-to-inspect-weakreference-values-with-windbg-sos-and-clrmd
-    public ulong GetWeakRefValue(ClrObject weakRefObject)
+    public ulong GetWeakRefValue(IClrValue weakRefObject)
     {
         var weakRefHandleField = weakRefObject.Type.GetFieldByName("m_handle");
         ClrType intPtrType = Heap.GetTypeByName("System.IntPtr");

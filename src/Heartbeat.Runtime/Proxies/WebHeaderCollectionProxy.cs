@@ -1,10 +1,10 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
 public sealed class WebHeaderCollectionProxy : ProxyBase
 {
-    public WebHeaderCollectionProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public WebHeaderCollectionProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

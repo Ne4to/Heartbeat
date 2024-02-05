@@ -4,6 +4,7 @@ using Heartbeat.Runtime.Analyzers.Interfaces;
 using Heartbeat.Runtime.Models;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace Heartbeat.Runtime.Proxies;
@@ -13,7 +14,7 @@ public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
 {
     private static readonly bool _fullLog;
 
-    public AsyncStateMachineBoxProxy(RuntimeContext context, ClrObject targetObject)
+    public AsyncStateMachineBoxProxy(RuntimeContext context, IClrValue targetObject)
         : base(context, targetObject)
     {
     }
@@ -33,7 +34,7 @@ public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
 
         //DebugObjectFields();
 
-        ClrInstanceField? stateMachineField = TargetObject.Type.GetFieldByName("StateMachine");
+        IClrInstanceField? stateMachineField = TargetObject.Type.GetFieldByName("StateMachine");
         if (stateMachineField != null)
         {
             asyncRecord.IsStateMachine = true;
@@ -129,7 +130,7 @@ public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
                 }
                 else
                 {
-                    ClrObject uTaskObject = uField.ReadObjectField("m_task");
+                    IClrValue uTaskObject = uField.ReadObjectField("m_task");
 
                     var statusTask = "NULL";
                     if (!uTaskObject.IsNull)
@@ -140,7 +141,7 @@ public class AsyncStateMachineBoxProxy : ProxyBase, ILoggerDump
 
                         foreach (var refAddress in Context.HeapIndex.GetReferencesTo(uTaskObject.Address))
                         {
-                            var refObject = Context.Heap.GetObject(refAddress);
+                            IClrValue refObject = Context.Heap.GetObject(refAddress);
 
                             if (_fullLog)
                                 logger.LogInformation($"ref by {refObject}");

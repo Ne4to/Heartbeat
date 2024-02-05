@@ -1,8 +1,8 @@
-﻿using Microsoft.Diagnostics.Runtime;
+﻿using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
-public sealed class ValueTaskProxy : ValueTypeProxyBase
+public sealed class ValueTaskProxy : ProxyBase
 {
     public bool IsCompleted
     {
@@ -37,15 +37,9 @@ public sealed class ValueTaskProxy : ValueTypeProxyBase
         }
     }
 
-    private short Token
-    {
-        get
-        {
-            return TargetObject.ReadField<short>("_token"); 
-        }
-    }
+    private short Token => TargetObject.ReadField<short>("_token");
 
-    public ValueTaskProxy(RuntimeContext context, ClrValueType targetObject) 
+    public ValueTaskProxy(RuntimeContext context, IClrValue targetObject) 
         : base(context, targetObject)
     {
     }

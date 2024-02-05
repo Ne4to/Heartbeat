@@ -1,4 +1,4 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -16,7 +16,7 @@ public sealed class UriProxy : ProxyBase
         }
     }
 
-    public UriProxy(RuntimeContext context, ClrObject targetObject) 
+    public UriProxy(RuntimeContext context, IClrValue targetObject) 
         : base(context, targetObject)
     {
     }

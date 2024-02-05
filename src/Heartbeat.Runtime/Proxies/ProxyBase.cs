@@ -1,13 +1,13 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
 public abstract class ProxyBase
 {
     protected RuntimeContext Context { get; }
-    public ClrObject TargetObject { get; }
+    public IClrValue TargetObject { get; }
 
-    protected ProxyBase(RuntimeContext context, ClrObject targetObject)
+    protected ProxyBase(RuntimeContext context, IClrValue targetObject)
     {
         Context = context ?? throw new ArgumentNullException(nameof(context));
         TargetObject = targetObject;

@@ -70,3 +70,6 @@ public record SparseArrayStatistics(ulong MethodTable, string? TypeName, int Cou
 
 public record JwtInfo(IReadOnlyList<JwtValue> Header, IReadOnlyList<JwtValue> Payload);
 public record JwtValue(string Key, string Value, string? Description);
+
+public record struct HttpHeader(string Name, string Value);
+public record HttpRequestInfo(ulong RequestAddress, ulong RequestMethodTable, string HttpMethod, string Url, int? StatusCode, IReadOnlyList<HttpHeader> RequestHeaders, IReadOnlyList<HttpHeader> ResponseHeaders);

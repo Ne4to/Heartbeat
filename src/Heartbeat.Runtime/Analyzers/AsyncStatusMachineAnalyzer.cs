@@ -4,6 +4,7 @@ using Heartbeat.Runtime.Domain;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.Logging;
 
 
@@ -24,7 +25,7 @@ public class AsyncStatusMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithObject
 
         logger.LogInformation("State machines");
 
-        foreach (var stateMachineBoxObject in EnumerateAsyncStateMachineObjects())
+        foreach (IClrValue stateMachineBoxObject in EnumerateAsyncStateMachineObjects())
         {
             var stateMachineBoxProxy = new AsyncStateMachineBoxProxy(Context, stateMachineBoxObject);
             logger.LogInformation(stateMachineBoxObject.ToString());
@@ -67,7 +68,7 @@ public class AsyncStatusMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithObject
 
                 var builderValueClass = stateMachineObject.ReadValueTypeField("<>t__builder");
 
-                ClrObject taskObject;
+                IClrValue taskObject;
                 string? typeName = builderValueClass.Type!.Name;
                 if (typeName == "System.Runtime.CompilerServices.AsyncTaskMethodBuilder")
                 {
@@ -117,9 +118,7 @@ public class AsyncStatusMachineAnalyzer : AnalyzerBase, ILoggerDump, IWithObject
                         continue;
                     }
 
-
-
-                    var uTaskObject = uField.ReadObjectField("m_task");
+                    IClrValue uTaskObject = uField.ReadObjectField("m_task");
                     var statusTask = "NULL";
                     if (!uTaskObject.IsNull)
                     {

@@ -1,8 +1,14 @@
-﻿namespace Heartbeat.Domain;
+﻿using Microsoft.Diagnostics.Runtime;
+
+namespace Heartbeat.Domain;
 
 public record DumpInfo(string DumpFileName, string DacFileName, bool CanWalkHeap);
 public record ObjectInfo(Address Address, TypeInfo Type);
 public record HttpClientInfo(Address Address, TimeSpan Timeout);
+
+
+public record struct HttpHeader(string Name, string Value);
+public record HttpRequestInfo(ClrObject Request, string HttpMethod, string Url, int? StatusCode, IReadOnlyList<HttpHeader> RequestHeaders, IReadOnlyList<HttpHeader> ResponseHeaders);
 
 public record StringDuplicate(string Value, int Count, int FullLength)
 {

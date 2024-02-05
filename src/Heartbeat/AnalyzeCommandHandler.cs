@@ -6,6 +6,7 @@ using Heartbeat.Runtime.Extensions;
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using System.Text.RegularExpressions;
@@ -319,7 +320,7 @@ internal class AnalyzeCommandHandler
         foreach (var responseObj in q)
         {
             var requestMessageObj = responseObj.ReadObjectField("requestMessage");
-            var uriProxy = new UriProxy(runtimeContext, requestMessageObj.ReadObjectField("requestUri"));
+            var uriProxy = new UriProxy(runtimeContext, (IClrValue)requestMessageObj.ReadObjectField("requestUri"));
 
             var (requestLength, requestLOH) = GetRequestLength(responseObj, runtimeContext);
             var (responseLength, responseLOH) = GetResponseLength(responseObj, runtimeContext);
@@ -486,7 +487,7 @@ internal class AnalyzeCommandHandler
                 return (null, null);
             }
 
-            var bufferObj = bufferedContentObj.ReadObjectField("_buffer");
+            IClrValue bufferObj = bufferedContentObj.ReadObjectField("_buffer");
             if (bufferObj.IsNull)
             {
                 return (null, null);

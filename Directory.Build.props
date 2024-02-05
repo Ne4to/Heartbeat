@@ -13,7 +13,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Alexey Sosnin</Authors>
     <PackageTags>ClrMd diagnostics</PackageTags>
-    <Description>Diagnostics utility to analyze memory dumps of a .NET application</Description>
+    <Description>Diagnostics utility with web UI to analyze .NET application memory dump</Description>
   </PropertyGroup>
 
   <PropertyGroup>

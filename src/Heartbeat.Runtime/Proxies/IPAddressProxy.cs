@@ -1,5 +1,6 @@
 using System.Net;
-using Microsoft.Diagnostics.Runtime;
+
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -14,7 +15,7 @@ public sealed class IPAddressProxy : ProxyBase
         }
     }
 
-    public IPAddressProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public IPAddressProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

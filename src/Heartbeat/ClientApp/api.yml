@@ -283,6 +283,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
+  /api/dump/http-requests:
+    get:
+      tags:
+        - Dump
+      operationId: GetHttpRequests
+      parameters:
+        - name: gcStatus
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/ObjectGCStatus'
+        - name: status
+          in: query
+          style: form
+          schema:
+            $ref: '#/components/schemas/HttpRequestStatus'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HttpRequestInfo'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   '/api/dump/object/{address}':
     get:
       tags:
@@ -764,6 +795,55 @@ components:
           format: int64
           readOnly: true
       additionalProperties: false
+    HttpHeader:
+      required:
+        - name
+        - value
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: string
+      additionalProperties: false
+    HttpRequestInfo:
+      required:
+        - httpMethod
+        - requestAddress
+        - requestHeaders
+        - requestMethodTable
+        - responseHeaders
+        - url
+      type: object
+      properties:
+        requestAddress:
+          type: integer
+          format: int64
+        requestMethodTable:
+          type: integer
+          format: int64
+        httpMethod:
+          type: string
+        url:
+          type: string
+        statusCode:
+          type: integer
+          format: int32
+          nullable: true
+        requestHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+        responseHeaders:
+          type: array
+          items:
+            $ref: '#/components/schemas/HttpHeader'
+      additionalProperties: false
+    HttpRequestStatus:
+      enum:
+        - Pending
+        - Completed
+      type: string
     JwtInfo:
       required:
         - header

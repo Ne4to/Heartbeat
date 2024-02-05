@@ -16,9 +16,5 @@ export const ProgressContainer = (props: ProgressContainerProps) => {
             </Box>
         );
 
-    // TODO add error message and remove notify
-    // if (hasError || data === undefined)
-    //     return <ErrorIcon/>
-
     return props.children ?? (<p>No data to display</p>);
 }

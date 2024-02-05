@@ -1,4 +1,4 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -10,7 +10,7 @@ public sealed class HttpWebResponseProxy : ProxyBase
 
     public WebHeaderCollectionProxy Headers => new(Context, TargetObject.ReadObjectField("m_HttpResponseHeaders"));
 
-    public HttpWebResponseProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public HttpWebResponseProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

@@ -13,6 +13,7 @@ import segments from '../pages/segments';
 import roots from '../pages/roots';
 import modules from '../pages/modules';
 import arraysGrid from '../pages/arraysGrid';
+import httpRequests from '../pages/httpRequests';
 import sparseArraysStat from '../pages/sparseArraysStat';
 import stringsGrid from '../pages/stringsGrid';
 import stringDuplicates from '../pages/stringDuplicates';
@@ -74,6 +75,13 @@ const Menu = ({ dense = false }: MenuProps) => {
                 state={{ _scrollToTop: true }}
                 primaryText='Arrays'
                 leftIcon={<arraysGrid.icon />}
+                dense={dense}
+            />
+            <MenuItemLink
+                to="/http-requests"
+                state={{ _scrollToTop: true }}
+                primaryText='HTTP requests'
+                leftIcon={<httpRequests.icon />}
                 dense={dense}
             />
             <MenuItemLink

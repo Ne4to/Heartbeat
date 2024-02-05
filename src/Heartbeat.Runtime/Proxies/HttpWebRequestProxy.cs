@@ -1,4 +1,4 @@
-using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
 
 namespace Heartbeat.Runtime.Proxies;
 
@@ -28,7 +28,7 @@ public sealed class HttpWebRequestProxy : ProxyBase
 
     public long? ContentLength => GetContentLength();
 
-    public HttpWebRequestProxy(RuntimeContext context, ClrObject targetObject) : base(context, targetObject)
+    public HttpWebRequestProxy(RuntimeContext context, IClrValue targetObject) : base(context, targetObject)
     {
     }
 

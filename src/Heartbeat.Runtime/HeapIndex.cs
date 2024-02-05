@@ -1,6 +1,8 @@
 using Heartbeat.Runtime.Proxies;
 
 using Microsoft.Diagnostics.Runtime;
+using Microsoft.Diagnostics.Runtime.Interfaces;
+
 namespace Heartbeat.Runtime;
 
 public sealed class HeapIndex
@@ -76,7 +78,7 @@ public sealed class HeapIndex
             else if (array.Type.ComponentType?.IsValueType ?? false)
             {
                 // TODO test and compare with WinDbg / dotnet dump
-                foreach (var arrayElement in ArrayProxy.EnumerateValueTypes(array))
+                foreach (IClrValue arrayElement in ArrayProxy.EnumerateValueTypes(array))
                 {
                     if (arrayElement.IsValid && arrayElement.Type != null)
                     {
@@ -91,7 +93,7 @@ public sealed class HeapIndex
             }
         }
 
-        void EnumerateFields(ClrType type, ulong objectAddress, ulong? parentAddress = null)
+        void EnumerateFields(IClrType type, ulong objectAddress, ulong? parentAddress = null)
         {
             foreach (var instanceField in type.Fields)
             {
