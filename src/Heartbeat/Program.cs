@@ -4,6 +4,10 @@ using Heartbeat.Runtime;
 
 using System.CommandLine;
 
+#if AOT
+using Microsoft.Extensions.FileProviders;
+#endif
+
 #if OPENAPI
 using Heartbeat.Host.Extensions;
 using System.Text.Json.Serialization;

@@ -1,17 +1,14 @@
-name: Publish native AOT
+name: Test native AOT publish
 
 on:
-  push:
-    branches: [ disabled ]
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build-aot:
-    name: Build Native AOT
-    strategy:
-      matrix:
-        # https://github.com/actions/runner-images
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Build Native AOT PR
+    runs-on: ubuntu-latest
     env:
       # temp fix frontend build
       # Treating warnings as errors because process.env.CI = true.
@@ -33,18 +30,3 @@ jobs:
       shell: pwsh
       run: |
         ./scripts/publish-native-aot.ps1
-    # TODO join steps
-    - name: 'Upload Artifact linux-x64'
-      if: ${{ matrix.os == 'ubuntu-latest' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Heartbeat-linux-x64
-        path: artifacts/linux-x64/
-        retention-days: 1
-    - name: 'Upload Artifact win-x64'
-      if: ${{ matrix.os == 'windows-latest' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: Heartbeat-win-x64
-        path: artifacts/win-x64/
-        retention-days: 1
