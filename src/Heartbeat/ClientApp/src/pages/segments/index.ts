@@ -1,4 +1,4 @@
-import Icon from '@mui/icons-material/Comment';
+import Icon from '@mui/icons-material/LowPriority';
 import { SegmentsGrid } from './SegmentsGrid';
 
 export default {

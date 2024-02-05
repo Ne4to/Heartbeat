@@ -1,4 +1,4 @@
-import Icon from '@mui/icons-material/ViewModule';
+import Icon from '@mui/icons-material/DataArray';
 import { SparseArraysStat } from './SparseArraysStat';
 
 export default {

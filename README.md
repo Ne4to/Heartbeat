@@ -1,5 +1,5 @@
 # Heartbeat
-[![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=true&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
+[![NuGet Badge](https://buildstats.info/nuget/heartbeat?includePreReleases=false&dWidth=0)](https://www.nuget.org/packages/Heartbeat/)
 
 Diagnostics utility with web UI to analyze .NET application memory dump
 
@@ -66,7 +66,9 @@ Options:
   -?, -h, --help            Show help and usage information
 ```
 
-See [UI screen](https://github.com/Ne4to/Heartbeat/tree/master/assets) for examples.
+### Features
+<!-- do not change to relative path, file included in NuGet readme it works only with absolute path -->
+See [Features](https://github.com/Ne4to/Heartbeat/blob/master/docs/features.md) for more info.
 
 ### Listening endpoint
 
