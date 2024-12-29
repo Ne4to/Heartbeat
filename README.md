@@ -7,7 +7,7 @@ Diagnostics utility with web UI to analyze .NET application memory dump
 
 ### dotnet tool
 
-.NET 8 SDK is required
+.NET 9 SDK is required
 
 ```shell
 dotnet tool install --global Heartbeat

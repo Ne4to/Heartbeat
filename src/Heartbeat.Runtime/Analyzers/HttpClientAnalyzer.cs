@@ -20,7 +20,7 @@ public sealed class HttpClientAnalyzer : AnalyzerBase, ILoggerDump, IWithObjectG
 
         foreach (var address in Context.EnumerateObjectAddressesByTypeName("System.Net.Http.HttpClient", ObjectGcStatus))
         {
-            var httpClientObjectType = Context.Heap.GetObjectType(address);
+            var httpClientObjectType = Context.Heap.GetObjectType(address)!;
             var timeoutField = httpClientObjectType.GetFieldByName("_timeout");
             if (timeoutField == null)
             {
