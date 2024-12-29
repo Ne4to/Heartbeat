@@ -54,13 +54,8 @@ public sealed class RuntimeContext
     
     public IEnumerable<ulong> EnumerateObjectAddressesByTypeName(string typeName, ObjectGCStatus? status)
     {
-        var clrType = Heap.GetTypeByName(typeName);
-
-        if (clrType == null)
-        {
-            throw new Exception($"Type '{typeName}' is not found");
-        }
-
+        var clrType = Heap.GetTypeByName(typeName) ?? throw new Exception($"Type '{typeName}' is not found");
+        
         return
             from clrObject in Heap.EnumerateObjects()
             let type = clrObject.Type

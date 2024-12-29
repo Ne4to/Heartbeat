@@ -45,7 +45,7 @@ namespace DumpHelper
 
         private Process RunProject(FileInfo projectFile)
         {
-            var dir = Path.Combine(projectFile.DirectoryName, @"bin\Release\net8.0");
+            var dir = Path.Combine(projectFile.DirectoryName, @"bin\Release\net9.0");
             var exeFile = Path.ChangeExtension(projectFile.Name, "exe");
 
             ProcessStartInfo startInfo = new()

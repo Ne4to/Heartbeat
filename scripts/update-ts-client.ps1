@@ -4,7 +4,7 @@ $Configuration = 'DebugOpenAPI'
 $RepositoryRoot = Split-Path $PSScriptRoot
 $FrontendRoot = Join-Path $RepositoryRoot 'src/Heartbeat/ClientApp'
 $ContractPath = Join-Path $FrontendRoot 'api.yml'
-$DllPath = Join-Path $RepositoryRoot "src/Heartbeat/bin/$Configuration/net8.0/Heartbeat.dll"
+$DllPath = Join-Path $RepositoryRoot "src/Heartbeat/bin/$Configuration/net9.0/Heartbeat.dll"
 
 Push-Location
 try
